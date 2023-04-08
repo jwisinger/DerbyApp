@@ -10,10 +10,7 @@ using System;
 
 namespace DerbyApp
 {
-    /// <summary>
-    /// Interaction logic for DataBaseView.xaml
-    /// </summary>
-    public partial class DataBaseView : Window, INotifyPropertyChanged
+    public partial class RacerTableView : Window, INotifyPropertyChanged
     {
         private Visibility _displayPhotos = Visibility.Collapsed;
         private bool _displayPhotosChecked = false;
@@ -39,7 +36,7 @@ namespace DerbyApp
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
 
-        public DataBaseView(Database db)
+        public RacerTableView(Database db)
         {
             InitializeComponent();
             Refreshdata(db);

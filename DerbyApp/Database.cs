@@ -7,7 +7,7 @@ using System.Windows;
 
 namespace DerbyApp
 {
-    public class Database
+    public class Database 
     {
         readonly public SQLiteConnection SqliteConn = new("Data Source = DerbyDatabase.sqlite");
 
@@ -24,11 +24,11 @@ namespace DerbyApp
             return SqliteConn;
         }
 
-        private void CreateTable()
+        private static byte[] GetImageAsByteArray(Image img)
         {
-            string sql = "CREATE TABLE IF NOT EXISTS raceTable([Number] INTEGER PRIMARY KEY AUTOINCREMENT, [Name] VARCHAR(50), [Weight(oz)] DECIMAL(5, 3), [Troop] VARCHAR(10), [Level] VARCHAR(20), [Email] VARCHAR(100), [Image] MEDIUMBLOB)";
-            SQLiteCommand command = new(sql, SqliteConn);
-            command.ExecuteNonQuery();
+            using var stream = new MemoryStream();
+            img.Save(stream, System.Drawing.Imaging.ImageFormat.Png);
+            return stream.ToArray();
         }
 
         public Database()
@@ -38,17 +38,17 @@ namespace DerbyApp
                 SQLiteConnection.CreateFile("DerbyDatabase.sqlite");
             }
             CreateConnection();
-            CreateTable();
+            CreateRacerTable();
         }
 
-        private static byte[] GetImageAsByteArray(Image img)
+        private void CreateRacerTable()
         {
-            using var stream = new MemoryStream();
-            img.Save(stream, System.Drawing.Imaging.ImageFormat.Png);
-            return stream.ToArray();
+            string sql = "CREATE TABLE IF NOT EXISTS raceTable([Number] INTEGER PRIMARY KEY AUTOINCREMENT, [Name] VARCHAR(50), [Weight(oz)] DECIMAL(5, 3), [Troop] VARCHAR(10), [Level] VARCHAR(20), [Email] VARCHAR(100), [Image] MEDIUMBLOB)";
+            SQLiteCommand command = new(sql, SqliteConn);
+            command.ExecuteNonQuery();
         }
 
-        public void AddRow(Racer racer)
+        public void AddRacer(Racer racer)
         {
             string sql = "INSERT INTO raceTable ([Name], [Weight(oz)], [Troop], [Level], [Email], [Image]) VALUES (@Name, @Weight, @Troop, @Level, @Email, @Image)";
             SQLiteCommand command = new(sql, SqliteConn);
@@ -61,6 +61,23 @@ namespace DerbyApp
             command.Parameters.Add("@Email", DbType.String).Value = racer.Email;
             command.Parameters.Add("@Image", DbType.Binary).Value = photo;
             MessageBox.Show(command.ExecuteNonQuery() + " racer(s) added.");
+        }
+
+        public void CreateRaceTable(string raceName)
+        {
+            string sql = "SELECT name FROM sqlite_master WHERE type='table' AND name='" + raceName + "'";
+            SQLiteCommand command = new(sql, SqliteConn);
+
+            if(command.ExecuteScalar() == null)
+            {
+                sql = "CREATE TABLE IF NOT EXISTS " + raceName + "([RacePosition] INTEGER PRIMARY KEY AUTOINCREMENT, [Number] INTEGER)";
+                command = new(sql, SqliteConn);
+                command.ExecuteNonQuery();
+            }
+            else
+            {
+                MessageBox.Show("A Race with that name already exists.");
+            }
         }
 
     }
