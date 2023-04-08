@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.33516.290
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{DAD013FD-D234-4245-994C-461C4210392A}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DerbyApp", "DerbyApp\DerbyApp.csproj", "{4B9BD93F-9A94-4436-866A-664582237C37}"
+EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "DerbyAppSetup", "DerbyAppSetup\DerbyAppSetup.vdproj", "{5EF9DF8C-4FEC-4A53-AAB8-7CF321FF0442}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4B9BD93F-9A94-4436-866A-664582237C37}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4B9BD93F-9A94-4436-866A-664582237C37}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4B9BD93F-9A94-4436-866A-664582237C37}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4B9BD93F-9A94-4436-866A-664582237C37}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5EF9DF8C-4FEC-4A53-AAB8-7CF321FF0442}.Debug|Any CPU.ActiveCfg = Debug
+		{5EF9DF8C-4FEC-4A53-AAB8-7CF321FF0442}.Release|Any CPU.ActiveCfg = Release
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {0B4C21A7-B130-492A-B6E7-D43BF762F7AB}
+	EndGlobalSection
+EndGlobal
