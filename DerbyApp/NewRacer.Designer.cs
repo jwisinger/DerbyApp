@@ -310,7 +310,6 @@
             // 
             cbLevel.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
             cbLevel.FormattingEnabled = true;
-            cbLevel.Items.AddRange(new object[] { "Daisy", "Brownie", "Junior", "Cadette", "Senior", "Ambassador" });
             cbLevel.Location = new System.Drawing.Point(5, 190);
             cbLevel.Name = "cbLevel";
             cbLevel.Size = new System.Drawing.Size(160, 23);

@@ -29,9 +29,10 @@ namespace DerbyApp
         public string Level { get => _level; set => _level = value; }
         public string Email { get => _email; set => _email = value; }
         public ImageSource PhotoSource { get => _photosource; set => _photosource = value; }
-        public Image Photo { get => _photo; set { _photo = value; PhotoSource = GetImageSource(_photo); }}
+        public Image Photo { get => _photo; set { _photo = value; PhotoSource = GetImageSource(_photo); } }
 
-    private static ImageSource GetImageSource(Image photo)
+#warning "I'm not sure this really belongs here, move to RacerTableView"
+        private static ImageSource GetImageSource(Image photo)
         {
             using var ms = new MemoryStream();
             var bitmapImage = new BitmapImage();

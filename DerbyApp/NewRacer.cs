@@ -22,6 +22,10 @@ namespace DerbyApp
             InitializeComponent();
             _videoDevices = new(FilterCategory.VideoInputDevice);
             GetListCameraUSB();
+            foreach (string s in GirlScoutLevels.ScoutLevels)
+            {
+                cbLevel.Items.Add(s);
+            }
         }
 
         ~NewRacer()

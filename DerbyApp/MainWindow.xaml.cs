@@ -28,23 +28,31 @@ namespace DerbyApp
             InitializeComponent();
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
+        private void ButtonAddRacer_Click(object sender, RoutedEventArgs e)
         {
-            NewRacer _nr = new();
-            if (_nr.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            NewRacer nr = new();
+            if (nr.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
-                _db.AddRacer(_nr.Racer);
+                _db.AddRacer(nr.Racer);
             }
         }
 
-        private void Button_Click_1(object sender, RoutedEventArgs e)
+        private void ButtonViewRacerTable_Click(object sender, RoutedEventArgs e)
         {
             new RacerTableView(_db).ShowDialog();
+            new RaceTracker().Show();
         }
 
-        private void Button_Click_2(object sender, RoutedEventArgs e)
+        private void ButtonCreateRace_Click(object sender, RoutedEventArgs e)
         {
-            _db.CreateRaceTable("Daisies");
+            NewRace nr = new(_db);
+            if (nr.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                if(_db.CreateRaceTable(nr.Race))
+                {
+                    nr.Race.InProgress = true;
+                }
+            }
         }
     }
 }
