@@ -1,27 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.DirectoryServices;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+﻿using System.Windows;
+
+#warning FEATURE: Get race status from registry at start up
+#warning FEATURE: Add ability to generate per racer and overall reports
 
 namespace DerbyApp
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : Window
     {
-        private readonly Database _db = new();
+        private readonly Database _db = new Database();
 
         public MainWindow()
         {
@@ -30,7 +16,7 @@ namespace DerbyApp
 
         private void ButtonAddRacer_Click(object sender, RoutedEventArgs e)
         {
-            NewRacer nr = new();
+            NewRacer nr = new NewRacer();
             if (nr.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
                 _db.AddRacer(nr.Racer);
@@ -40,18 +26,17 @@ namespace DerbyApp
         private void ButtonViewRacerTable_Click(object sender, RoutedEventArgs e)
         {
             new RacerTableView(_db).ShowDialog();
-            new RaceTracker().Show();
         }
 
         private void ButtonCreateRace_Click(object sender, RoutedEventArgs e)
         {
-            NewRace nr = new(_db);
+            NewRace nr = new NewRace(_db);
             if (nr.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
-                if(_db.CreateRaceTable(nr.Race))
+                new RaceTracker(nr.Race).Show();
+                /*if (_db.CreateRaceTable(nr.Race))
                 {
-                    nr.Race.InProgress = true;
-                }
+                }*/
             }
         }
     }

@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:DerbyApp"
         mc:Ignorable="d"
-        Title="RaceTracker" Height="520" Width="1102">
+        Title="RaceTracker" Height="500" Width="1000" Name="raceTrackerWindow">
     <Grid Margin="0,0,0,0">
         <Grid.RowDefinitions>
             <RowDefinition Height="1*"/>
@@ -16,8 +16,22 @@
             <ColumnDefinition Width="2*"/>
             <ColumnDefinition Width="1*"/>
         </Grid.ColumnDefinitions>
-        <DataGrid d:ItemsSource="{d:SampleData ItemCount=5}" Grid.Column="0"  Grid.Row="1" Margin="0,0,0,0"/>
+        <Label Grid.Column="0" Content="Race Schedule" HorizontalAlignment="Center" Margin="0,0,0,0" VerticalAlignment="Center" FontSize="28"/>
+        <Label Grid.Column="1" Content="Leader Board" HorizontalAlignment="Center" Margin="0,0,0,0" VerticalAlignment="Center" FontSize="28"/>
+        <DataGrid FontSize="20" Name="gridRaceSchedule" ItemsSource="{Binding}" Grid.Column="0"  Grid.Row="1" Margin="0,0,0,0">
+            <DataGrid.ColumnHeaderStyle>
+                <Style TargetType="{x:Type DataGridColumnHeader}">
+                    <Setter Property="FontWeight" Value="Bold"/>
+                </Style>
+            </DataGrid.ColumnHeaderStyle>
+        </DataGrid>
         <GridSplitter Grid.Column="1" Grid.Row="0" Grid.RowSpan="2" HorizontalAlignment="Left" VerticalAlignment="Stretch" ShowsPreview="true" Width="5"/>
-        <DataGrid d:ItemsSource="{d:SampleData ItemCount=5}" Grid.Column="1"  Grid.Row="1" Margin="0,0,0,0" HorizontalAlignment="Stretch"/>
+        <DataGrid FontSize="20" Name="gridLeaderBoard" ItemsSource="{Binding}" Grid.Column="1"  Grid.Row="1" Margin="0,0,0,0" HorizontalAlignment="Stretch">
+            <DataGrid.ColumnHeaderStyle>
+                <Style TargetType="{x:Type DataGridColumnHeader}">
+                    <Setter Property="FontWeight" Value="Bold"/>
+                </Style>
+            </DataGrid.ColumnHeaderStyle>
+        </DataGrid>
     </Grid>
 </Window>

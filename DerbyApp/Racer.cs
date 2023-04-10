@@ -1,8 +1,4 @@
 ﻿using System.Drawing;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.IO;
 using System.Windows.Media.Imaging;
 using System.Windows.Media;
@@ -31,18 +27,20 @@ namespace DerbyApp
         public ImageSource PhotoSource { get => _photosource; set => _photosource = value; }
         public Image Photo { get => _photo; set { _photo = value; PhotoSource = GetImageSource(_photo); } }
 
-#warning "I'm not sure this really belongs here, move to RacerTableView"
+#warning CODE CLEANUP: "I'm not sure this really belongs here, move to RacerTableView"
         private static ImageSource GetImageSource(Image photo)
         {
-            using var ms = new MemoryStream();
-            var bitmapImage = new BitmapImage();
-            photo.Save(ms, ImageFormat.Bmp);
-            ms.Seek(0, SeekOrigin.Begin);
-            bitmapImage.BeginInit();
-            bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
-            bitmapImage.StreamSource = ms;
-            bitmapImage.EndInit();
-            return bitmapImage;
+            using (var ms = new MemoryStream())
+            {
+                var bitmapImage = new BitmapImage();
+                photo.Save(ms, ImageFormat.Bmp);
+                ms.Seek(0, SeekOrigin.Begin);
+                bitmapImage.BeginInit();
+                bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
+                bitmapImage.StreamSource = ms;
+                bitmapImage.EndInit();
+                return bitmapImage;
+            }
         }
 
         public Racer()

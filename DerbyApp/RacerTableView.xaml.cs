@@ -1,21 +1,19 @@
-﻿using System.Data;
-using System.Data.SQLite;
-using System.IO;
-using System.Drawing;
-using System.Windows;
+﻿using System.Windows;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using System;
+
+#warning FEATURE: Add ability to edit and store to database
+#warning LINK: https://learn.microsoft.com/en-us/answers/questions/828767/how-to-update-sqlite-tables-using-datagrid-selecte
 
 namespace DerbyApp
 {
     public partial class RacerTableView : Window, INotifyPropertyChanged
     {
-#warning "It would be nice to figure out how to make this a bool"
+#warning CODE CLEANUP: "It would be nice to figure out how to make this a bool"
         private Visibility _displayPhotos = Visibility.Collapsed;
         private bool _displayPhotosChecked = false;
-        public ObservableCollection<Racer> Racers = new();
+        public ObservableCollection<Racer> Racers = new ObservableCollection<Racer>();
         private readonly Database _db;
 
         public Visibility DisplayPhotos
@@ -30,9 +28,9 @@ namespace DerbyApp
 
         public bool DisplayPhotosChecked { get => _displayPhotosChecked; set => _displayPhotosChecked = value; }
 
-        public event PropertyChangedEventHandler? PropertyChanged; 
+        public event PropertyChangedEventHandler PropertyChanged; 
         
-        private void NotifyPropertyChanged([CallerMemberName] string? name = null)
+        private void NotifyPropertyChanged([CallerMemberName] string name = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
@@ -42,7 +40,7 @@ namespace DerbyApp
             InitializeComponent();
             _db = db;
             Racers = _db.GetRacerData();
-#warning "It would be nice to move this into the XAML"
+#warning CODE CLEANUP: "It would be nice to move this into the XAML"
             dataGrid1.ItemsSource = Racers;
         }
 

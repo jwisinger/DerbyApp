@@ -1,7 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Drawing;
-using System.Windows.Controls.Primitives;
 using System.Windows.Forms;
 using AForge.Video;
 using AForge.Video.DirectShow;
@@ -13,14 +12,14 @@ namespace DerbyApp
         private readonly FilterInfoCollection _videoDevices;
         private static bool _needSnapshot = false;
 
-        public Racer Racer = new();
+        public Racer Racer = new Racer();
 
         public delegate void CaptureSnapshotManifast(Bitmap image);
 
         public NewRacer()
         {
             InitializeComponent();
-            _videoDevices = new(FilterCategory.VideoInputDevice);
+            _videoDevices = new FilterInfoCollection(FilterCategory.VideoInputDevice);
             GetListCameraUSB();
             foreach (string s in GirlScoutLevels.ScoutLevels)
             {
@@ -90,7 +89,7 @@ namespace DerbyApp
         {
             try
             {
-                VideoCaptureDevice videoDevice = new(_videoDevices[cbCameraList.SelectedIndex].MonikerString);
+                VideoCaptureDevice videoDevice = new VideoCaptureDevice(_videoDevices[cbCameraList.SelectedIndex].MonikerString);
                 OpenVideoSource(videoDevice);
                 buttonCamera.Text = "Capture Image";
             }

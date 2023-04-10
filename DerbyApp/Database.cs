@@ -4,14 +4,14 @@ using System.Drawing;
 using System.IO;
 using System.Data;
 using System.Windows;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
 namespace DerbyApp
 {
-    public class Database 
+    public class Database
     {
-        readonly public SQLiteConnection SqliteConn = new("Data Source = DerbyDatabase.sqlite");
+#warning FEATURE: Allow user to select database
+        readonly public SQLiteConnection SqliteConn = new SQLiteConnection("Data Source = DerbyDatabase.sqlite");
 
         private SQLiteConnection CreateConnection()
         {
@@ -28,14 +28,16 @@ namespace DerbyApp
 
         private static byte[] ImageToByteArray(Image img)
         {
-            using var stream = new MemoryStream();
-            img.Save(stream, System.Drawing.Imaging.ImageFormat.Png);
-            return stream.ToArray();
+            using (var stream = new MemoryStream())
+            {
+                img.Save(stream, System.Drawing.Imaging.ImageFormat.Png);
+                return stream.ToArray();
+            }
         }
 
         private static Image ByteArrayToImage(byte[] byteArrayIn)
         {
-            MemoryStream ms = new(byteArrayIn);
+            MemoryStream ms = new MemoryStream(byteArrayIn);
             Image returnImage = Image.FromStream(ms);
             return returnImage;
         }
@@ -53,14 +55,14 @@ namespace DerbyApp
         private void CreateRacerTable()
         {
             string sql = "CREATE TABLE IF NOT EXISTS raceTable([Number] INTEGER PRIMARY KEY AUTOINCREMENT, [Name] VARCHAR(50), [Weight(oz)] DECIMAL(5, 3), [Troop] VARCHAR(10), [Level] VARCHAR(20), [Email] VARCHAR(100), [Image] MEDIUMBLOB)";
-            SQLiteCommand command = new(sql, SqliteConn);
+            SQLiteCommand command = new SQLiteCommand(sql, SqliteConn);
             command.ExecuteNonQuery();
         }
 
         public void AddRacer(Racer racer)
         {
             string sql = "INSERT INTO raceTable ([Name], [Weight(oz)], [Troop], [Level], [Email], [Image]) VALUES (@Name, @Weight, @Troop, @Level, @Email, @Image)";
-            SQLiteCommand command = new(sql, SqliteConn);
+            SQLiteCommand command = new SQLiteCommand(sql, SqliteConn);
             byte[] photo = ImageToByteArray(racer.Photo);
 
             command.Parameters.Add("@Name", DbType.String).Value = racer.RacerName;
@@ -74,11 +76,11 @@ namespace DerbyApp
 
         public bool CreateRaceTable(Race race)
         {
-#warning This check doesn't work if there are quotes in the raceName
-#warning I have not tested what happens with single quotes in the raceName
+#warning VULNERABILITY: This check doesn't work if there are quotes in the raceName
+#warning VULNERABILITY: I have not tested what happens with single quotes in the raceName
             string name = race.RaceName.Replace("\"", "\"\"");
             string sql = "SELECT name FROM sqlite_master WHERE type='table' AND name='" + name + "'";
-            SQLiteCommand command = new(sql, SqliteConn);
+            SQLiteCommand command = new SQLiteCommand(sql, SqliteConn);
 
             if (command.ExecuteScalar() != null)
             {
@@ -87,14 +89,14 @@ namespace DerbyApp
             }
 
             sql = "CREATE TABLE IF NOT EXISTS \"" + name + "\" ([RacePosition] INTEGER PRIMARY KEY AUTOINCREMENT, [Number] INTEGER)";
-            command = new(sql, SqliteConn);
+            command = new SQLiteCommand(sql, SqliteConn);
             command.ExecuteNonQuery();
 
             int racerCount = 0;
             foreach (Racer r in race.Racers)
             {
                 sql = "INSERT INTO \"" + name + "\" ([Number]) VALUES (@Number)";
-                command = new(sql, SqliteConn);
+                command = new SQLiteCommand(sql, SqliteConn);
                 command.Parameters.Add("@Number", DbType.Int64).Value = r.Number;
                 racerCount += command.ExecuteNonQuery();
             }
@@ -107,10 +109,10 @@ namespace DerbyApp
 
         public ObservableCollection<Racer> GetRacerData()
         {
-            ObservableCollection<Racer> Racers = new();
-            SQLiteCommand cmd = new("SELECT * FROM raceTable", SqliteConn);
-            SQLiteDataAdapter sda = new(cmd);
-            DataSet ds = new();
+            ObservableCollection<Racer> Racers = new ObservableCollection<Racer>();
+            SQLiteCommand cmd = new SQLiteCommand("SELECT * FROM raceTable", SqliteConn);
+            SQLiteDataAdapter sda = new SQLiteDataAdapter(cmd);
+            DataSet ds = new DataSet();
             sda.Fill(ds);
             if (ds.Tables[0].Rows.Count > 0)
             {
