@@ -13,7 +13,7 @@ namespace DerbyApp
     {
         private readonly Database _db;
         public Race Race = new Race();
-        private readonly HeatList _raceHeatList = RaceSchedule.ThirteenCarsFourLanes;
+        private readonly HeatList _raceHeatList = RaceResults.ThirteenCarsFourLanes;
 
         public NewRace(Database db)
         {

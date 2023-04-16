@@ -9,29 +9,45 @@
     <Grid Margin="0,0,0,0">
         <Grid.RowDefinitions>
             <RowDefinition Height="1*"/>
-            <RowDefinition Height="8*"/>
+            <RowDefinition Height="4*"/>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="4*"/>
             <RowDefinition Height="1*"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="2*"/>
             <ColumnDefinition Width="1*"/>
         </Grid.ColumnDefinitions>
-        <Label Grid.Column="0" Content="Race Schedule" HorizontalAlignment="Center" Margin="0,0,0,0" VerticalAlignment="Center" FontSize="28"/>
-        <Label Grid.Column="1" Content="Leader Board" HorizontalAlignment="Center" Margin="0,0,0,0" VerticalAlignment="Center" FontSize="28"/>
-        <DataGrid FontSize="20" Name="gridRaceSchedule" ItemsSource="{Binding}" Grid.Column="0"  Grid.Row="1" Margin="0,0,0,0">
+        <Label Grid.Column="0" Grid.Row="0" Content="Race Results" HorizontalAlignment="Center" Margin="0,0,0,0" VerticalAlignment="Center" FontSize="28"/>
+        <Label Grid.Column="1" Grid.Row="0" Content="{Binding Path=CurrentHeatLabel, Mode=TwoWay}" Name="CurrentHeatLabel" HorizontalAlignment="Center" Margin="0,0,0,0" VerticalAlignment="Center" FontSize="28"/>
+        <Label Grid.Column="1" Grid.Row="2" Content="Leader Board" HorizontalAlignment="Center" Margin="0,0,0,0" VerticalAlignment="Center" FontSize="28"/>
+        <DataGrid FontSize="20" Name="gridRaceResults" SelectionMode="Single" SelectionUnit="Cell" ItemsSource="{Binding NotifyOnSourceUpdated=True, UpdateSourceTrigger=PropertyChanged}" Grid.Column="0" Grid.Row="1" Grid.RowSpan="3" Margin="0,0,0,0" RowHeight="30">
             <DataGrid.ColumnHeaderStyle>
                 <Style TargetType="{x:Type DataGridColumnHeader}">
                     <Setter Property="FontWeight" Value="Bold"/>
                 </Style>
             </DataGrid.ColumnHeaderStyle>
+            <DataGrid.CellStyle>
+                <Style TargetType="DataGridCell">
+                    <Setter Property="FrameworkElement.HorizontalAlignment" Value="Right"/>
+                </Style>
+            </DataGrid.CellStyle>
         </DataGrid>
         <GridSplitter Grid.Column="1" Grid.Row="0" Grid.RowSpan="2" HorizontalAlignment="Left" VerticalAlignment="Stretch" ShowsPreview="true" Width="5"/>
-        <DataGrid FontSize="20" Name="gridLeaderBoard" ItemsSource="{Binding}" Grid.Column="1"  Grid.Row="1" Margin="0,0,0,0" HorizontalAlignment="Stretch">
+        <DataGrid FontSize="20" Name="gridCurrentHeat" ItemsSource="{Binding}" Grid.Column="1"  Grid.Row="1" Margin="0,0,0,0" HorizontalAlignment="Stretch">
             <DataGrid.ColumnHeaderStyle>
                 <Style TargetType="{x:Type DataGridColumnHeader}">
                     <Setter Property="FontWeight" Value="Bold"/>
                 </Style>
             </DataGrid.ColumnHeaderStyle>
         </DataGrid>
+        <DataGrid FontSize="20" Name="gridLeaderBoard" ItemsSource="{Binding}" Grid.Column="1"  Grid.Row="3" Margin="0,0,0,0" HorizontalAlignment="Stretch">
+            <DataGrid.ColumnHeaderStyle>
+                <Style TargetType="{x:Type DataGridColumnHeader}">
+                    <Setter Property="FontWeight" Value="Bold"/>
+                </Style>
+            </DataGrid.ColumnHeaderStyle>
+        </DataGrid>
+        <Button Grid.Column="1" Grid.Row="4" Content="Next Heat" HorizontalAlignment="Center" Margin="0,0,0,0" VerticalAlignment="Center" Height="35" Grid.RowSpan="2" Width="100" FontSize="18" Click="ButtonNextHeat_Click"/>
     </Grid>
 </Window>

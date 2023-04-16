@@ -2,7 +2,7 @@
 
 namespace DerbyApp
 {
-    internal class RaceSchedule
+    internal class RaceResults
     {
         public static readonly HeatList ThirteenCarsFourLanes =
             new HeatList(13, new int[][]
