@@ -5,7 +5,10 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:DerbyApp"
         mc:Ignorable="d"
-        Title="RaceTracker" Height="500" Width="1000" Name="raceTrackerWindow">
+        Title="RaceTracker" Height="500" Width="1000" Name="raceTrackerWindow" Loaded="RaceTrackerWindow_Loaded">
+    <Window.Resources>
+        <local:NameToBrushConverter x:Key="NameToBrushConverter"/>
+    </Window.Resources>
     <Grid Margin="0,0,0,0">
         <Grid.RowDefinitions>
             <RowDefinition Height="1*"/>
@@ -21,7 +24,7 @@
         <Label Grid.Column="0" Grid.Row="0" Content="Race Results" HorizontalAlignment="Center" Margin="0,0,0,0" VerticalAlignment="Center" FontSize="28"/>
         <Label Grid.Column="1" Grid.Row="0" Content="{Binding Path=CurrentHeatLabel, Mode=TwoWay}" Name="CurrentHeatLabel" HorizontalAlignment="Center" Margin="0,0,0,0" VerticalAlignment="Center" FontSize="28"/>
         <Label Grid.Column="1" Grid.Row="2" Content="Leader Board" HorizontalAlignment="Center" Margin="0,0,0,0" VerticalAlignment="Center" FontSize="28"/>
-        <DataGrid FontSize="20" Name="gridRaceResults" SelectionMode="Single" SelectionUnit="Cell" ItemsSource="{Binding NotifyOnSourceUpdated=True, UpdateSourceTrigger=PropertyChanged}" Grid.Column="0" Grid.Row="1" Grid.RowSpan="3" Margin="0,0,0,0" RowHeight="30">
+        <DataGrid FontSize="20" Name="gridRaceResults" SelectionMode="Single" SelectionUnit="Cell" ItemsSource="{Binding Path=., Mode=TwoWay, NotifyOnSourceUpdated=True, UpdateSourceTrigger=PropertyChanged}" Grid.Column="0" Grid.Row="1" Grid.RowSpan="3" Margin="0,0,0,0" RowHeight="30" CellEditEnding="GridRaceResults_CellEditEnding" RowEditEnding="GridRaceResults_RowEditEnding">
             <DataGrid.ColumnHeaderStyle>
                 <Style TargetType="{x:Type DataGridColumnHeader}">
                     <Setter Property="FontWeight" Value="Bold"/>
@@ -29,6 +32,7 @@
             </DataGrid.ColumnHeaderStyle>
             <DataGrid.CellStyle>
                 <Style TargetType="DataGridCell">
+                    <Setter Property="Background" Value="{Binding RelativeSource={RelativeSource Self}, Converter={StaticResource NameToBrushConverter}}"/>
                     <Setter Property="FrameworkElement.HorizontalAlignment" Value="Right"/>
                 </Style>
             </DataGrid.CellStyle>

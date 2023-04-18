@@ -1,11 +1,11 @@
 ﻿using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Media;
+using System.Windows.Data;
 
 namespace DerbyApp
 {
-    public partial class RaceTracker : Window, INotifyPropertyChanged
+    public partial class RaceTracker : Window
     {
         public Race Race { get; set; }
 
@@ -17,26 +17,33 @@ namespace DerbyApp
             gridLeaderBoard.DataContext = Race.Ldrboard.Table.DefaultView;
             gridCurrentHeat.DataContext = Race.CurrentHeat.Table.DefaultView;
             CurrentHeatLabel.DataContext = Race;
-            Race.PropertyChanged += Race_PropertyChanged;
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        private void Race_PropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            switch (e.PropertyName)
-            {
-                case "CurrentHeatCount":
-                    gridRaceResults.Columns[1].CellStyle = new Style(typeof(DataGridCell));
-                    gridRaceResults.Columns[1].CellStyle.Setters.Add(new Setter(BackgroundProperty, new SolidColorBrush(Colors.LightBlue)));
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("gridRaceResults"));
-                    break;
-            }
         }
 
         private void ButtonNextHeat_Click(object sender, RoutedEventArgs e)
         {
             Race.CurrentHeatCount++;
+        }
+
+        private void GridRaceResults_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
+        {
+#warning VULNERABILITY: Block editing of name and number ... use e.Cancel
+            Race.UpdateResults((e.EditingElement as TextBox).Text, e.Column.DisplayIndex, e.Row.GetIndex());
+        }
+
+        private void GridRaceResults_RowEditEnding(object sender, DataGridRowEditEndingEventArgs e)
+        {
+            if (e.Row.GetIndex() >= Race.RaceResultsTable.Rows.Count)
+            {
+                e.Cancel = true;
+            }
+        }
+
+        private void RaceTrackerWindow_Loaded(object sender, RoutedEventArgs e)
+        {
+            ICollectionView dataView = CollectionViewSource.GetDefaultView(gridLeaderBoard.ItemsSource);
+            dataView.SortDescriptions.Clear();
+            dataView.SortDescriptions.Add(new SortDescription("Score", ListSortDirection.Descending));
+            dataView.Refresh();
         }
     }
 }
