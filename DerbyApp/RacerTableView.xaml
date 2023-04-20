@@ -15,7 +15,7 @@
         <Button x:Name="buttonRefresh" Content="Refresh" HorizontalAlignment="Left" Margin="5,5,0,0" VerticalAlignment="Top" Width="80" Height="40" Click="ButtonRefresh_Click" Grid.ColumnSpan="3"/>
         <Button Content="Save Changes" HorizontalAlignment="Left" Margin="158,5,0,0" VerticalAlignment="Top" Width="80" Height="40" Grid.Column="2"/>
         <CheckBox Content="Display Photos" HorizontalAlignment="Right" Margin="0,20,15,0" VerticalAlignment="Top" IsChecked="{Binding ElementName=rtWindow, Path=DisplayPhotosChecked, Mode=TwoWay}" Click="CheckBox_Checked" Grid.Column="2"/>
-        <DataGrid AutoGenerateColumns="False" Margin="5,50,5,5" Name="dataGrid1" BorderThickness="5,5,5,5" Grid.ColumnSpan="3">
+        <DataGrid AutoGenerateColumns="False" Margin="5,50,5,5" Name="dataGridRacerTable" BorderThickness="5,5,5,5" Grid.ColumnSpan="3">
             <DataGrid.Resources>
                 <local:BindingProxy x:Key="proxy" Data="{Binding ElementName=rtWindow}" />
             </DataGrid.Resources>

@@ -41,7 +41,7 @@ namespace DerbyApp
             _db = db;
             Racers = _db.GetRacerData();
 #warning CODE CLEANUP: "It would be nice to move this into the XAML"
-            dataGrid1.ItemsSource = Racers;
+            dataGridRacerTable.ItemsSource = Racers;
         }
 
         private void CheckBox_Checked(object sender, RoutedEventArgs e)

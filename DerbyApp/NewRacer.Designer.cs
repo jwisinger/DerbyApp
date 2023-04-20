@@ -91,6 +91,7 @@
             this.videoSourcePlayer1.TabIndex = 2;
             this.videoSourcePlayer1.Text = "videoSourcePlayer1";
             this.videoSourcePlayer1.VideoSource = null;
+            this.videoSourcePlayer1.NewFrame += new AForge.Controls.VideoSourcePlayer.NewFrameHandler(this.VideoSourcePlayer1_NewFrame);
             // 
             // tableLayoutPanel1
             // 
@@ -161,6 +162,7 @@
             this.buttonCamera.TabIndex = 1;
             this.buttonCamera.Text = "Start Camera";
             this.buttonCamera.UseVisualStyleBackColor = true;
+            this.buttonCamera.Click += new System.EventHandler(this.ButtonCamera_Click);
             // 
             // buttonOk
             // 
@@ -174,6 +176,7 @@
             this.buttonOk.TabIndex = 2;
             this.buttonOk.Text = "OK";
             this.buttonOk.UseVisualStyleBackColor = true;
+            this.buttonOk.Click += new System.EventHandler(this.ButtonOk_Click);
             // 
             // buttonCancel
             // 
@@ -187,6 +190,7 @@
             this.buttonCancel.TabIndex = 3;
             this.buttonCancel.Text = "Cancel";
             this.buttonCancel.UseVisualStyleBackColor = true;
+            this.buttonCancel.Click += new System.EventHandler(this.ButtonCancel_Click);
             // 
             // tableLayoutPanel2
             // 
@@ -324,6 +328,7 @@
             this.tbName.Name = "tbName";
             this.tbName.Size = new System.Drawing.Size(123, 20);
             this.tbName.TabIndex = 0;
+            this.tbName.Validating += new System.ComponentModel.CancelEventHandler(this.TbName_Validating);
             // 
             // tbEmail
             // 
@@ -379,6 +384,7 @@
             this.Controls.Add(this.tableLayoutPanel1);
             this.Name = "NewRacer";
             this.Text = "NewRacer";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.NewRacer_FormClosing);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel3.ResumeLayout(false);

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Data;
 using System.Linq;
@@ -20,11 +21,12 @@ namespace DerbyApp
         private string _currentHeatLabel = "Current Heat (1)";
         public DataTable RaceResultsTable;
         public DataTable RaceSummaryResultsTable;
+        public ObservableCollection<Racer> CurrentHeatRacers;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
         public LeaderBoard Ldrboard { get; set; }
-        public Heat CurrentHeat { get; set; }
+        public HeatDetails HeatInfo { get; set; }
         public string CurrentHeatLabel
         {
             get
@@ -47,6 +49,9 @@ namespace DerbyApp
             set
             {
                 _currentHeatCount = value;
+                CurrentHeatRacers.Clear();
+                ObservableCollection<Racer> racers = HeatInfo.GetHeat(_currentHeatCount);
+                foreach (Racer r in racers) CurrentHeatRacers.Add(r);
                 CurrentHeatLabel = "Current Heat (" + value + ")";
             }
         }
@@ -60,7 +65,8 @@ namespace DerbyApp
             Racers = racers; 
             InProgress = false;
             Ldrboard = new LeaderBoard(racers);
-            CurrentHeat = new Heat();
+            HeatInfo = new HeatDetails(heatlist, racers);
+            CurrentHeatRacers = HeatInfo.GetHeat(_currentHeatCount);
             RaceResultsTable = new DataTable();
             RaceSummaryResultsTable = new DataTable();
             RaceResultsTable.Columns.Add("Number", Type.GetType("System.Int32"));
@@ -82,7 +88,7 @@ namespace DerbyApp
                 row2["Name"] = r.RacerName;
                 RaceResultsTable.Rows.Add(row1);
                 RaceSummaryResultsTable.Rows.Add(row2);
-                racerNum++;
+                r.RaceOrder = racerNum++;
                 /*for (int i = 0; i < heatlist.RacerCount; i++)
                 {
                     int val = Array.IndexOf(heatlist.Heats[i], racerNum);

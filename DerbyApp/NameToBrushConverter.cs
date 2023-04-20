@@ -11,6 +11,7 @@ namespace DerbyApp
     {
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
+#warning CODE CLEANUP: Delete this, or enable it
             /*string input = (string)value;
             switch (input)
             {

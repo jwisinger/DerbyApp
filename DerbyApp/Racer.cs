@@ -10,11 +10,12 @@ namespace DerbyApp
     public class Racer
     {
         private Int64 _number = 0;
-        private string _name = "";
+        private string _name = "None";
         private decimal _weight = 0;
         private string _troop = "";
         private string _level = "";
         private string _email = "";
+        private int _score = 0;
         private ImageSource _photosource = GetImageSource(new Bitmap(640, 480));
         private Image _photo = new Bitmap(640, 480);
 
@@ -24,6 +25,9 @@ namespace DerbyApp
         public string Troop { get => _troop; set => _troop = value; }
         public string Level { get => _level; set => _level = value; }
         public string Email { get => _email; set => _email = value; }
+        public int Score { get => _score; set => _score = value; }
+        public int RaceOrder = 0;
+
         public ImageSource PhotoSource { get => _photosource; set => _photosource = value; }
         public Image Photo { get => _photo; set { _photo = value; PhotoSource = GetImageSource(_photo); } }
 
