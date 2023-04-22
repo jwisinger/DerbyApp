@@ -6,6 +6,7 @@ using System.Linq;
 using System.Windows.Forms;
 
 #warning VULNERABILITY: Block user from picking the same name twice
+#warning FEATURE: Add ability to load and save a heat
 
 namespace DerbyApp
 {

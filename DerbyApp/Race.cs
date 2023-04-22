@@ -5,10 +5,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Linq;
 
-#warning FEATURE: Add race schedule into the table (include N/A) if racer not involved in heat
-#warning FEATURE: Add ability to run heats and update leader board (and totals) ... store into database each run
-#warning FEATURE: Allow override of auto-recorded times just in case
-#warning FEATURE: Auto pull times from the M5Stack
+#warning FEATURE: Store updated race timing info into database each run
 
 namespace DerbyApp
 {
@@ -61,12 +58,16 @@ namespace DerbyApp
         public Race(string raceName, List<Racer> racers, HeatList heatlist)
         {
             int racerNum = 0;
+
             RaceName = raceName;
             Racers = racers; 
             InProgress = false;
+
             Ldrboard = new LeaderBoard(racers);
             HeatInfo = new HeatDetails(heatlist, racers);
+
             CurrentHeatRacers = HeatInfo.GetHeat(_currentHeatCount);
+
             RaceResultsTable = new DataTable();
             RaceSummaryResultsTable = new DataTable();
             RaceResultsTable.Columns.Add("Number", Type.GetType("System.Int32"));
@@ -89,18 +90,14 @@ namespace DerbyApp
                 RaceResultsTable.Rows.Add(row1);
                 RaceSummaryResultsTable.Rows.Add(row2);
                 r.RaceOrder = racerNum++;
-                /*for (int i = 0; i < heatlist.RacerCount; i++)
-                {
-                    int val = Array.IndexOf(heatlist.Heats[i], racerNum);
-                    if (val >= 0) row["Heat " + (i + 1)] = val + 1;
-                    else row["Heat " + (i + 1)] = " ";
-                }*/
             }
         }
 
         public void UpdateResults(string newString, int column, int row)
         {
             if (row >= RaceResultsTable.Rows.Count) return;
+
+            if (!double.TryParse(newString, out var v)) return;
 
             RaceResultsTable.Rows[row][column] = newString;
             for (int i = 1; i <= RaceResultsTable.Columns.Count - 2; i++)
@@ -132,7 +129,7 @@ namespace DerbyApp
 
             foreach (DataRow dataRow in RaceSummaryResultsTable.Rows)
             {
-                DataRow r = Ldrboard.Table.Rows.Find((Int32)dataRow["Number"]);
+                Racer r = Ldrboard.Racers.Where(x=>x.Number == (Int32)dataRow["Number"]).FirstOrDefault();
                 if (r != null)
                 {
                     int total = 0;
@@ -140,7 +137,7 @@ namespace DerbyApp
                     {
                         if (dataRow.ItemArray[i] != DBNull.Value) total += (int)dataRow.ItemArray[i];
                     }
-                    r["Score"] = total;
+                    r.Score = total;
                 }
             }
         }

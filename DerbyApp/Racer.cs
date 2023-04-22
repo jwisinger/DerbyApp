@@ -4,10 +4,11 @@ using System.Windows.Media.Imaging;
 using System.Windows.Media;
 using System.Drawing.Imaging;
 using System;
+using System.ComponentModel;
 
 namespace DerbyApp
 {
-    public class Racer
+    public class Racer : INotifyPropertyChanged
     {
         private Int64 _number = 0;
         private string _name = "None";
@@ -19,19 +20,31 @@ namespace DerbyApp
         private ImageSource _photosource = GetImageSource(new Bitmap(640, 480));
         private Image _photo = new Bitmap(640, 480);
 
+        public event PropertyChangedEventHandler PropertyChanged;
+
         public Int64 Number { get => _number; set => _number = value; }
         public string RacerName { get => _name; set => _name = value; }
         public decimal Weight { get => _weight; set => _weight = value; }
         public string Troop { get => _troop; set => _troop = value; }
         public string Level { get => _level; set => _level = value; }
         public string Email { get => _email; set => _email = value; }
-        public int Score { get => _score; set => _score = value; }
+        public int Score
+        {
+            get
+            {
+                return _score;
+            }
+            set
+            {
+                _score = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Score"));
+            }
+        }
         public int RaceOrder = 0;
 
         public ImageSource PhotoSource { get => _photosource; set => _photosource = value; }
         public Image Photo { get => _photo; set { _photo = value; PhotoSource = GetImageSource(_photo); } }
 
-#warning CODE CLEANUP: "I'm not sure this really belongs here, move to RacerTableView"
         private static ImageSource GetImageSource(Image photo)
         {
             using (var ms = new MemoryStream())

@@ -6,6 +6,10 @@ using System.Windows.Data;
 
 namespace DerbyApp
 {
+#warning FEATURE: Add previous heat, or "jump to" heat button
+#warning FEATURE: Add "get data from track" button
+#warning FEATURE: Somehoe highlight current heat on datagrid
+
     public partial class RaceTracker : Window, INotifyPropertyChanged
     {
 #warning CODE CLEANUP: "It would be nice to figure out how to make this a bool"
@@ -36,8 +40,7 @@ namespace DerbyApp
             InitializeComponent();
             Race = race;
             gridRaceResults.DataContext = Race.RaceResultsTable.DefaultView;
-#warning FEATURE: Convert the leaderboard to an observablecollection
-            gridLeaderBoard.DataContext = Race.Ldrboard.Table.DefaultView;
+            gridLeaderBoard.DataContext = Race.Ldrboard.Racers;
             gridCurrentHeat.DataContext = Race.CurrentHeatRacers;
             CurrentHeatLabel.DataContext = Race;
         }
@@ -50,7 +53,6 @@ namespace DerbyApp
 
         private void GridRaceResults_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
         {
-#warning VULNERABILITY: Block editing of name and number ... use e.Cancel
             Race.UpdateResults((e.EditingElement as TextBox).Text, e.Column.DisplayIndex, e.Row.GetIndex());
         }
 
@@ -68,6 +70,8 @@ namespace DerbyApp
             dataView.SortDescriptions.Clear();
             dataView.SortDescriptions.Add(new SortDescription("Score", ListSortDirection.Descending));
             dataView.Refresh();
+            gridRaceResults.Columns[0].IsReadOnly = true;
+            gridRaceResults.Columns[1].IsReadOnly = true;
         }
 
         private void CheckBox_Checked(object sender, RoutedEventArgs e)

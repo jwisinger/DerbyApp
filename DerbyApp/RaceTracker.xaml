@@ -60,12 +60,27 @@
                 </DataGridTemplateColumn>
             </DataGrid.Columns>
         </DataGrid>
-        <DataGrid FontSize="20" Name="gridLeaderBoard" ItemsSource="{Binding}" Grid.Column="1"  Grid.Row="3" Margin="0,0,0,0" HorizontalAlignment="Stretch">
+        <DataGrid AutoGenerateColumns="False" FontSize="20" Grid.Column="1"  Grid.Row="3" Margin="0,0,0,0" Name="gridLeaderBoard" ItemsSource="{Binding Path=.}">
+            <DataGrid.Resources>
+                <local:BindingProxy x:Key="proxy" Data="{Binding ElementName=raceTrackerWindow}" />
+            </DataGrid.Resources>
             <DataGrid.ColumnHeaderStyle>
                 <Style TargetType="{x:Type DataGridColumnHeader}">
                     <Setter Property="FontWeight" Value="Bold"/>
                 </Style>
             </DataGrid.ColumnHeaderStyle>
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Number" Width="60" Binding="{Binding Number}"></DataGridTextColumn>
+                <DataGridTextColumn Header="Name" Width="100" Binding="{Binding RacerName}"></DataGridTextColumn>
+                <DataGridTextColumn Header="Score" Width="60" Binding="{Binding Score}"></DataGridTextColumn>
+                <DataGridTemplateColumn Header="Photo" Width="250" IsReadOnly="True" Visibility="{Binding Data.DisplayPhotos, Source={StaticResource proxy}, UpdateSourceTrigger=PropertyChanged}">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Image RenderOptions.BitmapScalingMode="Fant" Stretch="Fill" Width="64" Height="48" Source="{Binding PhotoSource}"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
         </DataGrid>
         <Button Grid.Column="1" Grid.Row="4" Content="Next Heat" HorizontalAlignment="Center" Margin="0,5,0,0" VerticalAlignment="Top" Height="35" Width="100" FontSize="18" Click="ButtonNextHeat_Click"/>
         <CheckBox Content="Display Photos" FontSize="20" HorizontalAlignment="Left" Grid.Row="4" VerticalAlignment="Center" IsChecked="{Binding ElementName=raceTrackerWindow, Path=DisplayPhotosChecked, Mode=TwoWay}" Click="CheckBox_Checked" Checked="CheckBox_Checked" Margin="20,0,0,0" />

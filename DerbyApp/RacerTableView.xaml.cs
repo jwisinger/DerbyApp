@@ -40,7 +40,6 @@ namespace DerbyApp
             InitializeComponent();
             _db = db;
             Racers = _db.GetRacerData();
-#warning CODE CLEANUP: "It would be nice to move this into the XAML"
             dataGridRacerTable.ItemsSource = Racers;
         }
 

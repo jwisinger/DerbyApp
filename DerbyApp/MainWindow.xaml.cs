@@ -2,6 +2,7 @@
 
 #warning FEATURE: Get race status from registry at start up
 #warning FEATURE: Add ability to generate per racer and overall reports
+#warning FEATURE: Add ability to choose database (maybe default to one)
 
 namespace DerbyApp
 {

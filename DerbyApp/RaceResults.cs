@@ -24,6 +24,7 @@ namespace DerbyApp
 
         public static void StoreRaceStatus(string raceName, bool inProgress)
         {
+#warning FEATURE: Start calling these functions and maybe store in database
             RegistryKey key = Registry.CurrentUser.CreateSubKey(@"SOFTWARE\DerbyApp");
             key.SetValue("raceName", raceName);
             key.SetValue("inProgress", inProgress);
