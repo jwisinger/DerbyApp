@@ -8,10 +8,24 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove=".jpg" />
+    <None Remove="Girl-Scout-Logo.png" />
+    <None Remove="Images\STEM.jpg" />
+    <None Remove="STEM.jpg" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="AForge.Controls" Version="2.2.5" />
     <PackageReference Include="AForge.Video" Version="2.2.5" />
     <PackageReference Include="AForge.Video.DirectShow" Version="2.2.5" />
     <PackageReference Include="System.Data.SQLite" Version="1.0.117" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Images\Girl-Scout-Logo.png" />
+    <Resource Include="Images\GIRL.jpg" />
+    <Resource Include="Images\GIRL2.jpg" />
+    <Resource Include="Images\STEM.jpg" />
   </ItemGroup>
 
 </Project>

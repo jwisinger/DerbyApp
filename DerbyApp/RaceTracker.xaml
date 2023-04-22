@@ -10,6 +10,18 @@
         <local:NameToBrushConverter x:Key="NameToBrushConverter"/>
     </Window.Resources>
     <Grid Margin="0,0,0,0">
+        <Grid.Background>
+            <ImageBrush ImageSource="/Images/GIRL2.jpg" Opacity="0.15">
+                <ImageBrush.RelativeTransform>
+                    <TransformGroup>
+                        <ScaleTransform CenterY="0.5" CenterX="0.5" ScaleY="0.82" ScaleX="1"/>
+                        <SkewTransform CenterX="0.5" CenterY="0.5"/>
+                        <RotateTransform CenterX="0.5" CenterY="0.5"/>
+                        <TranslateTransform/>
+                    </TransformGroup>
+                </ImageBrush.RelativeTransform>
+            </ImageBrush>
+        </Grid.Background>
         <Grid.RowDefinitions>
             <RowDefinition Height="1*"/>
             <RowDefinition Height="4*"/>
@@ -21,10 +33,14 @@
             <ColumnDefinition Width="2*"/>
             <ColumnDefinition Width="1*"/>
         </Grid.ColumnDefinitions>
-        <Label Grid.Column="0" Grid.Row="0" Content="Race Results" HorizontalAlignment="Center" Margin="0,0,0,0" VerticalAlignment="Center" FontSize="28"/>
-        <Label Grid.Column="1" Grid.Row="0" Content="{Binding Path=CurrentHeatLabel, Mode=TwoWay}" Name="CurrentHeatLabel" HorizontalAlignment="Center" Margin="0,0,0,0" VerticalAlignment="Center" FontSize="28"/>
-        <Label Grid.Column="1" Grid.Row="2" Content="Leader Board" HorizontalAlignment="Center" Margin="0,0,0,0" VerticalAlignment="Center" FontSize="28"/>
-        <DataGrid FontSize="20" Name="gridRaceResults" SelectionMode="Single" SelectionUnit="Cell" ItemsSource="{Binding Path=., Mode=TwoWay, NotifyOnSourceUpdated=True, UpdateSourceTrigger=PropertyChanged}" Grid.Column="0" Grid.Row="1" Grid.RowSpan="3" Margin="0,0,0,0" RowHeight="30" CellEditEnding="GridRaceResults_CellEditEnding" RowEditEnding="GridRaceResults_RowEditEnding">
+        <Rectangle Grid.Column="0" HorizontalAlignment="Left" Stretch="UniformToFill" Margin="0,0,0,0" Grid.Row="0" Stroke="Black" VerticalAlignment="Top" Fill="#FFD9F0F8"/>
+        <Label Grid.Column="0" Grid.Row="0" Content="Race Results" HorizontalAlignment="Center" Margin="0,0,0,0" VerticalAlignment="Center" FontSize="28" FontWeight="Bold"/>
+        <Rectangle Grid.Column="1" HorizontalAlignment="Left" Stretch="UniformToFill" Margin="0,0,0,0" Grid.Row="0" Stroke="Black" VerticalAlignment="Top" Fill="#FFD9F0F8"/>
+        <Label Grid.Column="1" Grid.Row="0" Content="{Binding Path=CurrentHeatLabel, Mode=TwoWay}" Name="CurrentHeatLabel" HorizontalAlignment="Center" Margin="0,0,0,0" VerticalAlignment="Center" FontSize="28" FontWeight="Bold"/>
+        <Rectangle Grid.Column="1" HorizontalAlignment="Left" Stretch="UniformToFill" Margin="0,0,0,0" Grid.Row="2" VerticalAlignment="Top" Fill="#FFD9F0F8"/>
+        <Label Grid.Column="1" Grid.Row="2" Content="Leader Board" HorizontalAlignment="Center" Margin="0,0,0,0" VerticalAlignment="Center" FontSize="28" Background="{x:Null}" FontWeight="Bold"/>
+        <Rectangle Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Left" Stretch="UniformToFill" Margin="0,0,0,0" Grid.Row="4" Stroke="Black" VerticalAlignment="Top" Fill="#FFD9F0F8"/>
+        <DataGrid FontSize="20" Name="gridRaceResults" SelectionMode="Single" SelectionUnit="Cell" ItemsSource="{Binding Path=., Mode=TwoWay, NotifyOnSourceUpdated=True, UpdateSourceTrigger=PropertyChanged}" Grid.Column="0" Grid.Row="1" Grid.RowSpan="3" Margin="0,0,0,0" RowHeight="30" CellEditEnding="GridRaceResults_CellEditEnding" RowEditEnding="GridRaceResults_RowEditEnding" Background="Transparent" RowBackground="Transparent">
             <DataGrid.ColumnHeaderStyle>
                 <Style TargetType="{x:Type DataGridColumnHeader}">
                     <Setter Property="FontWeight" Value="Bold"/>
@@ -38,7 +54,7 @@
             </DataGrid.CellStyle>
         </DataGrid>
         <GridSplitter Grid.Column="1" Grid.Row="0" Grid.RowSpan="2" HorizontalAlignment="Left" VerticalAlignment="Stretch" ShowsPreview="true" Width="5"/>
-        <DataGrid AutoGenerateColumns="False" FontSize="20" Grid.Column="1"  Grid.Row="1" Margin="0,0,0,0" Name="gridCurrentHeat" ItemsSource="{Binding Path=.}">
+        <DataGrid AutoGenerateColumns="False" FontSize="20" Grid.Column="1"  Grid.Row="1" Margin="0,0,0,0" Background="Transparent" RowBackground="Transparent" Name="gridCurrentHeat" ItemsSource="{Binding Path=.}">
             <DataGrid.Resources>
                 <local:BindingProxy x:Key="proxy" Data="{Binding ElementName=raceTrackerWindow}" />
             </DataGrid.Resources>
@@ -60,7 +76,7 @@
                 </DataGridTemplateColumn>
             </DataGrid.Columns>
         </DataGrid>
-        <DataGrid AutoGenerateColumns="False" FontSize="20" Grid.Column="1"  Grid.Row="3" Margin="0,0,0,0" Name="gridLeaderBoard" ItemsSource="{Binding Path=.}">
+        <DataGrid AutoGenerateColumns="False" FontSize="20" Grid.Column="1" Background="Transparent" RowBackground="Transparent" Grid.Row="3" Margin="0,0,0,0" Name="gridLeaderBoard" ItemsSource="{Binding Path=.}">
             <DataGrid.Resources>
                 <local:BindingProxy x:Key="proxy" Data="{Binding ElementName=raceTrackerWindow}" />
             </DataGrid.Resources>
@@ -82,7 +98,19 @@
                 </DataGridTemplateColumn>
             </DataGrid.Columns>
         </DataGrid>
-        <Button Grid.Column="1" Grid.Row="4" Content="Next Heat" HorizontalAlignment="Center" Margin="0,5,0,0" VerticalAlignment="Top" Height="35" Width="100" FontSize="18" Click="ButtonNextHeat_Click"/>
-        <CheckBox Content="Display Photos" FontSize="20" HorizontalAlignment="Left" Grid.Row="4" VerticalAlignment="Center" IsChecked="{Binding ElementName=raceTrackerWindow, Path=DisplayPhotosChecked, Mode=TwoWay}" Click="CheckBox_Checked" Checked="CheckBox_Checked" Margin="20,0,0,0" />
+        <CheckBox Content="Display Photos" FontSize="20" HorizontalAlignment="Left" Grid.Row="4" VerticalAlignment="Center" IsChecked="{Binding ElementName=raceTrackerWindow, Path=DisplayPhotosChecked, Mode=TwoWay}" Click="CheckBox_Checked" Checked="CheckBox_Checked" Margin="20,0,0,0" FontWeight="Bold" />
+        <Button Grid.Column="1" Grid.Row="4" Content="" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Center" Height="35" Width="150" FontSize="18">
+            <Button.Effect>
+                <DropShadowEffect/>
+            </Button.Effect>
+        </Button>
+        <Button Grid.Column="1" Grid.Row="4" Content="Previous Heat" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Center" Height="35" Width="150" FontSize="18" Click="ButtonPreviousHeat_Click" IsEnabled="{Binding ElementName=raceTrackerWindow, Path=PreviousHeatEnabled, Mode=TwoWay}"/>
+        <Button Grid.Column="1" Grid.Row="4" Content="" HorizontalAlignment="Right" Margin="0,0,10,0" VerticalAlignment="Center" Height="35" Width="150">
+            <Button.Effect>
+                <DropShadowEffect/>
+            </Button.Effect>
+        </Button>
+        <Button Grid.Column="1" Grid.Row="4" Content="Next Heat" HorizontalAlignment="Right" Margin="0,0,10,0" VerticalAlignment="Center" Height="35" Width="150" FontSize="18" Click="ButtonNextHeat_Click" IsEnabled="{Binding ElementName=raceTrackerWindow, Path=NextHeatEnabled, Mode=TwoWay}"/>
+        <GridSplitter Grid.Column="1" HorizontalAlignment="Left" Height="100" Margin="2,22,0,0" Grid.RowSpan="4" Grid.Row="0" VerticalAlignment="Top" Width="5"/>
     </Grid>
 </Window>

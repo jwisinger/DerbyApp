@@ -345,11 +345,14 @@
             this.cbLevel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.cbLevel.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cbLevel.FormattingEnabled = true;
             this.cbLevel.Location = new System.Drawing.Point(5, 165);
+            this.cbLevel.Margin = new System.Windows.Forms.Padding(3, 3, 15, 3);
             this.cbLevel.Name = "cbLevel";
-            this.cbLevel.Size = new System.Drawing.Size(135, 21);
+            this.cbLevel.Size = new System.Drawing.Size(123, 21);
             this.cbLevel.TabIndex = 2;
+            this.cbLevel.Validating += new System.ComponentModel.CancelEventHandler(this.CbLevel_Validating);
             // 
             // nuWeight
             // 

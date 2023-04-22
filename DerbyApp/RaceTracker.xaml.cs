@@ -6,15 +6,15 @@ using System.Windows.Data;
 
 namespace DerbyApp
 {
-#warning FEATURE: Add previous heat, or "jump to" heat button
 #warning FEATURE: Add "get data from track" button
-#warning FEATURE: Somehoe highlight current heat on datagrid
+#warning FEATURE: Somehow highlight current heat on datagrid
 
     public partial class RaceTracker : Window, INotifyPropertyChanged
     {
-#warning CODE CLEANUP: "It would be nice to figure out how to make this a bool"
         private Visibility _displayPhotos = Visibility.Collapsed;
         private bool _displayPhotosChecked = false;
+        private bool _previousHeatEnabled = false;
+        private bool _nextHeatEnabled = true;
 
         public Race Race { get; set; }
         public Visibility DisplayPhotos
@@ -23,6 +23,24 @@ namespace DerbyApp
             set
             {
                 _displayPhotos = value;
+                NotifyPropertyChanged();
+            }
+        }
+        public bool PreviousHeatEnabled
+        {
+            get => _previousHeatEnabled;
+            set
+            {
+                _previousHeatEnabled = value;
+                NotifyPropertyChanged();
+            }
+        }
+        public bool NextHeatEnabled
+        {
+            get => _nextHeatEnabled;
+            set
+            {
+                _nextHeatEnabled = value;
                 NotifyPropertyChanged();
             }
         }
@@ -40,15 +58,27 @@ namespace DerbyApp
             InitializeComponent();
             Race = race;
             gridRaceResults.DataContext = Race.RaceResultsTable.DefaultView;
-            gridLeaderBoard.DataContext = Race.Ldrboard.Racers;
+            gridLeaderBoard.DataContext = Race.Leaderboard;
             gridCurrentHeat.DataContext = Race.CurrentHeatRacers;
             CurrentHeatLabel.DataContext = Race;
         }
 
         private void ButtonNextHeat_Click(object sender, RoutedEventArgs e)
         {
-#warning FEATURE: Add "end of race" after last heat
-            Race.CurrentHeatCount++;
+            Race.CurrentHeatNumber++;
+            if (Race.CurrentHeatNumber >= Race.HeatInfo.MaxHeats) NextHeatEnabled = false;
+            else NextHeatEnabled = true;
+            if (Race.CurrentHeatNumber <= 1) PreviousHeatEnabled = false;
+            else PreviousHeatEnabled = true;
+        }
+
+        private void ButtonPreviousHeat_Click(object sender, RoutedEventArgs e)
+        {
+            Race.CurrentHeatNumber--;
+            if (Race.CurrentHeatNumber >= Race.HeatInfo.MaxHeats) NextHeatEnabled = false;
+            else NextHeatEnabled = true;
+            if (Race.CurrentHeatNumber <= 1) PreviousHeatEnabled = false;
+            else PreviousHeatEnabled = true;
         }
 
         private void GridRaceResults_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)

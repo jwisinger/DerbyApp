@@ -21,26 +21,5 @@ namespace DerbyApp
                 new int[] { 12, 8, 10, 1 },
                 new int[] { 5, 3, 8, 11 },
             });
-
-        public static void StoreRaceStatus(string raceName, bool inProgress)
-        {
-#warning FEATURE: Start calling these functions and maybe store in database
-            RegistryKey key = Registry.CurrentUser.CreateSubKey(@"SOFTWARE\DerbyApp");
-            key.SetValue("raceName", raceName);
-            key.SetValue("inProgress", inProgress);
-            key.Close();
-        }
-
-        public static bool GetRaceStatus(out string raceName)
-        {
-            raceName = "";
-            RegistryKey key = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\DerbyApp");
-            if (key != null)
-            {
-                if (key.GetValue("raceName") is string s1) raceName = s1;
-                if (key.GetValue("inProgress") is string s2) return bool.Parse(s2);
-            }
-            return false;
-        }
     }
 }

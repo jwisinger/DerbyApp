@@ -4,13 +4,13 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
 #warning FEATURE: Add ability to edit and store to database
+#warning FEATURE: Click photo gives bigger view
 #warning LINK: https://learn.microsoft.com/en-us/answers/questions/828767/how-to-update-sqlite-tables-using-datagrid-selecte
 
 namespace DerbyApp
 {
     public partial class RacerTableView : Window, INotifyPropertyChanged
     {
-#warning CODE CLEANUP: "It would be nice to figure out how to make this a bool"
         private Visibility _displayPhotos = Visibility.Collapsed;
         private bool _displayPhotosChecked = false;
         public ObservableCollection<Racer> Racers = new ObservableCollection<Racer>();

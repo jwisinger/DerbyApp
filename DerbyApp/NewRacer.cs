@@ -151,6 +151,21 @@ namespace DerbyApp
             }
         }
 
+        private void CbLevel_Validating(object sender, CancelEventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(cbLevel.Text))
+            {
+                e.Cancel = true;
+                cbLevel.Focus();
+                errorProvider1.SetError(cbLevel, "Level should not be left blank!");
+            }
+            else
+            {
+                e.Cancel = false;
+                errorProvider1.SetError(cbLevel, "");
+            }
+        }
+
         private void ButtonOk_Click(object sender, EventArgs e)
         {
             Racer.RacerName = tbName.Text;

@@ -5,13 +5,13 @@ using System.IO;
 using System.Data;
 using System.Windows;
 using System.Collections.ObjectModel;
+using Microsoft.Win32;
 
 namespace DerbyApp
 {
     public class Database
     {
-#warning FEATURE: Allow user to select database
-        readonly public SQLiteConnection SqliteConn = new SQLiteConnection("Data Source = DerbyDatabase.sqlite");
+        readonly public SQLiteConnection SqliteConn;
 
         private SQLiteConnection CreateConnection()
         {
@@ -42,12 +42,13 @@ namespace DerbyApp
             return returnImage;
         }
 
-        public Database()
+        public Database(string databaseFile)
         {
-            if (!File.Exists("DerbyDatabase.sqlite"))
+            if (!File.Exists(databaseFile))
             {
-                SQLiteConnection.CreateFile("DerbyDatabase.sqlite");
+                SQLiteConnection.CreateFile(databaseFile);
             }
+            SqliteConn = new SQLiteConnection("Data Source = " + databaseFile);
             CreateConnection();
             CreateRacerTable();
         }
@@ -133,6 +134,25 @@ namespace DerbyApp
             }
 
             return Racers;
+        }
+
+        public static void StoreDatabaseRegistry(string database)
+        {
+            RegistryKey key = Registry.CurrentUser.CreateSubKey(@"SOFTWARE\DerbyApp");
+            key.SetValue("database", database);
+            key.Close();
+        }
+
+        public static bool GetDatabaseRegistry(out string database)
+        {
+            database = "";
+            RegistryKey key = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\DerbyApp");
+            if (key != null)
+            {
+                if (key.GetValue("database") is string s1) database = s1;
+                return true;
+            }
+            return false;
         }
 
     }

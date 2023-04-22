@@ -14,16 +14,17 @@ namespace DerbyApp
         public string RaceName;
         public List<Racer> Racers;
         public bool InProgress;
-        private int _currentHeatCount = 1;
+        private int _currentHeatNumber = 1;
         private string _currentHeatLabel = "Current Heat (1)";
         public DataTable RaceResultsTable;
         public DataTable RaceSummaryResultsTable;
         public ObservableCollection<Racer> CurrentHeatRacers;
+        public TrulyObservableCollection<Racer> Leaderboard;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public LeaderBoard Ldrboard { get; set; }
-        public HeatDetails HeatInfo { get; set; }
+        public HeatDetails HeatInfo;
+
         public string CurrentHeatLabel
         {
             get
@@ -37,17 +38,17 @@ namespace DerbyApp
             }
         }
 
-        public int CurrentHeatCount
+        public int CurrentHeatNumber
         {
             get
             {
-                return _currentHeatCount;
+                return _currentHeatNumber;
             }
             set
             {
-                _currentHeatCount = value;
+                _currentHeatNumber = value;
                 CurrentHeatRacers.Clear();
-                ObservableCollection<Racer> racers = HeatInfo.GetHeat(_currentHeatCount);
+                ObservableCollection<Racer> racers = HeatInfo.GetHeat(_currentHeatNumber);
                 foreach (Racer r in racers) CurrentHeatRacers.Add(r);
                 CurrentHeatLabel = "Current Heat (" + value + ")";
             }
@@ -63,10 +64,11 @@ namespace DerbyApp
             Racers = racers; 
             InProgress = false;
 
-            Ldrboard = new LeaderBoard(racers);
             HeatInfo = new HeatDetails(heatlist, racers);
+            CurrentHeatRacers = HeatInfo.GetHeat(_currentHeatNumber);
 
-            CurrentHeatRacers = HeatInfo.GetHeat(_currentHeatCount);
+            Leaderboard = new TrulyObservableCollection<Racer>();
+            foreach (Racer r in racers) Leaderboard.Add(r);
 
             RaceResultsTable = new DataTable();
             RaceSummaryResultsTable = new DataTable();
@@ -129,7 +131,7 @@ namespace DerbyApp
 
             foreach (DataRow dataRow in RaceSummaryResultsTable.Rows)
             {
-                Racer r = Ldrboard.Racers.Where(x=>x.Number == (Int32)dataRow["Number"]).FirstOrDefault();
+                Racer r = Leaderboard.Where(x=>x.Number == (Int32)dataRow["Number"]).FirstOrDefault();
                 if (r != null)
                 {
                     int total = 0;

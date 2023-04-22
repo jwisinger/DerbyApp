@@ -1,18 +1,28 @@
-﻿using System.Windows;
+﻿using Microsoft.Win32;
+using System.IO;
+using System.Windows;
 
-#warning FEATURE: Get race status from registry at start up
 #warning FEATURE: Add ability to generate per racer and overall reports
-#warning FEATURE: Add ability to choose database (maybe default to one)
 
 namespace DerbyApp
 {
     public partial class MainWindow : Window
     {
-        private readonly Database _db = new Database();
+        private Database _db;
 
         public MainWindow()
         {
+            Database.GetDatabaseRegistry(out string databaseName);
+            if (!File.Exists(databaseName))
+            {
+                DatabaseCreator dbc = new DatabaseCreator();
+                if (System.Windows.Forms.DialogResult.OK != dbc.ShowDialog()) this.Close();
+                databaseName = dbc.DatabaseFile;
+            }
             InitializeComponent();
+            this.Title = Path.GetFileNameWithoutExtension(databaseName);
+            _db = new Database(databaseName);
+            Database.StoreDatabaseRegistry(databaseName); 
         }
 
         private void ButtonAddRacer_Click(object sender, RoutedEventArgs e)
@@ -38,6 +48,25 @@ namespace DerbyApp
                 /*if (_db.CreateRaceTable(nr.Race))
                 {
                 }*/
+            }
+        }
+
+        private void ButtonChangeDatabase_Click(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog dialog = new OpenFileDialog() {
+                CheckFileExists = false,
+                DefaultExt = "sqlite",
+                FileName = "MyEvent",
+                Filter = "SQLite files | *.sqlite",
+                Title = "Choose Event Database"
+            };
+
+            if ((bool)dialog.ShowDialog())
+            {
+                string databaseName = dialog.FileName;
+                this.Title = Path.GetFileNameWithoutExtension(databaseName);
+                _db = new Database(databaseName);
+                Database.StoreDatabaseRegistry(databaseName);
             }
         }
     }
