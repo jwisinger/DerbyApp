@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Linq;
 using DerbyApp.RacerDatabase;
+using DerbyApp.Helpers;
 
 #warning DATABASE: Store updated race timing info into database each run
 

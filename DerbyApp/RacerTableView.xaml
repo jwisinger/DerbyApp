@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:DerbyApp"
         xmlns:rd="clr-namespace:DerbyApp.RacerDatabase"
+        xmlns:helpers="clr-namespace:DerbyApp.Helpers"
         mc:Ignorable="d"
         Title="Racer Table View" Height="450" Width="800" Name="rtWindow">
     <Grid>
@@ -21,7 +22,7 @@
         <CheckBox Content="Display Photos" HorizontalAlignment="Right" Margin="0,20,15,0" VerticalAlignment="Top" IsChecked="{Binding ElementName=rtWindow, Path=DisplayPhotosChecked, Mode=TwoWay}" Click="CheckBox_Checked" Grid.Column="2" FontWeight="Bold" FontSize="16"/>
         <DataGrid AutoGenerateColumns="False" Margin="5,50,5,5" Name="dataGridRacerTable" BorderThickness="5,5,5,5" Grid.ColumnSpan="3" Background="Transparent" RowBackground="Transparent" ItemsSource="{Binding Path=.}">
             <DataGrid.Resources>
-                <local:BindingProxy x:Key="proxy" Data="{Binding ElementName=rtWindow}" />
+                <helpers:BindingProxy x:Key="proxy" Data="{Binding ElementName=rtWindow}" />
             </DataGrid.Resources>
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Number" Width="60" Binding="{Binding Number}"></DataGridTextColumn>

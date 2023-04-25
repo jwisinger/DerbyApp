@@ -1,6 +1,6 @@
 ﻿using System.Windows;
 
-namespace DerbyApp
+namespace DerbyApp.Helpers
 {
     public class BindingProxy : Freezable
     {
