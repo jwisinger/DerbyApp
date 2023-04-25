@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:DerbyApp"
+        xmlns:rd="clr-namespace:DerbyApp.RacerDatabase"
         mc:Ignorable="d"
         Title="Racer Table View" Height="450" Width="800" Name="rtWindow">
     <Grid>
@@ -18,7 +19,7 @@
         <Button x:Name="buttonRefresh" Content="Refresh" HorizontalAlignment="Left" Margin="5,5,0,0" VerticalAlignment="Top" Width="80" Height="40" Click="ButtonRefresh_Click" Grid.ColumnSpan="3"/>
         <Button Content="Save Changes" HorizontalAlignment="Left" Margin="158,5,0,0" VerticalAlignment="Top" Width="80" Height="40" Grid.Column="2"/>
         <CheckBox Content="Display Photos" HorizontalAlignment="Right" Margin="0,20,15,0" VerticalAlignment="Top" IsChecked="{Binding ElementName=rtWindow, Path=DisplayPhotosChecked, Mode=TwoWay}" Click="CheckBox_Checked" Grid.Column="2" FontWeight="Bold" FontSize="16"/>
-        <DataGrid AutoGenerateColumns="False" Margin="5,50,5,5" Name="dataGridRacerTable" BorderThickness="5,5,5,5" Grid.ColumnSpan="3" Background="Transparent" RowBackground="Transparent">
+        <DataGrid AutoGenerateColumns="False" Margin="5,50,5,5" Name="dataGridRacerTable" BorderThickness="5,5,5,5" Grid.ColumnSpan="3" Background="Transparent" RowBackground="Transparent" ItemsSource="{Binding Path=.}">
             <DataGrid.Resources>
                 <local:BindingProxy x:Key="proxy" Data="{Binding ElementName=rtWindow}" />
             </DataGrid.Resources>
@@ -27,7 +28,7 @@
                 <DataGridTextColumn Header="Name" Width="100" Binding="{Binding RacerName}"></DataGridTextColumn>
                 <DataGridTextColumn Header="Weight" Width="60" Binding="{Binding Weight}"></DataGridTextColumn>
                 <DataGridTextColumn Header="Troop" Width="100" Binding="{Binding Troop}"></DataGridTextColumn>
-                <DataGridTextColumn Header="Level" Width="100" Binding="{Binding Level}"></DataGridTextColumn>
+                <DataGridComboBoxColumn Header="Level" Width="100" SelectedItemBinding="{Binding Level}" ItemsSource="{Binding Source={x:Static rd:GirlScoutLevels.ScoutLevels}}"></DataGridComboBoxColumn>
                 <DataGridTextColumn Header="Email" Width="100" Binding="{Binding Email}"></DataGridTextColumn>
                 <DataGridTemplateColumn Header="Photo" Width="250" IsReadOnly="True" Visibility="{Binding Data.DisplayPhotos, Source={StaticResource proxy}, UpdateSourceTrigger=PropertyChanged}">
                     <DataGridTemplateColumn.CellTemplate>

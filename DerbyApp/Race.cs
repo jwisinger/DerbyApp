@@ -4,8 +4,9 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Data;
 using System.Linq;
+using DerbyApp.RacerDatabase;
 
-#warning FEATURE: Store updated race timing info into database each run
+#warning DATABASE: Store updated race timing info into database each run
 
 namespace DerbyApp
 {

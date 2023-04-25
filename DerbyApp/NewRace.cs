@@ -4,12 +4,12 @@ using System.ComponentModel;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
+using DerbyApp.RacerDatabase;
 
 #warning VULNERABILITY: Block user from picking the same name twice
-#warning FEATURE: Load and save race to database instead of file?
-#warning BUG: Need to add a 13th racer field
-#warning FEATURE: Add a way to start a race directly from the main screen
+#warning DATABASE: Allow modification of database on "create new race"
 
 namespace DerbyApp
 {
@@ -42,6 +42,8 @@ namespace DerbyApp
             Button b = new Button() { Text = "Load Racers", Name = "buttonLoadRacers" };
             b.Click += new EventHandler(ButtonLoadRacers_Click);
             tlpLevel.Controls.Add(b, 0, tlpLevel.RowCount - 1);
+
+            cbName.Items.AddRange(db.GetListOfRaces().ToArray());
         }
 
         private void ButtonLoadRacers_Click(object sender, EventArgs e)
@@ -50,15 +52,18 @@ namespace DerbyApp
             {
                 if (c is ComboBox cb)
                 {
-                    cb.Items.Clear();
-                    foreach (Racer r in _db.GetRacerData())
+                    if (cb.Name != "cbName")
                     {
-                        Control cntrl = tlpLevel.Controls.Find("cb" + r.Level, true).FirstOrDefault();
-                        if (cntrl != null)
+                        cb.Items.Clear();
+                        foreach (Racer r in _db.GetRacerCollection())
                         {
-                            if ((cntrl as CheckBox).Checked)
+                            Control cntrl = tlpLevel.Controls.Find("cb" + r.Level, true).FirstOrDefault();
+                            if (cntrl != null)
                             {
-                                cb.Items.Add(r.RacerName + "; " + r.Number);
+                                if ((cntrl as CheckBox).Checked)
+                                {
+                                    cb.Items.Add(r.RacerName + "; " + r.Number);
+                                }
                             }
                         }
                     }
@@ -66,18 +71,18 @@ namespace DerbyApp
             }
         }
 
-        private void TextBox1_Validating(object sender, CancelEventArgs e)
+        private void ComboBox1_Validating(object sender, CancelEventArgs e)
         {
-            if (string.IsNullOrWhiteSpace(tbName.Text))
+            if (string.IsNullOrWhiteSpace(cbName.Text))
             {
                 e.Cancel = true;
-                tbName.Focus();
-                errorProvider1.SetError(tbName, "Name should not be left blank!");
+                cbName.Focus();
+                errorProvider1.SetError(cbName, "Name should not be left blank!");
             }
             else
             {
                 e.Cancel = false;
-                errorProvider1.SetError(tbName, "");
+                errorProvider1.SetError(cbName, "");
             }
         }
 
@@ -106,7 +111,7 @@ namespace DerbyApp
                         {
                             if (Int64.TryParse(txt[1], out Int64 i))
                             {
-                                SelectedRacers.AddRange(_db.GetRacerData().Where(x => i == x.Number).ToArray());
+                                SelectedRacers.AddRange(_db.GetRacerCollection().Where(x => i == x.Number).ToArray());
                             }
                         }
                     }
@@ -114,7 +119,7 @@ namespace DerbyApp
             }
             if(SelectedRacers.Count > 0)
             {
-                Race = new Race(tbName.Text, SelectedRacers, _raceHeatList);
+                Race = new Race(cbName.Text, SelectedRacers, _raceHeatList);
             }
         }
 
@@ -124,7 +129,7 @@ namespace DerbyApp
             {
                 using (StreamWriter sw = new StreamWriter(saveFileDialog1.FileName, false))
                 {
-                    sw.WriteLine(tbName.Text);
+                    sw.WriteLine(cbName.Text);
                     foreach (Control c in tlpLevel.Controls)
                     {
                         if (c is CheckBox box)
@@ -143,28 +148,29 @@ namespace DerbyApp
             }
         }
 
-        private void LoadToolStripMenuItem_Click(object sender, EventArgs e)
+        private void CbName_KeyPress(object sender, KeyPressEventArgs e)
         {
-            if (DialogResult.OK == openFileDialog1.ShowDialog())
+            var regex = new Regex(@"[^a-zA-Z0-9\s]");
+            if (regex.IsMatch(e.KeyChar.ToString()))
             {
-                using (StreamReader sr = new StreamReader(openFileDialog1.FileName))
+                e.Handled = true;
+            }
+        }
+
+        private void CbName_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            int i = 0;
+            List<string> racers = _db.GetRacerNames(cbName.Text);
+
+            foreach (Control c in tlpLevel.Controls) if (c is CheckBox box) box.Checked = true;
+            ButtonLoadRacers_Click(null, null);
+
+            foreach (Control c in tlpRacer.Controls)
+            {
+                if (i >= racers.Count) break;
+                if (c is ComboBox box)
                 {
-                    tbName.Text = sr.ReadLine();
-                    foreach (Control c in tlpLevel.Controls)
-                    {
-                        if (c is CheckBox box)
-                        {
-                            if (bool.TryParse(sr.ReadLine(), out bool b)) box.Checked = b;
-                        }
-                    }
-                    ButtonLoadRacers_Click(null, null);
-                    foreach (Control c in tlpRacer.Controls)
-                    {
-                        if (c is ComboBox box)
-                        {
-                            box.Text = sr.ReadLine();
-                        }
-                    }
+                    if (box.Name != "cbName") box.SelectedItem = racers[i++];
                 }
             }
         }

@@ -4,6 +4,9 @@ using System.Drawing;
 using System.Windows.Forms;
 using AForge.Video;
 using AForge.Video.DirectShow;
+using DerbyApp.RacerDatabase;
+
+#warning PRETTY: Make this look better
 
 namespace DerbyApp
 {

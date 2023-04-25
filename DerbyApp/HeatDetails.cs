@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Runtime.ExceptionServices;
+using DerbyApp.RacerDatabase;
 
 namespace DerbyApp
 {

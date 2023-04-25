@@ -2,10 +2,11 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using DerbyApp.RacerDatabase;
 
-#warning FEATURE: Add ability to edit and store to database
-#warning FEATURE: Click photo gives bigger view
-#warning LINK: https://learn.microsoft.com/en-us/answers/questions/828767/how-to-update-sqlite-tables-using-datagrid-selecte
+#warning PRETTY: Click photo gives bigger view
+#warning DATABASE: Allow writes to database (Save Changes)
+#warning DATABASE: https://learn.microsoft.com/en-us/answers/questions/828767/how-to-update-sqlite-tables-using-datagrid-selecte
 
 namespace DerbyApp
 {
@@ -39,8 +40,8 @@ namespace DerbyApp
         {
             InitializeComponent();
             _db = db;
-            Racers = _db.GetRacerData();
-            dataGridRacerTable.ItemsSource = Racers;
+            _db.GetRacerCollection(Racers);
+            dataGridRacerTable.DataContext = Racers;
         }
 
         private void CheckBox_Checked(object sender, RoutedEventArgs e)
@@ -51,7 +52,7 @@ namespace DerbyApp
 
         private void ButtonRefresh_Click(object sender, RoutedEventArgs e)
         {
-            Racers = _db.GetRacerData();
+            _db.GetRacerCollection(Racers);
         }
     }
 }

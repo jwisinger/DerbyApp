@@ -6,7 +6,7 @@ using System.Drawing.Imaging;
 using System;
 using System.ComponentModel;
 
-namespace DerbyApp
+namespace DerbyApp.RacerDatabase
 {
     public class Racer : INotifyPropertyChanged
     {

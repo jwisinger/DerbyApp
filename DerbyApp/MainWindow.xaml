@@ -5,12 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:DerbyApp"
         mc:Ignorable="d"
-        Title="MainWindow" Height="500" Width="600">
+        Title="MainWindow" Height="500" Width="600" ResizeMode="CanMinimize" Name="MainWindowName">
     <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="59*"/>
-            <ColumnDefinition Width="341*"/>
-        </Grid.ColumnDefinitions>
         <Grid.Background>
             <ImageBrush ImageSource="/Images/STEM.jpg" Opacity="0.2"/>
         </Grid.Background>
@@ -34,10 +30,28 @@
                 <DropShadowEffect/>
             </Button.Effect>
         </Button>
+        <Button Content="" HorizontalAlignment="Left" Margin="10,210,0,0" VerticalAlignment="Top" FontSize="20" Width="170" Height="35" Grid.ColumnSpan="2">
+            <Button.Effect>
+                <DropShadowEffect/>
+            </Button.Effect>
+        </Button>
         <Button Content="Add New Racer" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Click="ButtonAddRacer_Click" FontSize="20" Width="170" Height="35" Grid.ColumnSpan="2"/>
         <Button Content="View All Racers" HorizontalAlignment="Left" Margin="10,60,0,0" VerticalAlignment="Top" Click="ButtonViewRacerTable_Click" FontSize="20" Width="170" Height="35" Grid.ColumnSpan="2"/>
-        <Button Content="Start New Race" HorizontalAlignment="Left" Margin="10,110,0,0" VerticalAlignment="Top" Click="ButtonCreateRace_Click" FontSize="20" Width="170" Height="35" Grid.ColumnSpan="2"/>
-        <Button Content="Change Event File" HorizontalAlignment="Left" Margin="10,160,0,0" VerticalAlignment="Top" Click="ButtonChangeDatabase_Click" FontSize="20" Width="170" Height="35" Grid.ColumnSpan="2"/>
+        <Button Content="Create/Edit Race" HorizontalAlignment="Left" Margin="10,110,0,0" VerticalAlignment="Top" Click="ButtonCreateRace_Click" FontSize="20" Width="170" Height="35" Grid.ColumnSpan="2"/>
+        <Button Content="Change Event" HorizontalAlignment="Left" Margin="10,160,0,0" VerticalAlignment="Top" Click="ButtonChangeDatabase_Click" FontSize="20" Width="170" Height="35" Grid.ColumnSpan="2"/>
+        <Button Content="Start Race" HorizontalAlignment="Left" Margin="10,210,0,0" VerticalAlignment="Top" FontSize="20" Width="170" Height="35" Grid.ColumnSpan="2" Click="ButtonStartRace_Click"/>
+        <ComboBox HorizontalAlignment="Left" Margin="190,160,0,0" VerticalAlignment="Top" Width="200" Height="35">
+            <ComboBox.Effect>
+                <DropShadowEffect/>
+            </ComboBox.Effect>
+        </ComboBox>
+        <ComboBox HorizontalAlignment="Left" Margin="190,210,0,0" VerticalAlignment="Top" Width="200" Height="35">
+            <ComboBox.Effect>
+                <DropShadowEffect/>
+            </ComboBox.Effect>
+        </ComboBox>
+        <ComboBox HorizontalAlignment="Left" Margin="190,160,0,0" VerticalAlignment="Top" Width="200" Height="35"/>
+        <ComboBox ItemsSource="{Binding ElementName=MainWindowName, Path=RaceList}" SelectedValue="{Binding ElementName=MainWindowName, Path=CurrentRace, Mode=TwoWay}" HorizontalAlignment="Left" Margin="190,210,0,0" VerticalAlignment="Top" Width="200" Height="35" FontSize="20"/>
 
     </Grid>
 </Window>

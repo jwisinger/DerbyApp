@@ -1,4 +1,4 @@
-﻿namespace DerbyApp
+﻿namespace DerbyApp.RacerDatabase
 {
     partial class DatabaseCreator
     {
