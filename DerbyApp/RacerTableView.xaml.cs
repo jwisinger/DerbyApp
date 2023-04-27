@@ -3,6 +3,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using DerbyApp.RacerDatabase;
+using DerbyApp.RaceStats;
 
 #warning PRETTY: Click photo gives bigger view
 #warning DATABASE: Allow writes to database (Save Changes)
@@ -40,7 +41,7 @@ namespace DerbyApp
         {
             InitializeComponent();
             _db = db;
-            _db.GetRacerCollection(Racers);
+            _db.GetAllRacers(Racers);
             dataGridRacerTable.DataContext = Racers;
         }
 
@@ -52,7 +53,7 @@ namespace DerbyApp
 
         private void ButtonRefresh_Click(object sender, RoutedEventArgs e)
         {
-            _db.GetRacerCollection(Racers);
+            _db.GetAllRacers(Racers);
         }
     }
 }

@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Windows;
 using DerbyApp.RacerDatabase;
+using DerbyApp.RaceStats;
 
 #warning FEATURE: Add ability to generate per racer and overall reports
 
@@ -95,14 +96,15 @@ namespace DerbyApp
 
         private void ButtonStartRace_Click(object sender, RoutedEventArgs e)
         {
-#warning FEATURE: Add a way to start a race directly from the main screen
-            // Get the race name from the combobox, then populate the new Race from the database
-            /// I'm not sure that the heatlist info is actually stored in the database
-            /*if (SelectedRacers.Count > 0)
+            NewRace nr = new NewRace(_db);
+            if(nr.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
-                Race = new Race(cbName.Text, SelectedRacers, _raceHeatList);
-            }*/
-            //new RaceTracker(Race).Show();
+                if (nr.Race.Racers.Count > 0)
+                {
+                    RaceResults Race = new RaceResults(nr.Race.RaceName, nr.Race.Racers, RaceHeats.ThirteenCarsFourLanes.HeatCount);
+                    new RaceTracker(Race, RaceHeats.ThirteenCarsFourLanes).Show();
+                }
+            }
             Database.StoreDatabaseRegistry(_databaseName, CurrentRace);
         }
 

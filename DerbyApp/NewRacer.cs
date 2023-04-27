@@ -5,6 +5,7 @@ using System.Windows.Forms;
 using AForge.Video;
 using AForge.Video.DirectShow;
 using DerbyApp.RacerDatabase;
+using DerbyApp.RaceStats;
 
 #warning PRETTY: Make this look better
 

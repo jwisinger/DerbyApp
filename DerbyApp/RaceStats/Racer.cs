@@ -6,11 +6,11 @@ using System.Drawing.Imaging;
 using System;
 using System.ComponentModel;
 
-namespace DerbyApp.RacerDatabase
+namespace DerbyApp.RaceStats
 {
     public class Racer : INotifyPropertyChanged
     {
-        private Int64 _number = 0;
+        private long _number = 0;
         private string _name = "None";
         private decimal _weight = 0;
         private string _troop = "";
@@ -22,7 +22,7 @@ namespace DerbyApp.RacerDatabase
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public Int64 Number { get => _number; set => _number = value; }
+        public long Number { get => _number; set => _number = value; }
         public string RacerName { get => _name; set => _name = value; }
         public decimal Weight { get => _weight; set => _weight = value; }
         public string Troop { get => _troop; set => _troop = value; }
@@ -64,7 +64,7 @@ namespace DerbyApp.RacerDatabase
         {
         }
 
-        public Racer(Int64 number, string racerName, decimal weight, string troop, string level, string email, Image photo)
+        public Racer(long number, string racerName, decimal weight, string troop, string level, string email, Image photo)
         {
             Number = number;
             RacerName = racerName;

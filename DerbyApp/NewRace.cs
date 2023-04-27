@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
-using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using DerbyApp.RacerDatabase;
+using DerbyApp.RaceStats;
 
 #warning VULNERABILITY: Block user from picking the same name twice
 #warning DATABASE: Allow modification of database on "create new race"
@@ -16,8 +16,8 @@ namespace DerbyApp
     public partial class NewRace : Form
     {
         private readonly Database _db;
-        public Race Race = new Race();
-        private readonly HeatList _raceHeatList = RaceResults.ThirteenCarsFourLanes;
+        public RaceResults Race = new RaceResults();
+        private readonly RaceHeat _raceHeatList = RaceHeats.ThirteenCarsFourLanes;
 
         public NewRace(Database db)
         {
@@ -50,12 +50,13 @@ namespace DerbyApp
         {
             foreach (Control c in tlpRacer.Controls)
             {
+                (c as ComboBox).Items.Clear();
                 if (c is ComboBox cb)
                 {
                     if (cb.Name != "cbName")
                     {
                         cb.Items.Clear();
-                        foreach (Racer r in _db.GetRacerCollection())
+                        foreach (Racer r in _db.GetAllRacers())
                         {
                             Control cntrl = tlpLevel.Controls.Find("cb" + r.Level, true).FirstOrDefault();
                             if (cntrl != null)
@@ -111,7 +112,7 @@ namespace DerbyApp
                         {
                             if (Int64.TryParse(txt[1], out Int64 i))
                             {
-                                SelectedRacers.AddRange(_db.GetRacerCollection().Where(x => i == x.Number).ToArray());
+                                SelectedRacers.AddRange(_db.GetAllRacers().Where(x => i == x.Number).ToArray());
                             }
                         }
                     }
@@ -119,32 +120,7 @@ namespace DerbyApp
             }
             if(SelectedRacers.Count > 0)
             {
-                Race = new Race(cbName.Text, SelectedRacers, _raceHeatList);
-            }
-        }
-
-        private void SaveToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            if(DialogResult.OK == saveFileDialog1.ShowDialog())
-            {
-                using (StreamWriter sw = new StreamWriter(saveFileDialog1.FileName, false))
-                {
-                    sw.WriteLine(cbName.Text);
-                    foreach (Control c in tlpLevel.Controls)
-                    {
-                        if (c is CheckBox box)
-                        {
-                            sw.WriteLine(box.Checked);
-                        }
-                    }
-                    foreach (Control c in tlpRacer.Controls)
-                    {
-                        if (c is ComboBox box)
-                        {
-                            sw.WriteLine(box.Text);
-                        }
-                    }
-                }
+                Race = new RaceResults(cbName.Text, SelectedRacers, _raceHeatList.HeatCount);
             }
         }
 

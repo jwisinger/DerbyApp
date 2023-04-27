@@ -1,11 +1,9 @@
-﻿using Microsoft.Win32;
-
-namespace DerbyApp
+﻿namespace DerbyApp.RaceStats
 {
-    internal class RaceResults
+    internal class RaceHeats
     {
-        public static readonly HeatList ThirteenCarsFourLanes =
-            new HeatList(13, new int[][]
+        public static readonly RaceHeat ThirteenCarsFourLanes =
+            new RaceHeat(13, 13, new int[][]
             {
                 new int[] { 6, 10, 11, 2 },
                 new int[] { 11, 4, 12, 0 },

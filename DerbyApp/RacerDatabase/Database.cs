@@ -8,6 +8,7 @@ using System.Collections.ObjectModel;
 using Microsoft.Win32;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
+using DerbyApp.RaceStats;
 
 namespace DerbyApp.RacerDatabase
 {
@@ -63,8 +64,7 @@ namespace DerbyApp.RacerDatabase
             command.ExecuteNonQuery();
         }
 
-#warning CODE CLEANUP: Remove the need to access the "RACE" class
-        public bool CreateResultsTable(Race race)
+        public bool CreateResultsTable(RaceResults race)
         {
             int racerCount = 0;
             string sql;
@@ -84,7 +84,7 @@ namespace DerbyApp.RacerDatabase
             }
 
             sql = "CREATE TABLE IF NOT EXISTS \"" + race.RaceName + "\" ([RacePosition] INTEGER PRIMARY KEY AUTOINCREMENT, [Number] INTEGER";
-            for (int i = 0; i < race.HeatInfo.MaxHeats; i++) sql += ", [Heat " + (i + 1) + "] DOUBLE";
+            for (int i = 0; i < race.HeatCount; i++) sql += ", [Heat " + (i + 1) + "] DOUBLE";
             sql += ")";
             command = new SQLiteCommand(sql, SqliteConn);
             command.ExecuteNonQuery();
@@ -103,7 +103,7 @@ namespace DerbyApp.RacerDatabase
             else return false;
         }
 
-        public ObservableCollection<Racer> GetRacerCollection(ObservableCollection<Racer> Racers = null)
+        public ObservableCollection<Racer> GetAllRacers(ObservableCollection<Racer> Racers = null)
         {
             SQLiteCommand cmd = new SQLiteCommand("SELECT * FROM " + _racerTableName, SqliteConn);
             SQLiteDataAdapter sda = new SQLiteDataAdapter(cmd);

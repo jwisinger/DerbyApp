@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using DerbyApp.RaceStats;
+using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
@@ -8,6 +9,7 @@ namespace DerbyApp
 {
 #warning FEATURE: Add "get data from track" button
 #warning FEATURE: Somehow highlight current heat on datagrid
+#warning DATABASE: Store updated race timing info into database each run
 
     public partial class RaceTracker : Window, INotifyPropertyChanged
     {
@@ -15,8 +17,12 @@ namespace DerbyApp
         private bool _displayPhotosChecked = false;
         private bool _previousHeatEnabled = false;
         private bool _nextHeatEnabled = true;
+        private string _currentHeatLabelString = "Current Heat (1)";
 
-        public Race Race { get; set; }
+        public RaceResults Results { get; set; }
+        public RaceHeat Heat { get; set; }
+        public Leaderboard LdrBoard { get; set; }
+
         public Visibility DisplayPhotos
         {
             get => _displayPhotos;
@@ -44,6 +50,18 @@ namespace DerbyApp
                 NotifyPropertyChanged();
             }
         }
+        public string CurrentHeatLabelString
+        {
+            get
+            {
+                return _currentHeatLabelString;
+            }
+            set
+            {
+                _currentHeatLabelString = value;
+                NotifyPropertyChanged();
+            }
+        }
         public bool DisplayPhotosChecked { get => _displayPhotosChecked; set => _displayPhotosChecked = value; }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -53,42 +71,50 @@ namespace DerbyApp
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
 
-        public RaceTracker(Race race)
+        public RaceTracker(RaceResults race, RaceHeat heat)
         {
             InitializeComponent();
-            Race = race;
-            gridRaceResults.DataContext = Race.RaceResultsTable.DefaultView;
-            gridLeaderBoard.DataContext = Race.Leaderboard;
-            gridCurrentHeat.DataContext = Race.CurrentHeatRacers;
-            CurrentHeatLabel.DataContext = Race;
+            Results = race;
+            Heat = heat;
+            heat.UpdateHeat(Results.CurrentHeatNumber, race.Racers);
+            LdrBoard = new Leaderboard(race.Racers, heat.HeatCount);
+            gridRaceResults.DataContext = Results.ResultsTable.DefaultView;
+            gridLeaderBoard.DataContext = LdrBoard.Board;
+            gridCurrentHeat.DataContext = Heat.CurrentRacers;
+            CurrentHeatLabel.DataContext = this;
         }
 
         private void ButtonNextHeat_Click(object sender, RoutedEventArgs e)
         {
-            Race.CurrentHeatNumber++;
-            if (Race.CurrentHeatNumber >= Race.HeatInfo.MaxHeats) NextHeatEnabled = false;
+            Results.CurrentHeatNumber++;
+            CurrentHeatLabelString = "Current Heat (" + Results.CurrentHeatNumber + ")";
+            Heat.UpdateHeat(Results.CurrentHeatNumber, Results.Racers);
+            if (Results.CurrentHeatNumber >= Heat.HeatCount) NextHeatEnabled = false;
             else NextHeatEnabled = true;
-            if (Race.CurrentHeatNumber <= 1) PreviousHeatEnabled = false;
+            if (Results.CurrentHeatNumber <= 1) PreviousHeatEnabled = false;
             else PreviousHeatEnabled = true;
         }
 
         private void ButtonPreviousHeat_Click(object sender, RoutedEventArgs e)
         {
-            Race.CurrentHeatNumber--;
-            if (Race.CurrentHeatNumber >= Race.HeatInfo.MaxHeats) NextHeatEnabled = false;
+            Results.CurrentHeatNumber--;
+            CurrentHeatLabelString = "Current Heat (" + Results.CurrentHeatNumber + ")";
+            Heat.UpdateHeat(Results.CurrentHeatNumber, Results.Racers);
+            if (Results.CurrentHeatNumber >= Heat.HeatCount) NextHeatEnabled = false;
             else NextHeatEnabled = true;
-            if (Race.CurrentHeatNumber <= 1) PreviousHeatEnabled = false;
+            if (Results.CurrentHeatNumber <= 1) PreviousHeatEnabled = false;
             else PreviousHeatEnabled = true;
         }
 
         private void GridRaceResults_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
         {
-            Race.UpdateResults((e.EditingElement as TextBox).Text, e.Column.DisplayIndex, e.Row.GetIndex());
+            Results.UpdateResults((e.EditingElement as TextBox).Text, e.Column.DisplayIndex, e.Row.GetIndex());
+            LdrBoard.CalculateResults(Results.ResultsTable);
         }
 
         private void GridRaceResults_RowEditEnding(object sender, DataGridRowEditEndingEventArgs e)
         {
-            if (e.Row.GetIndex() >= Race.RaceResultsTable.Rows.Count)
+            if (e.Row.GetIndex() >= Results.ResultsTable.Rows.Count)
             {
                 e.Cancel = true;
             }
