@@ -8,9 +8,6 @@ using System.Windows.Forms;
 using DerbyApp.RacerDatabase;
 using DerbyApp.RaceStats;
 
-#warning VULNERABILITY: Block user from picking the same name twice
-#warning DATABASE: Allow modification of database on "create new race"
-
 namespace DerbyApp
 {
     public partial class NewRace : Form
@@ -134,7 +131,7 @@ namespace DerbyApp
 
         private void CbName_SelectedIndexChanged(object sender, EventArgs e)
         {
-            int i = 0;
+        /*    int i = 0;
             List<string> racers = _db.GetRacerNames(cbName.Text);
 
             foreach (Control c in tlpLevel.Controls) if (c is CheckBox box) box.Checked = true;
@@ -147,7 +144,7 @@ namespace DerbyApp
                 {
                     if (box.Name != "cbName") box.SelectedItem = racers[i++];
                 }
-            }
+            }*/
         }
     }
 }

@@ -132,18 +132,37 @@ namespace DerbyApp.RacerDatabase
             return Racers;
         }
 
-        public List<string> GetRacerNames(string raceName)
+        public ObservableCollection<Racer> GetRacers(string raceName, ObservableCollection<Racer> Racers = null)
         {
-            List<string> retVal = new List<string>();
+            if (Racers == null) Racers = new ObservableCollection<Racer>();
+            else Racers.Clear();
             if (raceName != "")
             {
-                string sql = "SELECT " + _racerTableName + ".name, " + _racerTableName + ".number FROM " + _racerTableName + " INNER JOIN " + raceName + " ON " + raceName + ".number = " + _racerTableName + ".Number ORDER BY " + raceName + ".RacePosition";
-                SQLiteCommand command = new SQLiteCommand(sql, SqliteConn);
-                SQLiteDataReader r = command.ExecuteReader();
-                while (r.Read()) retVal.Add(Convert.ToString(r["Name"]) + "; " + Convert.ToString(r["Number"]));
+                string sql = "SELECT *  FROM " + _racerTableName + " INNER JOIN " + raceName + " ON " + raceName + ".number = " + _racerTableName + ".Number ORDER BY " + raceName + ".RacePosition";
+                SQLiteCommand cmd = new SQLiteCommand(sql, SqliteConn);
+                SQLiteDataAdapter sda = new SQLiteDataAdapter(cmd);
+                DataSet ds = new DataSet();
+                sda.Fill(ds);
+                if (ds.Tables[0].Rows.Count > 0)
+                {
+                    foreach (DataRow dataRow in ds.Tables[0].Rows)
+                    {
+                        try
+                        {
+                            Racers.Add(new Racer((Int64)dataRow[0],
+                                             (string)dataRow[1],
+                                             (decimal)dataRow[2],
+                                             (string)dataRow[3],
+                                             (string)dataRow[4],
+                                             (string)dataRow[5],
+                                             ByteArrayToImage((byte[])dataRow[6])));
+                        }
+                        catch { }
+                    }
+                }
             }
 
-            return retVal;
+            return Racers;
         }
 
         public List<string> GetListOfRaces()

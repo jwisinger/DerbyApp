@@ -1,0 +1,46 @@
+﻿<Page x:Class="DerbyApp.EditRace"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:DerbyApp"
+      xmlns:helpers="clr-namespace:DerbyApp.Helpers"
+      xmlns:racestats="clr-namespace:DerbyApp.RaceStats"
+      mc:Ignorable="d" 
+      d:DesignHeight="450" d:DesignWidth="800"
+      Title="EditRace" Name="erWindow" Background="AntiqueWhite">
+    <Grid Name="EditRaceGrid">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="1*"/>
+        </Grid.RowDefinitions>
+        <Label Grid.Row="0" Content="Race Name" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Center"/>
+        <ComboBox Name="cbName" Grid.Row="0" ItemsSource="{Binding Path=., Mode=TwoWay}" HorizontalAlignment="Left" Margin="80,0,0,0" VerticalAlignment="Center" Width="200" SelectionChanged="ComboBoxRaceName_SelectionChanged"/>
+        <DataGrid Grid.Row="1" AutoGenerateColumns="False" CanUserAddRows="False" Margin="5,5,5,5" Name="dataGridRacers" BorderThickness="5,5,5,5" Background="Transparent" RowBackground="Transparent" ItemsSource="{Binding Path=., Mode=TwoWay}">
+            <DataGrid.Resources>
+                <helpers:BindingProxy x:Key="proxy" Data="{Binding ElementName=erWindow}" />
+            </DataGrid.Resources>
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Number" Width="60" Binding="{Binding Number}" IsReadOnly="True"></DataGridTextColumn>
+                <DataGridComboBoxColumn x:Name="cbColumn" Header="Name" Width="150" SelectedValueBinding="{Binding RacerName, Mode=TwoWay}" SelectedValuePath="RacerName" DisplayMemberPath="RacerName">
+                    <DataGridComboBoxColumn.EditingElementStyle>
+                        <Style TargetType="{x:Type ComboBox}">
+                            <EventSetter Event="SelectionChanged" Handler="DataGridComboBox_SelectionChanged" />
+                        </Style>
+                    </DataGridComboBoxColumn.EditingElementStyle>
+                </DataGridComboBoxColumn>
+                <DataGridTextColumn Header="Weight" Width="80" Binding="{Binding Weight}" IsReadOnly="True"></DataGridTextColumn>
+                <DataGridTextColumn Header="Troop" Width="80" Binding="{Binding Troop}" IsReadOnly="True"></DataGridTextColumn>
+                <DataGridTextColumn Header="Level" Width="100" Binding="{Binding Level}" IsReadOnly="True"></DataGridTextColumn>
+                <DataGridTextColumn Header="Email" Width="100" Binding="{Binding Email}" IsReadOnly="True"></DataGridTextColumn>
+                <DataGridTemplateColumn Header="Photo" Width="64" IsReadOnly="True" Visibility="{Binding Data.DisplayPhotos, Source={StaticResource proxy}, UpdateSourceTrigger=PropertyChanged}">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Image RenderOptions.BitmapScalingMode="Fant" Stretch="Fill" Width="64" Height="48" Source="{Binding PhotoSource}"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</Page>

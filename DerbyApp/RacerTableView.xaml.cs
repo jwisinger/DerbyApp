@@ -51,11 +51,6 @@ namespace DerbyApp
             else DisplayPhotos = Visibility.Collapsed;
         }
 
-        private void ButtonRefresh_Click(object sender, RoutedEventArgs e)
-        {
-            _db.GetAllRacers(Racers);
-        }
-
         private void DataGridRacerTable_RowEditEnding(object sender, DataGridRowEditEndingEventArgs e)
         {
             if (_editHandle)

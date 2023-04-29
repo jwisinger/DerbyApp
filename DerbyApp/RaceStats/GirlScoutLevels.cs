@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace DerbyApp.RacerDatabase
+namespace DerbyApp.RaceStats
 {
     internal class GirlScoutLevels
     {

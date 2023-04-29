@@ -6,10 +6,9 @@ using System.IO;
 using System.Windows;
 using DerbyApp.RacerDatabase;
 using DerbyApp.RaceStats;
-using System.Windows.Navigation;
-using System.Diagnostics;
 
 #warning FEATURE: Add ability to generate per racer and overall reports
+#warning PRETTY: Move enable photo button to main screen and remove from other screens
 
 namespace DerbyApp
 {
@@ -70,11 +69,12 @@ namespace DerbyApp
 
         private void ButtonCreateRace_Click(object sender, RoutedEventArgs e)
         {
-            NewRace nr = new NewRace(_db);
+            mainFrame.Navigate(new EditRace(_db));
+            /*NewRace nr = new NewRace(_db);
             if (nr.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
                 _db.CreateResultsTable(nr.Race);
-            }
+            }*/
         }
 
         private void ButtonChangeDatabase_Click(object sender, RoutedEventArgs e)
