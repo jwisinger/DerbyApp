@@ -159,10 +159,19 @@ namespace DerbyApp.RacerDatabase
 
         public void AddRacerToRacerTable(Racer racer)
         {
-            string sql = "INSERT INTO " + _racerTableName + " ([Name], [Weight(oz)], [Troop], [Level], [Email], [Image]) VALUES (@Name, @Weight, @Troop, @Level, @Email, @Image)";
+            string sql;
+            if (racer.Number == 0)
+            {
+                sql = "REPLACE INTO " + _racerTableName + " ([Name], [Weight(oz)], [Troop], [Level], [Email], [Image]) VALUES (@Name, @Weight, @Troop, @Level, @Email, @Image)";
+            }
+            else
+            {
+                sql = "REPLACE INTO " + _racerTableName + " ([Number], [Name], [Weight(oz)], [Troop], [Level], [Email], [Image]) VALUES (@Number, @Name, @Weight, @Troop, @Level, @Email, @Image)";
+            }
             SQLiteCommand command = new SQLiteCommand(sql, SqliteConn);
             byte[] photo = ImageToByteArray(racer.Photo);
 
+            command.Parameters.Add("@Number", DbType.Int64).Value = racer.Number;
             command.Parameters.Add("@Name", DbType.String).Value = racer.RacerName;
             command.Parameters.Add("@Weight", DbType.Decimal).Value = racer.Weight;
             command.Parameters.Add("@Troop", DbType.String).Value = racer.Troop;

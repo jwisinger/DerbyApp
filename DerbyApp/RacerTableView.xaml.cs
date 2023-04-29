@@ -4,19 +4,20 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using DerbyApp.RacerDatabase;
 using DerbyApp.RaceStats;
+using System.Windows.Controls;
 
 #warning PRETTY: Click photo gives bigger view
-#warning DATABASE: Allow writes to database (Save Changes)
-#warning DATABASE: https://learn.microsoft.com/en-us/answers/questions/828767/how-to-update-sqlite-tables-using-datagrid-selecte
+#warning DATABASE: Allow deleting a racer
 
 namespace DerbyApp
 {
-    public partial class RacerTableView : Window, INotifyPropertyChanged
+    public partial class RacerTableView : Page, INotifyPropertyChanged
     {
         private Visibility _displayPhotos = Visibility.Collapsed;
         private bool _displayPhotosChecked = false;
         public ObservableCollection<Racer> Racers = new ObservableCollection<Racer>();
         private readonly Database _db;
+        private bool _editHandle = true;
 
         public Visibility DisplayPhotos
         {
@@ -54,6 +55,17 @@ namespace DerbyApp
         private void ButtonRefresh_Click(object sender, RoutedEventArgs e)
         {
             _db.GetAllRacers(Racers);
+        }
+
+        private void DataGridRacerTable_RowEditEnding(object sender, DataGridRowEditEndingEventArgs e)
+        {
+            if (_editHandle)
+            {
+                _editHandle = false;
+                dataGridRacerTable.CommitEdit();
+                _db.AddRacerToRacerTable(Racers[e.Row.GetIndex()]);
+                _editHandle = true;
+            }
         }
     }
 }

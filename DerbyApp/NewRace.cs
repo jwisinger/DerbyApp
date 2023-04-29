@@ -50,7 +50,6 @@ namespace DerbyApp
         {
             foreach (Control c in tlpRacer.Controls)
             {
-                (c as ComboBox).Items.Clear();
                 if (c is ComboBox cb)
                 {
                     if (cb.Name != "cbName")

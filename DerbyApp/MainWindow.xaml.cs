@@ -6,6 +6,8 @@ using System.IO;
 using System.Windows;
 using DerbyApp.RacerDatabase;
 using DerbyApp.RaceStats;
+using System.Windows.Navigation;
+using System.Diagnostics;
 
 #warning FEATURE: Add ability to generate per racer and overall reports
 
@@ -63,7 +65,7 @@ namespace DerbyApp
 
         private void ButtonViewRacerTable_Click(object sender, RoutedEventArgs e)
         {
-            new RacerTableView(_db).ShowDialog();
+            mainFrame.Navigate(new RacerTableView(_db));
         }
 
         private void ButtonCreateRace_Click(object sender, RoutedEventArgs e)
@@ -102,7 +104,7 @@ namespace DerbyApp
                 if (nr.Race.Racers.Count > 0)
                 {
                     RaceResults Race = new RaceResults(nr.Race.RaceName, nr.Race.Racers, RaceHeats.ThirteenCarsFourLanes.HeatCount);
-                    new RaceTracker(Race, RaceHeats.ThirteenCarsFourLanes).Show();
+                    mainFrame.Navigate(new RaceTracker(Race, RaceHeats.ThirteenCarsFourLanes));
                 }
             }
             Database.StoreDatabaseRegistry(_databaseName, CurrentRace);

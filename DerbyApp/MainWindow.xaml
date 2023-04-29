@@ -5,11 +5,15 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:DerbyApp"
         mc:Ignorable="d"
-        Title="MainWindow" Height="500" Width="600" ResizeMode="CanMinimize" Name="MainWindowName">
+        Title="MainWindow" Height="500" Width="859" Name="MainWindowName">
     <Grid>
-        <Grid.Background>
-            <ImageBrush ImageSource="/Images/STEM.jpg" Opacity="0.2"/>
-        </Grid.Background>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="1*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1*"/>
+            <ColumnDefinition Width="6*"/>
+        </Grid.ColumnDefinitions>
         <Button Content="Add New Racer" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" FontSize="20" Width="170" Height="35" Grid.ColumnSpan="2">
             <Button.Effect>
                 <DropShadowEffect/>
@@ -52,6 +56,8 @@
         </ComboBox>
         <ComboBox HorizontalAlignment="Left" Margin="190,160,0,0" VerticalAlignment="Top" Width="200" Height="35"/>
         <ComboBox ItemsSource="{Binding ElementName=MainWindowName, Path=RaceList}" SelectedValue="{Binding ElementName=MainWindowName, Path=CurrentRace, Mode=TwoWay}" HorizontalAlignment="Left" Margin="190,210,0,0" VerticalAlignment="Top" Width="200" Height="35" FontSize="20"/>
-
+        <ScrollViewer Grid.Column="1" CanContentScroll="True" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+            <Frame Content="Frame" Name="mainFrame" NavigationUIVisibility="Hidden" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Margin="0,0,0,0"/>
+        </ScrollViewer>
     </Grid>
 </Window>

@@ -1,4 +1,4 @@
-﻿<Window x:Class="DerbyApp.RaceTracker"
+﻿<Page x:Class="DerbyApp.RaceTracker"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -6,112 +6,112 @@
         xmlns:local="clr-namespace:DerbyApp"
         xmlns:helpers="clr-namespace:DerbyApp.Helpers"
         mc:Ignorable="d"
-        Title="RaceTracker" Height="500" Width="1000" Name="raceTrackerWindow" Loaded="RaceTrackerWindow_Loaded">
-    <Window.Resources>
+        Title="RaceTracker" Name="raceTrackerWindow" Loaded="RaceTrackerWindow_Loaded">
+    <Page.Resources>
         <local:NameToBrushConverter x:Key="NameToBrushConverter"/>
-    </Window.Resources>
-    <Grid Margin="0,0,0,0">
-        <Grid.Background>
-            <ImageBrush ImageSource="/Images/GIRL2.jpg" Opacity="0.15">
-                <ImageBrush.RelativeTransform>
-                    <TransformGroup>
-                        <ScaleTransform CenterY="0.5" CenterX="0.5" ScaleY="0.82" ScaleX="1"/>
-                        <SkewTransform CenterX="0.5" CenterY="0.5"/>
-                        <RotateTransform CenterX="0.5" CenterY="0.5"/>
-                        <TranslateTransform/>
-                    </TransformGroup>
-                </ImageBrush.RelativeTransform>
-            </ImageBrush>
-        </Grid.Background>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="1*"/>
-            <RowDefinition Height="4*"/>
-            <RowDefinition Height="1*"/>
-            <RowDefinition Height="4*"/>
-            <RowDefinition Height="1*"/>
-        </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="2*"/>
-            <ColumnDefinition Width="1*"/>
-        </Grid.ColumnDefinitions>
-        <Rectangle Grid.Column="0" HorizontalAlignment="Left" Stretch="UniformToFill" Margin="0,0,0,0" Grid.Row="0" Stroke="Black" VerticalAlignment="Top" Fill="#FFD9F0F8"/>
-        <Label Grid.Column="0" Grid.Row="0" Content="Race Results" HorizontalAlignment="Center" Margin="0,0,0,0" VerticalAlignment="Center" FontSize="28" FontWeight="Bold"/>
-        <Rectangle Grid.Column="1" HorizontalAlignment="Left" Stretch="UniformToFill" Margin="0,0,0,0" Grid.Row="0" Stroke="Black" VerticalAlignment="Top" Fill="#FFD9F0F8"/>
-        <Label Grid.Column="1" Grid.Row="0" Content="{Binding Path=CurrentHeatLabelString, Mode=TwoWay}" Name="CurrentHeatLabel" HorizontalAlignment="Center" Margin="0,0,0,0" VerticalAlignment="Center" FontSize="28" FontWeight="Bold"/>
-        <Rectangle Grid.Column="1" HorizontalAlignment="Left" Stretch="UniformToFill" Margin="0,0,0,0" Grid.Row="2" VerticalAlignment="Top" Fill="#FFD9F0F8"/>
-        <Label Grid.Column="1" Grid.Row="2" Content="Leader Board" HorizontalAlignment="Center" Margin="0,0,0,0" VerticalAlignment="Center" FontSize="28" Background="{x:Null}" FontWeight="Bold"/>
-        <Rectangle Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Left" Stretch="UniformToFill" Margin="0,0,0,0" Grid.Row="4" Stroke="Black" VerticalAlignment="Top" Fill="#FFD9F0F8"/>
-        <DataGrid FontSize="20" Name="gridRaceResults" SelectionMode="Single" SelectionUnit="Cell" ItemsSource="{Binding Path=., Mode=TwoWay, NotifyOnSourceUpdated=True, UpdateSourceTrigger=PropertyChanged}" Grid.Column="0" Grid.Row="1" Grid.RowSpan="3" Margin="0,0,0,0" RowHeight="30" CellEditEnding="GridRaceResults_CellEditEnding" RowEditEnding="GridRaceResults_RowEditEnding" Background="Transparent" RowBackground="Transparent">
-            <DataGrid.ColumnHeaderStyle>
-                <Style TargetType="{x:Type DataGridColumnHeader}">
-                    <Setter Property="FontWeight" Value="Bold"/>
-                </Style>
-            </DataGrid.ColumnHeaderStyle>
-            <DataGrid.CellStyle>
-                <Style TargetType="DataGridCell">
-                    <Setter Property="Background" Value="{Binding RelativeSource={RelativeSource Self}, Converter={StaticResource NameToBrushConverter}}"/>
-                    <Setter Property="FrameworkElement.HorizontalAlignment" Value="Right"/>
-                </Style>
-            </DataGrid.CellStyle>
-        </DataGrid>
-        <GridSplitter Grid.Column="1" Grid.Row="0" Grid.RowSpan="2" HorizontalAlignment="Left" VerticalAlignment="Stretch" ShowsPreview="true" Width="5"/>
-        <DataGrid AutoGenerateColumns="False" FontSize="20" Grid.Column="1"  Grid.Row="1" Margin="0,0,0,0" Background="Transparent" RowBackground="Transparent" Name="gridCurrentHeat" ItemsSource="{Binding Path=.}">
-            <DataGrid.Resources>
-                <helpers:BindingProxy x:Key="proxy" Data="{Binding ElementName=raceTrackerWindow}" />
-            </DataGrid.Resources>
-            <DataGrid.ColumnHeaderStyle>
-                <Style TargetType="{x:Type DataGridColumnHeader}">
-                    <Setter Property="FontWeight" Value="Bold"/>
-                </Style>
-            </DataGrid.ColumnHeaderStyle>
-            <DataGrid.Columns>
-                <DataGridTextColumn Header="Number" Width="60" Binding="{Binding Number}"></DataGridTextColumn>
-                <DataGridTextColumn Header="Name" Width="100" Binding="{Binding RacerName}"></DataGridTextColumn>
-                <DataGridTextColumn Header="Score" Width="60" Binding="{Binding Score}"></DataGridTextColumn>
-                <DataGridTemplateColumn Header="Photo" Width="250" IsReadOnly="True" Visibility="{Binding Data.DisplayPhotos, Source={StaticResource proxy}, UpdateSourceTrigger=PropertyChanged}">
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
-                            <Image RenderOptions.BitmapScalingMode="Fant" Stretch="Fill" Width="64" Height="48" Source="{Binding PhotoSource}"/>
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
-            </DataGrid.Columns>
-        </DataGrid>
-        <DataGrid AutoGenerateColumns="False" FontSize="20" Grid.Column="1" Background="Transparent" RowBackground="Transparent" Grid.Row="3" Margin="0,0,0,0" Name="gridLeaderBoard" ItemsSource="{Binding Path=.}">
-            <DataGrid.Resources>
-                <helpers:BindingProxy x:Key="proxy" Data="{Binding ElementName=raceTrackerWindow}" />
-            </DataGrid.Resources>
-            <DataGrid.ColumnHeaderStyle>
-                <Style TargetType="{x:Type DataGridColumnHeader}">
-                    <Setter Property="FontWeight" Value="Bold"/>
-                </Style>
-            </DataGrid.ColumnHeaderStyle>
-            <DataGrid.Columns>
-                <DataGridTextColumn Header="Number" Width="60" Binding="{Binding Number}"></DataGridTextColumn>
-                <DataGridTextColumn Header="Name" Width="100" Binding="{Binding RacerName}"></DataGridTextColumn>
-                <DataGridTextColumn Header="Score" Width="60" Binding="{Binding Score}"></DataGridTextColumn>
-                <DataGridTemplateColumn Header="Photo" Width="250" IsReadOnly="True" Visibility="{Binding Data.DisplayPhotos, Source={StaticResource proxy}, UpdateSourceTrigger=PropertyChanged}">
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
-                            <Image RenderOptions.BitmapScalingMode="Fant" Stretch="Fill" Width="64" Height="48" Source="{Binding PhotoSource}"/>
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
-            </DataGrid.Columns>
-        </DataGrid>
-        <CheckBox Content="Display Photos" FontSize="20" HorizontalAlignment="Left" Grid.Row="4" VerticalAlignment="Center" IsChecked="{Binding ElementName=raceTrackerWindow, Path=DisplayPhotosChecked, Mode=TwoWay}" Click="CheckBox_Checked" Checked="CheckBox_Checked" Margin="20,0,0,0" FontWeight="Bold" />
-        <Button Grid.Column="1" Grid.Row="4" Content="" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Center" Height="35" Width="150" FontSize="18">
-            <Button.Effect>
-                <DropShadowEffect/>
-            </Button.Effect>
-        </Button>
-        <Button Grid.Column="1" Grid.Row="4" Content="Previous Heat" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Center" Height="35" Width="150" FontSize="18" Click="ButtonPreviousHeat_Click" IsEnabled="{Binding ElementName=raceTrackerWindow, Path=PreviousHeatEnabled, Mode=TwoWay}"/>
-        <Button Grid.Column="1" Grid.Row="4" Content="" HorizontalAlignment="Right" Margin="0,0,10,0" VerticalAlignment="Center" Height="35" Width="150">
-            <Button.Effect>
-                <DropShadowEffect/>
-            </Button.Effect>
-        </Button>
-        <Button Grid.Column="1" Grid.Row="4" Content="Next Heat" HorizontalAlignment="Right" Margin="0,0,10,0" VerticalAlignment="Center" Height="35" Width="150" FontSize="18" Click="ButtonNextHeat_Click" IsEnabled="{Binding ElementName=raceTrackerWindow, Path=NextHeatEnabled, Mode=TwoWay}"/>
-        <GridSplitter Grid.Column="1" HorizontalAlignment="Left" Height="100" Margin="2,22,0,0" Grid.RowSpan="4" Grid.Row="0" VerticalAlignment="Top" Width="5"/>
-    </Grid>
-</Window>
+    </Page.Resources>
+    <Viewbox Stretch="Uniform">
+        <Grid MinHeight="500" MinWidth="960">
+            <Grid.Background>
+                <ImageBrush ImageSource="/Images/GIRL2.jpg" Opacity="0.15">
+                    <ImageBrush.RelativeTransform>
+                        <TransformGroup>
+                            <ScaleTransform CenterY="0.5" CenterX="0.5" ScaleY="0.82" ScaleX="1"/>
+                            <SkewTransform CenterX="0.5" CenterY="0.5"/>
+                            <RotateTransform CenterX="0.5" CenterY="0.5"/>
+                            <TranslateTransform/>
+                        </TransformGroup>
+                    </ImageBrush.RelativeTransform>
+                </ImageBrush>
+            </Grid.Background>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="1*"/>
+                <RowDefinition Height="4*"/>
+                <RowDefinition Height="1*"/>
+                <RowDefinition Height="4*"/>
+                <RowDefinition Height="1*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="3*"/>
+                <ColumnDefinition Width="1*"/>
+            </Grid.ColumnDefinitions>
+            <Rectangle Grid.Column="0" HorizontalAlignment="Left" Stretch="UniformToFill" Margin="0,0,0,0" Grid.Row="0" Stroke="Black" VerticalAlignment="Top" Fill="#FFD9F0F8"/>
+            <Label Grid.Column="0" Grid.Row="0" Content="Race Results" HorizontalAlignment="Center" Margin="0,0,0,0" VerticalAlignment="Center" FontSize="28" FontWeight="Bold"/>
+            <Rectangle Grid.Column="1" HorizontalAlignment="Left" Stretch="UniformToFill" Margin="0,0,0,0" Grid.Row="0" Stroke="Black" VerticalAlignment="Top" Fill="#FFD9F0F8"/>
+            <Label Grid.Column="1" Grid.Row="0" Content="{Binding Path=CurrentHeatLabelString, Mode=TwoWay}" Name="CurrentHeatLabel" HorizontalAlignment="Center" Margin="0,0,0,0" VerticalAlignment="Center" FontSize="28" FontWeight="Bold"/>
+            <Rectangle Grid.Column="1" HorizontalAlignment="Left" Stretch="UniformToFill" Margin="0,0,0,0" Grid.Row="2" VerticalAlignment="Top" Fill="#FFD9F0F8"/>
+            <Label Grid.Column="1" Grid.Row="2" Content="Leader Board" HorizontalAlignment="Center" Margin="0,0,0,0" VerticalAlignment="Center" FontSize="28" Background="{x:Null}" FontWeight="Bold"/>
+            <Rectangle Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Left" Stretch="UniformToFill" Margin="0,0,0,0" Grid.Row="4" Stroke="Black" VerticalAlignment="Top" Fill="#FFD9F0F8"/>
+            <DataGrid FontSize="20" Name="gridRaceResults" SelectionMode="Single" SelectionUnit="Cell" ItemsSource="{Binding Path=., Mode=TwoWay, NotifyOnSourceUpdated=True, UpdateSourceTrigger=PropertyChanged}" Grid.Column="0" Grid.Row="1" Grid.RowSpan="3" Margin="0,0,0,0" RowHeight="30" CellEditEnding="GridRaceResults_CellEditEnding" RowEditEnding="GridRaceResults_RowEditEnding" Background="Transparent" RowBackground="Transparent">
+                <DataGrid.ColumnHeaderStyle>
+                    <Style TargetType="{x:Type DataGridColumnHeader}">
+                        <Setter Property="FontWeight" Value="Bold"/>
+                    </Style>
+                </DataGrid.ColumnHeaderStyle>
+                <DataGrid.CellStyle>
+                    <Style TargetType="DataGridCell">
+                        <Setter Property="Background" Value="{Binding RelativeSource={RelativeSource Self}, Converter={StaticResource NameToBrushConverter}}"/>
+                        <Setter Property="FrameworkElement.HorizontalAlignment" Value="Right"/>
+                    </Style>
+                </DataGrid.CellStyle>
+            </DataGrid>
+            <DataGrid AutoGenerateColumns="False" FontSize="20" Grid.Column="1"  Grid.Row="1" Margin="0,0,0,0" Background="Transparent" RowBackground="Transparent" Name="gridCurrentHeat" ItemsSource="{Binding Path=.}">
+                <DataGrid.Resources>
+                    <helpers:BindingProxy x:Key="proxy" Data="{Binding ElementName=raceTrackerWindow}" />
+                </DataGrid.Resources>
+                <DataGrid.ColumnHeaderStyle>
+                    <Style TargetType="{x:Type DataGridColumnHeader}">
+                        <Setter Property="FontWeight" Value="Bold"/>
+                    </Style>
+                </DataGrid.ColumnHeaderStyle>
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Number" Width="90" Binding="{Binding Number}"></DataGridTextColumn>
+                    <DataGridTextColumn Header="Name" Width="150" Binding="{Binding RacerName}"></DataGridTextColumn>
+                    <DataGridTextColumn Header="Score" Width="70" Binding="{Binding Score}"></DataGridTextColumn>
+                    <DataGridTemplateColumn Header="Photo" Width="64" IsReadOnly="True" Visibility="{Binding Data.DisplayPhotos, Source={StaticResource proxy}, UpdateSourceTrigger=PropertyChanged}">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Image RenderOptions.BitmapScalingMode="Fant" Stretch="Fill" Width="64" Height="48" Source="{Binding PhotoSource}"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+            <DataGrid AutoGenerateColumns="False" FontSize="20" Grid.Column="1" Background="Transparent" RowBackground="Transparent" Grid.Row="3" Margin="0,0,0,0" Name="gridLeaderBoard" ItemsSource="{Binding Path=.}">
+                <DataGrid.Resources>
+                    <helpers:BindingProxy x:Key="proxy" Data="{Binding ElementName=raceTrackerWindow}" />
+                </DataGrid.Resources>
+                <DataGrid.ColumnHeaderStyle>
+                    <Style TargetType="{x:Type DataGridColumnHeader}">
+                        <Setter Property="FontWeight" Value="Bold"/>
+                    </Style>
+                </DataGrid.ColumnHeaderStyle>
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Number" Width="90" Binding="{Binding Number}"></DataGridTextColumn>
+                    <DataGridTextColumn Header="Name" Width="150" Binding="{Binding RacerName}"></DataGridTextColumn>
+                    <DataGridTextColumn Header="Score" Width="70" Binding="{Binding Score}"></DataGridTextColumn>
+                    <DataGridTemplateColumn Header="Photo" Width="64" IsReadOnly="True" Visibility="{Binding Data.DisplayPhotos, Source={StaticResource proxy}, UpdateSourceTrigger=PropertyChanged}">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Image RenderOptions.BitmapScalingMode="Fant" Stretch="Fill" Width="64" Height="48" Source="{Binding PhotoSource}"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+            <CheckBox Content="Display Photos" FontSize="20" HorizontalAlignment="Left" Grid.Row="4" VerticalAlignment="Center" IsChecked="{Binding ElementName=raceTrackerWindow, Path=DisplayPhotosChecked, Mode=TwoWay}" Click="CheckBox_Checked" Checked="CheckBox_Checked" Margin="20,0,0,0" FontWeight="Bold" />
+            <Button Grid.Column="1" Grid.Row="4" Content="" HorizontalAlignment="Right" Margin="0,0,170,0" VerticalAlignment="Center" Height="35" Width="150" FontSize="18">
+                <Button.Effect>
+                    <DropShadowEffect/>
+                </Button.Effect>
+            </Button>
+            <Button Grid.Column="1" Grid.Row="4" Content="Previous Heat" HorizontalAlignment="Right" Margin="0,0,170,0" VerticalAlignment="Center" Height="35" Width="150" FontSize="18" Click="ButtonPreviousHeat_Click" IsEnabled="{Binding ElementName=raceTrackerWindow, Path=PreviousHeatEnabled, Mode=TwoWay}"/>
+            <Button Grid.Column="1" Grid.Row="4" Content="" HorizontalAlignment="Right" Margin="0,0,10,0" VerticalAlignment="Center" Height="35" Width="150">
+                <Button.Effect>
+                    <DropShadowEffect/>
+                </Button.Effect>
+            </Button>
+            <Button Grid.Column="1" Grid.Row="4" Content="Next Heat" HorizontalAlignment="Right" Margin="0,0,10,0" VerticalAlignment="Center" Height="35" Width="150" FontSize="18" Click="ButtonNextHeat_Click" IsEnabled="{Binding ElementName=raceTrackerWindow, Path=NextHeatEnabled, Mode=TwoWay}"/>
+        </Grid>
+    </Viewbox>
+</Page>
