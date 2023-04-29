@@ -112,14 +112,6 @@ namespace DerbyApp
             LdrBoard.CalculateResults(Results.ResultsTable);
         }
 
-        private void GridRaceResults_RowEditEnding(object sender, DataGridRowEditEndingEventArgs e)
-        {
-            if (e.Row.GetIndex() >= Results.ResultsTable.Rows.Count)
-            {
-                e.Cancel = true;
-            }
-        }
-
         private void RaceTrackerWindow_Loaded(object sender, RoutedEventArgs e)
         {
             ICollectionView dataView = CollectionViewSource.GetDefaultView(gridLeaderBoard.ItemsSource);

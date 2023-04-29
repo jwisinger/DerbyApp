@@ -181,6 +181,15 @@ namespace DerbyApp.RacerDatabase
             MessageBox.Show(command.ExecuteNonQuery() + " racer(s) added.");
         }
 
+        public void RemoveRacerFromRacerTable(Racer racer)
+        {
+            string sql = "DELETE FROM " + _racerTableName + " WHERE [Number]=@Number";
+            SQLiteCommand command = new SQLiteCommand(sql, SqliteConn);
+
+            command.Parameters.Add("@Number", DbType.Int64).Value = racer.Number;
+            MessageBox.Show(command.ExecuteNonQuery() + " racer(s) deleted.");
+        }
+
         public static void StoreDatabaseRegistry(string database, string activeRace)
         {
             RegistryKey key = Registry.CurrentUser.CreateSubKey(@"SOFTWARE\DerbyApp");

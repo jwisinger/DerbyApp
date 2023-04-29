@@ -7,7 +7,6 @@ using DerbyApp.RaceStats;
 using System.Windows.Controls;
 
 #warning PRETTY: Click photo gives bigger view
-#warning DATABASE: Allow deleting a racer
 
 namespace DerbyApp
 {
@@ -66,6 +65,13 @@ namespace DerbyApp
                 _db.AddRacerToRacerTable(Racers[e.Row.GetIndex()]);
                 _editHandle = true;
             }
+            _db.GetAllRacers(Racers);
+        }
+
+        private void Delete_OnClick(object sender, RoutedEventArgs e)
+        {
+            _db.RemoveRacerFromRacerTable(Racers[dataGridRacerTable.SelectedIndex]);
+            Racers.RemoveAt(dataGridRacerTable.SelectedIndex);
         }
     }
 }

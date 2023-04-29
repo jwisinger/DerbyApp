@@ -42,7 +42,7 @@
             <Rectangle Grid.Column="1" HorizontalAlignment="Left" Stretch="UniformToFill" Margin="0,0,0,0" Grid.Row="2" VerticalAlignment="Top" Fill="#FFD9F0F8"/>
             <Label Grid.Column="1" Grid.Row="2" Content="Leader Board" HorizontalAlignment="Center" Margin="0,0,0,0" VerticalAlignment="Center" FontSize="28" Background="{x:Null}" FontWeight="Bold"/>
             <Rectangle Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Left" Stretch="UniformToFill" Margin="0,0,0,0" Grid.Row="4" Stroke="Black" VerticalAlignment="Top" Fill="#FFD9F0F8"/>
-            <DataGrid FontSize="20" Name="gridRaceResults" SelectionMode="Single" SelectionUnit="Cell" ItemsSource="{Binding Path=., Mode=TwoWay, NotifyOnSourceUpdated=True, UpdateSourceTrigger=PropertyChanged}" Grid.Column="0" Grid.Row="1" Grid.RowSpan="3" Margin="0,0,0,0" RowHeight="30" CellEditEnding="GridRaceResults_CellEditEnding" RowEditEnding="GridRaceResults_RowEditEnding" Background="Transparent" RowBackground="Transparent">
+            <DataGrid FontSize="20" Name="gridRaceResults" SelectionMode="Single" SelectionUnit="Cell" ItemsSource="{Binding Path=., Mode=TwoWay, NotifyOnSourceUpdated=True, UpdateSourceTrigger=PropertyChanged}" Grid.Column="0" Grid.Row="1" Grid.RowSpan="3" Margin="0,0,0,0" RowHeight="30" CellEditEnding="GridRaceResults_CellEditEnding" CanUserAddRows="False" Background="Transparent" RowBackground="Transparent">
                 <DataGrid.ColumnHeaderStyle>
                     <Style TargetType="{x:Type DataGridColumnHeader}">
                         <Setter Property="FontWeight" Value="Bold"/>
