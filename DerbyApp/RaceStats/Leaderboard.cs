@@ -1,6 +1,7 @@
 ﻿using DerbyApp.Helpers;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Data;
 using System.Linq;
 
@@ -11,7 +12,7 @@ namespace DerbyApp.RaceStats
         public DataTable RaceScoreTable;
         public TrulyObservableCollection<Racer> Board;
 
-        public Leaderboard(List<Racer> racers, int heatCount)
+        public Leaderboard(ObservableCollection<Racer> racers, int heatCount)
         {
             int racerNum = 0;
 

@@ -8,46 +8,52 @@
       xmlns:racestats="clr-namespace:DerbyApp.RaceStats"
       mc:Ignorable="d" 
       d:DesignHeight="450" d:DesignWidth="800"
-      Title="EditRace" Name="erWindow" Background="AntiqueWhite">
-    <Grid Name="EditRaceGrid">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="30"/>
-            <RowDefinition Height="1*"/>
-        </Grid.RowDefinitions>
-        <Label Grid.Row="0" Content="Race Name" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Center"/>
-        <ComboBox Name="cbName" Grid.Row="0" IsEditable="True" ItemsSource="{Binding Path=., Mode=TwoWay}" HorizontalAlignment="Left" Margin="80,0,0,0" VerticalAlignment="Center" Width="200" SelectionChanged="ComboBoxRaceName_SelectionChanged" KeyUp="CbName_KeyUp"/>
-        <DataGrid Grid.Row="1" AutoGenerateColumns="False" CanUserAddRows="True" Margin="5,5,5,5" Name="dataGridRacers" BorderThickness="5,5,5,5" Background="Transparent" RowBackground="Transparent" ItemsSource="{Binding Path=., Mode=TwoWay}" CellEditEnding="DataGridRacers_CellEditEnding" AddingNewItem="DataGridRacers_AddingNewItem">
-            <DataGrid.Resources>
-                <helpers:BindingProxy x:Key="proxy" Data="{Binding ElementName=erWindow}" />
-            </DataGrid.Resources>
-            <DataGrid.Columns>
-                <DataGridTextColumn Header="Number" Width="60" Binding="{Binding Number, Mode=TwoWay}" IsReadOnly="True"></DataGridTextColumn>
-                <DataGridComboBoxColumn x:Name="cbColumn" Header="Name" Width="150" SelectedValueBinding="{Binding RacerName, Mode=TwoWay}" SelectedValuePath="RacerName" DisplayMemberPath="RacerName">
-                    <DataGridComboBoxColumn.EditingElementStyle>
-                        <Style TargetType="{x:Type ComboBox}">
-                            <EventSetter Event="SelectionChanged" Handler="DataGridComboBox_SelectionChanged" />
-                        </Style>
-                    </DataGridComboBoxColumn.EditingElementStyle>
-                </DataGridComboBoxColumn>
-                <DataGridTextColumn Header="Weight" Width="80" Binding="{Binding Weight}" IsReadOnly="True"></DataGridTextColumn>
-                <DataGridTextColumn Header="Troop" Width="80" Binding="{Binding Troop}" IsReadOnly="True"></DataGridTextColumn>
-                <DataGridTextColumn Header="Level" Width="100" Binding="{Binding Level}" IsReadOnly="True"></DataGridTextColumn>
-                <DataGridTextColumn Header="Email" Width="100" Binding="{Binding Email}" IsReadOnly="True"></DataGridTextColumn>
-                <DataGridTemplateColumn Header="Photo" Width="64" IsReadOnly="True" Visibility="{Binding Data.DisplayPhotos, Source={StaticResource proxy}, UpdateSourceTrigger=PropertyChanged}">
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
-                            <Image RenderOptions.BitmapScalingMode="Fant" Stretch="Fill" Width="64" Height="48" Source="{Binding PhotoSource}"/>
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
-            </DataGrid.Columns>
-        </DataGrid>
-        <CheckBox Name="cbDaisy" Content="Daisy" HorizontalAlignment="Left" Margin="290,0,0,0" VerticalAlignment="Center" IsChecked="True" Click="CheckBox_Click"/>
-        <CheckBox Name="cbBrownie" Content="Brownie" HorizontalAlignment="Left" Margin="352,0,0,0" VerticalAlignment="Center" IsChecked="True" Click="CheckBox_Click"/>
-        <CheckBox Name="cbJunior" Content="Junior" HorizontalAlignment="Left" Margin="429,0,0,0" VerticalAlignment="Center" IsChecked="True" Click="CheckBox_Click"/>
-        <CheckBox Name="cbCadette" Content="Cadette" HorizontalAlignment="Left" Margin="495,0,0,0" VerticalAlignment="Center" IsChecked="True" Click="CheckBox_Click"/>
-        <CheckBox Name="cbSenior" Content="Senior" HorizontalAlignment="Left" Margin="570,0,0,0" VerticalAlignment="Center" IsChecked="True" Click="CheckBox_Click"/>
-        <CheckBox Name="cbAmbassador" Content="Ambassador" HorizontalAlignment="Left" Margin="638,0,0,0" VerticalAlignment="Center" IsChecked="True" Click="CheckBox_Click"/>
-        <CheckBox Name="cbAdult" Content="Adult" HorizontalAlignment="Left" Margin="738,0,0,0" VerticalAlignment="Center" IsChecked="True" Click="CheckBox_Click"/>
-    </Grid>
+      Title="EditRace" Name="erWindow">
+    <Viewbox Stretch="Uniform">
+        <Grid Name="EditRaceGrid" Height="400" Width="800">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="30"/>
+                <RowDefinition Height="1*"/>
+            </Grid.RowDefinitions>
+            <Label Grid.Row="0" Content="Race Name" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Center"/>
+            <ComboBox Name="cbName" Grid.Row="0" IsEditable="True" ItemsSource="{Binding Path=., Mode=TwoWay}" HorizontalAlignment="Left" Margin="80,0,0,0" VerticalAlignment="Center" Width="200" SelectionChanged="ComboBoxRaceName_SelectionChanged" KeyUp="CbName_KeyUp"/>
+            <DataGrid Grid.Row="1" AutoGenerateColumns="False" CanUserAddRows="True" RowHeight="{Binding Path=Value, ElementName=_zoom}" Margin="5,5,5,30" Name="dataGridRacers" BorderThickness="5,5,5,5" RowBackground="Transparent" ItemsSource="{Binding Path=., Mode=TwoWay}" CellEditEnding="DataGridRacers_CellEditEnding" AddingNewItem="DataGridRacers_AddingNewItem">
+                <DataGrid.Background>
+                    <ImageBrush ImageSource="/Images/GIRL.jpg" Opacity=".1"/>
+                </DataGrid.Background>
+                <DataGrid.Resources>
+                    <helpers:BindingProxy x:Key="proxy" Data="{Binding ElementName=erWindow}" />
+                </DataGrid.Resources>
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Number" Width="60" Binding="{Binding Number, Mode=TwoWay}" IsReadOnly="True"></DataGridTextColumn>
+                    <DataGridComboBoxColumn x:Name="cbColumn" Header="Name" Width="150" SelectedValueBinding="{Binding RacerName, Mode=TwoWay}" SelectedValuePath="RacerName" DisplayMemberPath="RacerName">
+                        <DataGridComboBoxColumn.EditingElementStyle>
+                            <Style TargetType="{x:Type ComboBox}">
+                                <EventSetter Event="SelectionChanged" Handler="DataGridComboBox_SelectionChanged" />
+                            </Style>
+                        </DataGridComboBoxColumn.EditingElementStyle>
+                    </DataGridComboBoxColumn>
+                    <DataGridTextColumn Header="Weight" Width="80" Binding="{Binding Weight}" IsReadOnly="True"></DataGridTextColumn>
+                    <DataGridTextColumn Header="Troop" Width="80" Binding="{Binding Troop}" IsReadOnly="True"></DataGridTextColumn>
+                    <DataGridTextColumn Header="Level" Width="100" Binding="{Binding Level}" IsReadOnly="True"></DataGridTextColumn>
+                    <DataGridTextColumn Header="Email" Width="100" Binding="{Binding Email}" IsReadOnly="True"></DataGridTextColumn>
+                    <DataGridTemplateColumn Header="Photo" Width="1*" IsReadOnly="True" Visibility="{Binding Data.DisplayPhotos, Source={StaticResource proxy}, UpdateSourceTrigger=PropertyChanged}">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Image RenderOptions.BitmapScalingMode="Fant" Stretch="Uniform" MinWidth="16" MinHeight="12" Source="{Binding PhotoSource}"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+            <CheckBox Name="cbDaisy" Content="Daisy" HorizontalAlignment="Left" Margin="290,0,0,0" VerticalAlignment="Center" IsChecked="True" Click="CheckBox_Click"/>
+            <CheckBox Name="cbBrownie" Content="Brownie" HorizontalAlignment="Left" Margin="352,0,0,0" VerticalAlignment="Center" IsChecked="True" Click="CheckBox_Click"/>
+            <CheckBox Name="cbJunior" Content="Junior" HorizontalAlignment="Left" Margin="429,0,0,0" VerticalAlignment="Center" IsChecked="True" Click="CheckBox_Click"/>
+            <CheckBox Name="cbCadette" Content="Cadette" HorizontalAlignment="Left" Margin="495,0,0,0" VerticalAlignment="Center" IsChecked="True" Click="CheckBox_Click"/>
+            <CheckBox Name="cbSenior" Content="Senior" HorizontalAlignment="Left" Margin="570,0,0,0" VerticalAlignment="Center" IsChecked="True" Click="CheckBox_Click"/>
+            <CheckBox Name="cbAmbassador" Content="Ambassador" HorizontalAlignment="Left" Margin="638,0,0,0" VerticalAlignment="Center" IsChecked="True" Click="CheckBox_Click"/>
+            <CheckBox Name="cbAdult" Content="Adult" HorizontalAlignment="Left" Margin="738,0,0,0" VerticalAlignment="Center" IsChecked="True" Click="CheckBox_Click"/>
+            <Slider Value="25" AutoToolTipPlacement="TopLeft" AutoToolTipPrecision="0" Grid.Row="1" Name="_zoom" Minimum="1" Maximum="100" VerticalAlignment="Bottom" Margin="0,0,150,5" />
+        </Grid>
+    </Viewbox>
 </Page>

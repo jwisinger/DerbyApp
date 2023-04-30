@@ -11,11 +11,10 @@
         Title="Racer Table View" Name="rtWindow">
     <Viewbox Stretch="Uniform">
         <Grid Height="400" Width="800">
-            <Grid.Background>
-                <ImageBrush ImageSource="/Images/GIRL.jpg" Opacity=".1"/>
-            </Grid.Background>
-            <CheckBox Content="Display Photos" HorizontalAlignment="Right" Margin="0,20,15,0" VerticalAlignment="Top" IsChecked="{Binding ElementName=rtWindow, Path=DisplayPhotosChecked, Mode=TwoWay}" Click="CheckBox_Checked" Grid.Column="2" FontWeight="Bold" FontSize="16"/>
-            <DataGrid AutoGenerateColumns="False" CanUserAddRows="False" Margin="5,50,5,5" Name="dataGridRacerTable" BorderThickness="5,5,5,5" Grid.ColumnSpan="3" Background="Transparent" RowBackground="Transparent" ItemsSource="{Binding Path=.}" RowEditEnding="DataGridRacerTable_RowEditEnding">
+            <DataGrid AutoGenerateColumns="False" RowHeight="{Binding Path=Value, ElementName=_zoom}" CanUserAddRows="False" Margin="5,35,5,30" Name="dataGridRacerTable" BorderThickness="5,5,5,5" Grid.ColumnSpan="3" RowBackground="Transparent" ItemsSource="{Binding Path=.}" RowEditEnding="DataGridRacerTable_RowEditEnding" >
+                <DataGrid.Background>
+                    <ImageBrush ImageSource="/Images/GIRL.jpg" Opacity=".1"/>
+                </DataGrid.Background>
                 <DataGrid.Resources>
                     <helpers:BindingProxy x:Key="proxy" Data="{Binding ElementName=rtWindow}" />
                 </DataGrid.Resources>
@@ -31,15 +30,17 @@
                     <DataGridTextColumn Header="Troop" Width="80" Binding="{Binding Troop}"></DataGridTextColumn>
                     <DataGridComboBoxColumn Header="Level" Width="100" SelectedItemBinding="{Binding Level}" ItemsSource="{Binding Source={x:Static racestats:GirlScoutLevels.ScoutLevels}}"></DataGridComboBoxColumn>
                     <DataGridTextColumn Header="Email" Width="100" Binding="{Binding Email}"></DataGridTextColumn>
-                    <DataGridTemplateColumn Header="Photo" Width="64" IsReadOnly="True" Visibility="{Binding Data.DisplayPhotos, Source={StaticResource proxy}, UpdateSourceTrigger=PropertyChanged}">
+                    <DataGridTemplateColumn Header="Photo" Width="1*" IsReadOnly="True" Visibility="{Binding Data.DisplayPhotos, Source={StaticResource proxy}, UpdateSourceTrigger=PropertyChanged}">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
-                                <Image RenderOptions.BitmapScalingMode="Fant" Stretch="Fill" Width="64" Height="48" Source="{Binding PhotoSource}"/>
+                                <Image RenderOptions.BitmapScalingMode="Fant" Stretch="Uniform" MinWidth="16" MinHeight="12" Source="{Binding PhotoSource}"/>
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
                 </DataGrid.Columns>
             </DataGrid>
+            <Slider Value="25" AutoToolTipPlacement="TopLeft" AutoToolTipPrecision="0" Grid.Row="0" Name="_zoom" Minimum="1" Maximum="100" VerticalAlignment="Bottom" Margin="0,0,150,5" />
+            <CheckBox HorizontalAlignment="Right" Content="Display Photo" Margin="0,0,15,0" VerticalAlignment="Bottom" IsChecked="{Binding ElementName=rtWindow, Path=DisplayPhotosChecked, Mode=TwoWay}" Click="CheckBox_Checked" Grid.Column="2" FontWeight="Bold" FontSize="16"/>
         </Grid>
     </Viewbox>
 </Page>

@@ -6,8 +6,6 @@ using DerbyApp.RacerDatabase;
 using DerbyApp.RaceStats;
 using System.Windows.Controls;
 
-#warning PRETTY: Click photo gives bigger view
-
 namespace DerbyApp
 {
     public partial class RacerTableView : Page, INotifyPropertyChanged
@@ -53,12 +51,15 @@ namespace DerbyApp
 
         private void DataGridRacerTable_RowEditEnding(object sender, DataGridRowEditEndingEventArgs e)
         {
-            if (_editHandle)
+            if (e.Row.GetIndex() >= 0)
             {
-                _editHandle = false;
-                dataGridRacerTable.CommitEdit();
-                _db.AddRacerToRacerTable(Racers[e.Row.GetIndex()]);
-                _editHandle = true;
+                if (_editHandle)
+                {
+                    _editHandle = false;
+                    dataGridRacerTable.CommitEdit();
+                    _db.AddRacerToRacerTable(Racers[e.Row.GetIndex()]);
+                    _editHandle = true;
+                }
             }
             _db.GetAllRacers(Racers);
         }

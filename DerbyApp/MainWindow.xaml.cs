@@ -16,8 +16,9 @@ namespace DerbyApp
     {
         private Database _db;
         public string _currentRace = "";
-        private string _databaseName = "";
+        private readonly string _databaseName = "";
         private readonly ObservableCollection<string> _raceList = new ObservableCollection<string>();
+        private readonly EditRace _editRace;
 
         public ObservableCollection<string> RaceList { get { return _raceList; } }
 
@@ -45,41 +46,19 @@ namespace DerbyApp
                 databaseName = dbc.DatabaseFile;
             }
             InitializeComponent();
-            this.Title = Path.GetFileNameWithoutExtension(databaseName);
+            this.Title = "Current Event = " + Path.GetFileNameWithoutExtension(databaseName);
             _db = new Database(databaseName);
             CurrentRace = activeRace;
             Database.StoreDatabaseRegistry(databaseName, CurrentRace);
             UpdateRaceList();
             _databaseName = databaseName;
-        }
-
-        private void ButtonAddRacer_Click(object sender, RoutedEventArgs e)
-        {
-            NewRacer nr = new NewRacer();
-            if (nr.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-            {
-                _db.AddRacerToRacerTable(nr.Racer);
-            }
-        }
-
-        private void ButtonViewRacerTable_Click(object sender, RoutedEventArgs e)
-        {
-            mainFrame.Navigate(new RacerTableView(_db));
-        }
-
-        private void ButtonCreateRace_Click(object sender, RoutedEventArgs e)
-        {
-            mainFrame.Navigate(new EditRace(_db));
-            /*NewRace nr = new NewRace(_db);
-            if (nr.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-            {
-                _db.CreateResultsTable(nr.Race);
-            }*/
+            _editRace = new EditRace(_db);
         }
 
         private void ButtonChangeDatabase_Click(object sender, RoutedEventArgs e)
         {
-            OpenFileDialog dialog = new OpenFileDialog() {
+            OpenFileDialog dialog = new OpenFileDialog()
+            {
                 CheckFileExists = false,
                 DefaultExt = "sqlite",
                 FileName = "MyEvent",
@@ -96,16 +75,31 @@ namespace DerbyApp
             }
         }
 
+        private void ButtonAddRacer_Click(object sender, RoutedEventArgs e)
+        {
+            NewRacer nr = new NewRacer();
+            if (nr.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                _db.AddRacerToRacerTable(nr.Racer);
+            }
+        }
+
+        private void ButtonViewRacerTable_Click(object sender, RoutedEventArgs e)
+        {
+            mainFrame.Navigate(new RacerTableView(_db));
+        }
+
+        private void ButtonSelectRace_Click(object sender, RoutedEventArgs e)
+        {
+            mainFrame.Navigate(_editRace);
+        }
+
         private void ButtonStartRace_Click(object sender, RoutedEventArgs e)
         {
-            NewRace nr = new NewRace(_db);
-            if(nr.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            if (_editRace.Racers.Count > 0)
             {
-                if (nr.Race.Racers.Count > 0)
-                {
-                    RaceResults Race = new RaceResults(nr.Race.RaceName, nr.Race.Racers, RaceHeats.ThirteenCarsFourLanes.HeatCount);
-                    mainFrame.Navigate(new RaceTracker(Race, RaceHeats.ThirteenCarsFourLanes));
-                }
+                RaceResults Race = new RaceResults(_editRace.cbName.Text, _editRace.Racers, RaceHeats.ThirteenCarsFourLanes.HeatCount);
+                mainFrame.Navigate(new RaceTracker(Race, RaceHeats.ThirteenCarsFourLanes));
             }
             Database.StoreDatabaseRegistry(_databaseName, CurrentRace);
         }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Data;
 
@@ -10,7 +11,7 @@ namespace DerbyApp.RaceStats
         private int _currentHeatNumber = 1;
 
         public string RaceName;
-        public List<Racer> Racers;
+        public ObservableCollection<Racer> Racers;
         public DataTable ResultsTable;
         public int HeatCount = 0;
 
@@ -29,9 +30,9 @@ namespace DerbyApp.RaceStats
             }
         }
 
-        public RaceResults() : this("", new List<Racer>(), RaceHeats.ThirteenCarsFourLanes.HeatCount) { }
+        public RaceResults() : this("", new ObservableCollection<Racer>(), RaceHeats.ThirteenCarsFourLanes.HeatCount) { }
 
-        public RaceResults(string raceName, List<Racer> racers, int heatCount)
+        public RaceResults(string raceName, ObservableCollection<Racer> racers, int heatCount)
         {
             int racerNum = 0;
 

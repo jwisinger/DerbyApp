@@ -20,7 +20,7 @@ namespace DerbyApp.RaceStats
             CurrentRacers = new ObservableCollection<Racer>();
         }
 
-        public void UpdateHeat(int heatNumber, List<Racer> racers)
+        public void UpdateHeat(int heatNumber, ObservableCollection<Racer> racers)
         {
             CurrentRacers.Clear();
             int num = heatNumber - 1;

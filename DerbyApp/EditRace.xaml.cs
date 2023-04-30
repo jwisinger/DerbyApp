@@ -10,6 +10,7 @@ using System.Windows.Controls;
 #warning TODO: Show race position
 #warning TODO: When a racer is added, auto populate other fields
 #warning TODO: Block same racer being selected twice
+#warning TODO: Ensure a newly added racer is available in the drop down (any similar checks)?
 
 namespace DerbyApp
 {
@@ -22,7 +23,6 @@ namespace DerbyApp
         public ObservableCollection<Racer> Racers = new ObservableCollection<Racer>();
         public ObservableCollection<Racer> AllRacers = new ObservableCollection<Racer>();
         public ObservableCollection<Racer> AvailableRacers = new ObservableCollection<Racer>();
-
 
         public EditRace(Database db)
         {
