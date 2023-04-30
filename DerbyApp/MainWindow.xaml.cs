@@ -6,9 +6,10 @@ using System.IO;
 using System.Windows;
 using DerbyApp.RacerDatabase;
 using DerbyApp.RaceStats;
+using System.Runtime.CompilerServices;
 
 #warning FEATURE: Add ability to generate per racer and overall reports
-#warning PRETTY: Move enable photo button to main screen and remove from other screens
+#warning TODO: See if I still need "RaceList"
 
 namespace DerbyApp
 {
@@ -19,8 +20,12 @@ namespace DerbyApp
         private readonly string _databaseName = "";
         private readonly ObservableCollection<string> _raceList = new ObservableCollection<string>();
         private readonly EditRace _editRace;
+        private readonly RacerTableView _racerTableView;
+        private RaceTracker _raceTracker;
+        private bool _displayPhotosChecked = false;
 
         public ObservableCollection<string> RaceList { get { return _raceList; } }
+        public event PropertyChangedEventHandler PropertyChanged;
 
         public string CurrentRace
         {
@@ -34,7 +39,29 @@ namespace DerbyApp
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("CurrentRace"));
             }
         }
-        public event PropertyChangedEventHandler PropertyChanged;
+
+        public bool DisplayPhotosChecked
+        {
+            get => _displayPhotosChecked;
+            set => _displayPhotosChecked = value;
+        }
+
+        private void CheckBox_Checked(object sender, RoutedEventArgs e)
+        {
+            if (DisplayPhotosChecked)
+            {
+                _racerTableView.DisplayPhotos = Visibility.Visible;
+                _editRace.DisplayPhotos = Visibility.Visible;
+                _raceTracker.DisplayPhotos = Visibility.Visible;
+                _raceTracker.CheckBox_Checked();
+            }
+            else
+            {
+                _racerTableView.DisplayPhotos = Visibility.Collapsed;
+                _editRace.DisplayPhotos = Visibility.Collapsed;
+                _raceTracker.DisplayPhotos = Visibility.Collapsed;
+            }
+        }
 
         public MainWindow()
         {
@@ -53,6 +80,9 @@ namespace DerbyApp
             UpdateRaceList();
             _databaseName = databaseName;
             _editRace = new EditRace(_db);
+            _racerTableView = new RacerTableView(_db);
+            _raceTracker = new RaceTracker(new RaceResults(), RaceHeats.ThirteenCarsFourLanes);
+            mainFrame.Navigate(new Default());
         }
 
         private void ButtonChangeDatabase_Click(object sender, RoutedEventArgs e)
@@ -86,7 +116,7 @@ namespace DerbyApp
 
         private void ButtonViewRacerTable_Click(object sender, RoutedEventArgs e)
         {
-            mainFrame.Navigate(new RacerTableView(_db));
+            mainFrame.Navigate(_racerTableView);
         }
 
         private void ButtonSelectRace_Click(object sender, RoutedEventArgs e)
@@ -99,7 +129,13 @@ namespace DerbyApp
             if (_editRace.Racers.Count > 0)
             {
                 RaceResults Race = new RaceResults(_editRace.cbName.Text, _editRace.Racers, RaceHeats.ThirteenCarsFourLanes.HeatCount);
-                mainFrame.Navigate(new RaceTracker(Race, RaceHeats.ThirteenCarsFourLanes));
+                _raceTracker = new RaceTracker(Race, RaceHeats.ThirteenCarsFourLanes);
+                mainFrame.Navigate(_raceTracker);
+            }
+            else
+            {
+                mainFrame.Navigate(new Default());
+                MessageBox.Show("Your currently selected race " + CurrentRace + " has no racers in it.");
             }
             Database.StoreDatabaseRegistry(_databaseName, CurrentRace);
         }

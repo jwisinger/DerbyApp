@@ -53,7 +53,7 @@
             <CheckBox Name="cbSenior" Content="Senior" HorizontalAlignment="Left" Margin="570,0,0,0" VerticalAlignment="Center" IsChecked="True" Click="CheckBox_Click"/>
             <CheckBox Name="cbAmbassador" Content="Ambassador" HorizontalAlignment="Left" Margin="638,0,0,0" VerticalAlignment="Center" IsChecked="True" Click="CheckBox_Click"/>
             <CheckBox Name="cbAdult" Content="Adult" HorizontalAlignment="Left" Margin="738,0,0,0" VerticalAlignment="Center" IsChecked="True" Click="CheckBox_Click"/>
-            <Slider Value="25" AutoToolTipPlacement="TopLeft" AutoToolTipPrecision="0" Grid.Row="1" Name="_zoom" Minimum="1" Maximum="100" VerticalAlignment="Bottom" Margin="0,0,150,5" />
+            <Slider Value="25" AutoToolTipPlacement="TopLeft" AutoToolTipPrecision="0" Grid.Row="1" Name="_zoom" Minimum="1" Maximum="100" VerticalAlignment="Bottom" Margin="5,0,5,5" />
         </Grid>
     </Viewbox>
 </Page>

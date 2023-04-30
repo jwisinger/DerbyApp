@@ -2,6 +2,7 @@
 using DerbyApp.RaceStats;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows;
@@ -14,7 +15,7 @@ using System.Windows.Controls;
 
 namespace DerbyApp
 {
-    public partial class EditRace : Page
+    public partial class EditRace : Page, INotifyPropertyChanged
     {
         private readonly Database _db;
         private readonly Dictionary<string, CheckBox> _cbList = new Dictionary<string, CheckBox>();
@@ -23,6 +24,18 @@ namespace DerbyApp
         public ObservableCollection<Racer> Racers = new ObservableCollection<Racer>();
         public ObservableCollection<Racer> AllRacers = new ObservableCollection<Racer>();
         public ObservableCollection<Racer> AvailableRacers = new ObservableCollection<Racer>();
+        private Visibility _displayPhotos = Visibility.Collapsed;
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        public Visibility DisplayPhotos
+        {
+            get => _displayPhotos;
+            set
+            {
+                _displayPhotos = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("DisplayPhotos"));
+            }
+        }
 
         public EditRace(Database db)
         {

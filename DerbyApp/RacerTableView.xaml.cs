@@ -5,16 +5,17 @@ using System.Runtime.CompilerServices;
 using DerbyApp.RacerDatabase;
 using DerbyApp.RaceStats;
 using System.Windows.Controls;
+using System.Xml.Linq;
 
 namespace DerbyApp
 {
     public partial class RacerTableView : Page, INotifyPropertyChanged
     {
-        private Visibility _displayPhotos = Visibility.Collapsed;
-        private bool _displayPhotosChecked = false;
         public ObservableCollection<Racer> Racers = new ObservableCollection<Racer>();
         private readonly Database _db;
         private bool _editHandle = true;
+        private Visibility _displayPhotos = Visibility.Collapsed;
+        public event PropertyChangedEventHandler PropertyChanged;
 
         public Visibility DisplayPhotos
         {
@@ -22,17 +23,8 @@ namespace DerbyApp
             set
             {
                 _displayPhotos = value;
-                NotifyPropertyChanged();
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("DisplayPhotos"));
             }
-        }
-
-        public bool DisplayPhotosChecked { get => _displayPhotosChecked; set => _displayPhotosChecked = value; }
-
-        public event PropertyChangedEventHandler PropertyChanged; 
-        
-        private void NotifyPropertyChanged([CallerMemberName] string name = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
 
         public RacerTableView(Database db)
@@ -41,12 +33,6 @@ namespace DerbyApp
             _db = db;
             _db.GetAllRacers(Racers);
             dataGridRacerTable.DataContext = Racers;
-        }
-
-        private void CheckBox_Checked(object sender, RoutedEventArgs e)
-        {
-            if (DisplayPhotosChecked) DisplayPhotos = Visibility.Visible;
-            else DisplayPhotos = Visibility.Collapsed;
         }
 
         private void DataGridRacerTable_RowEditEnding(object sender, DataGridRowEditEndingEventArgs e)

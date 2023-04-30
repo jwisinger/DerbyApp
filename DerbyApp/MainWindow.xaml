@@ -49,13 +49,8 @@
                 <DropShadowEffect/>
             </ComboBox.Effect>
         </ComboBox>
-        <ComboBox HorizontalAlignment="Left" Margin="190,210,0,0" VerticalAlignment="Top" Width="200" Height="35">
-            <ComboBox.Effect>
-                <DropShadowEffect/>
-            </ComboBox.Effect>
-        </ComboBox>
         <ComboBox HorizontalAlignment="Left" Margin="190,160,0,0" VerticalAlignment="Top" Width="200" Height="35"/>
-        <ComboBox ItemsSource="{Binding ElementName=MainWindowName, Path=RaceList}" SelectedValue="{Binding ElementName=MainWindowName, Path=CurrentRace, Mode=TwoWay}" HorizontalAlignment="Left" Margin="190,210,0,0" VerticalAlignment="Top" Width="200" Height="35" FontSize="20"/>
+        <CheckBox HorizontalAlignment="Center" Content="Display Photos" VerticalAlignment="Bottom" IsChecked="{Binding ElementName=MainWindowName, Path=DisplayPhotosChecked, Mode=TwoWay}" Click="CheckBox_Checked" Grid.Column="0" FontWeight="Bold" FontSize="20" Margin="0,0,0,10"/>
         <ScrollViewer Grid.Column="1" CanContentScroll="True" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
             <Frame Name="mainFrame" NavigationUIVisibility="Hidden" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Margin="0,0,0,0"/>
         </ScrollViewer>

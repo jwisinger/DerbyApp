@@ -7,7 +7,7 @@ using AForge.Video.DirectShow;
 using DerbyApp.RacerDatabase;
 using DerbyApp.RaceStats;
 
-#warning PRETTY: Make this look better
+#warning PRETTY: Incorporate "New Racer" into WPF
 
 namespace DerbyApp
 {

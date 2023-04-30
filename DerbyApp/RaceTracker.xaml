@@ -11,9 +11,9 @@
         <local:NameToBrushConverter x:Key="NameToBrushConverter"/>
     </Page.Resources>
     <Viewbox Stretch="Uniform">
-        <Grid MinHeight="500" MinWidth="960">
+        <Grid MinHeight="400" MinWidth="800">
             <Grid.Background>
-                <ImageBrush ImageSource="/Images/GIRL2.jpg" Opacity="0.15">
+                <ImageBrush ImageSource="/Images/GIRL.jpg" Opacity="0.15">
                     <ImageBrush.RelativeTransform>
                         <TransformGroup>
                             <ScaleTransform CenterY="0.5" CenterX="0.5" ScaleY="0.82" ScaleX="1"/>
@@ -42,7 +42,7 @@
             <Rectangle Grid.Column="1" HorizontalAlignment="Left" Stretch="UniformToFill" Margin="0,0,0,0" Grid.Row="2" VerticalAlignment="Top" Fill="#FFD9F0F8"/>
             <Label Grid.Column="1" Grid.Row="2" Content="Leader Board" HorizontalAlignment="Center" Margin="0,0,0,0" VerticalAlignment="Center" FontSize="28" Background="{x:Null}" FontWeight="Bold"/>
             <Rectangle Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Left" Stretch="UniformToFill" Margin="0,0,0,0" Grid.Row="4" Stroke="Black" VerticalAlignment="Top" Fill="#FFD9F0F8"/>
-            <DataGrid FontSize="20" Name="gridRaceResults" SelectionMode="Single" SelectionUnit="Cell" ItemsSource="{Binding Path=., Mode=TwoWay, NotifyOnSourceUpdated=True, UpdateSourceTrigger=PropertyChanged}" Grid.Column="0" Grid.Row="1" Grid.RowSpan="3" Margin="0,0,0,0" RowHeight="30" CellEditEnding="GridRaceResults_CellEditEnding" CanUserAddRows="False" Background="Transparent" RowBackground="Transparent">
+            <DataGrid FontSize="20" RowHeight="{Binding Path=Value, ElementName=_zoom}" BorderThickness="5,5,0,5" Name="gridRaceResults" SelectionMode="Single" SelectionUnit="Cell" ItemsSource="{Binding Path=., Mode=TwoWay, NotifyOnSourceUpdated=True, UpdateSourceTrigger=PropertyChanged}" Grid.Column="0" Grid.Row="1" Grid.RowSpan="3" Margin="0,0,0,0" CellEditEnding="GridRaceResults_CellEditEnding" CanUserAddRows="False" Background="Transparent" RowBackground="Transparent">
                 <DataGrid.ColumnHeaderStyle>
                     <Style TargetType="{x:Type DataGridColumnHeader}">
                         <Setter Property="FontWeight" Value="Bold"/>
@@ -55,7 +55,7 @@
                     </Style>
                 </DataGrid.CellStyle>
             </DataGrid>
-            <DataGrid AutoGenerateColumns="False" FontSize="20" Grid.Column="1"  Grid.Row="1" Margin="0,0,0,0" Background="Transparent" RowBackground="Transparent" Name="gridCurrentHeat" ItemsSource="{Binding Path=.}">
+            <DataGrid AutoGenerateColumns="False" RowHeight="{Binding Path=Value, ElementName=_zoom}" BorderThickness="5,5,5,5" FontSize="20" Grid.Column="1"  Grid.Row="1" Margin="0,0,0,0" Background="Transparent" RowBackground="Transparent" Name="gridCurrentHeat" ItemsSource="{Binding Path=.}">
                 <DataGrid.Resources>
                     <helpers:BindingProxy x:Key="proxy" Data="{Binding ElementName=raceTrackerWindow}" />
                 </DataGrid.Resources>
@@ -71,13 +71,13 @@
                     <DataGridTemplateColumn Header="Photo" Width="64" IsReadOnly="True" Visibility="{Binding Data.DisplayPhotos, Source={StaticResource proxy}, UpdateSourceTrigger=PropertyChanged}">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
-                                <Image RenderOptions.BitmapScalingMode="Fant" Stretch="Fill" Width="64" Height="48" Source="{Binding PhotoSource}"/>
+                                <Image RenderOptions.BitmapScalingMode="Fant" Stretch="Uniform" MinWidth="64" MinHeight="48" Source="{Binding PhotoSource}"/>
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
                 </DataGrid.Columns>
             </DataGrid>
-            <DataGrid AutoGenerateColumns="False" FontSize="20" Grid.Column="1" Background="Transparent" RowBackground="Transparent" Grid.Row="3" Margin="0,0,0,0" Name="gridLeaderBoard" ItemsSource="{Binding Path=.}">
+            <DataGrid AutoGenerateColumns="False" RowHeight="{Binding Path=Value, ElementName=_zoom}" BorderThickness="5,5,5,5" FontSize="20" Grid.Column="1" Background="Transparent" RowBackground="Transparent" Grid.Row="3" Margin="0,0,0,0" Name="gridLeaderBoard" ItemsSource="{Binding Path=.}">
                 <DataGrid.Resources>
                     <helpers:BindingProxy x:Key="proxy" Data="{Binding ElementName=raceTrackerWindow}" />
                 </DataGrid.Resources>
@@ -93,13 +93,12 @@
                     <DataGridTemplateColumn Header="Photo" Width="64" IsReadOnly="True" Visibility="{Binding Data.DisplayPhotos, Source={StaticResource proxy}, UpdateSourceTrigger=PropertyChanged}">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
-                                <Image RenderOptions.BitmapScalingMode="Fant" Stretch="Fill" Width="64" Height="48" Source="{Binding PhotoSource}"/>
+                                <Image RenderOptions.BitmapScalingMode="Fant" Stretch="Uniform" MinWidth="64" MinHeight="48" Source="{Binding PhotoSource}"/>
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
                 </DataGrid.Columns>
             </DataGrid>
-            <CheckBox Content="Display Photos" FontSize="20" HorizontalAlignment="Left" Grid.Row="4" VerticalAlignment="Center" IsChecked="{Binding ElementName=raceTrackerWindow, Path=DisplayPhotosChecked, Mode=TwoWay}" Click="CheckBox_Checked" Checked="CheckBox_Checked" Margin="20,0,0,0" FontWeight="Bold" />
             <Button Grid.Column="1" Grid.Row="4" Content="" HorizontalAlignment="Right" Margin="0,0,170,0" VerticalAlignment="Center" Height="35" Width="150" FontSize="18">
                 <Button.Effect>
                     <DropShadowEffect/>
@@ -112,6 +111,7 @@
                 </Button.Effect>
             </Button>
             <Button Grid.Column="1" Grid.Row="4" Content="Next Heat" HorizontalAlignment="Right" Margin="0,0,10,0" VerticalAlignment="Center" Height="35" Width="150" FontSize="18" Click="ButtonNextHeat_Click" IsEnabled="{Binding ElementName=raceTrackerWindow, Path=NextHeatEnabled, Mode=TwoWay}"/>
+            <Slider Value="25" AutoToolTipPlacement="TopLeft" AutoToolTipPrecision="0" Grid.Row="4" Name="_zoom" Minimum="1" Maximum="100" VerticalAlignment="Bottom" Margin="5,0,5,5" />
         </Grid>
     </Viewbox>
 </Page>

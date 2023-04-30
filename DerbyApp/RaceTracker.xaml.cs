@@ -10,11 +10,10 @@ namespace DerbyApp
 #warning FEATURE: Add "get data from track" button
 #warning FEATURE: Somehow highlight current heat on datagrid
 #warning DATABASE: Store updated race timing info into database each run
-
+#warning TODO: Fix scaling on RaceTracker
     public partial class RaceTracker : Page, INotifyPropertyChanged
     {
         private Visibility _displayPhotos = Visibility.Collapsed;
-        private bool _displayPhotosChecked = false;
         private bool _previousHeatEnabled = false;
         private bool _nextHeatEnabled = true;
         private string _currentHeatLabelString = "Current Heat (1)";
@@ -62,7 +61,6 @@ namespace DerbyApp
                 NotifyPropertyChanged();
             }
         }
-        public bool DisplayPhotosChecked { get => _displayPhotosChecked; set => _displayPhotosChecked = value; }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -122,10 +120,9 @@ namespace DerbyApp
             gridRaceResults.Columns[1].IsReadOnly = true;
         }
 
-        private void CheckBox_Checked(object sender, RoutedEventArgs e)
+        public void CheckBox_Checked()
         {
-            if (DisplayPhotosChecked) DisplayPhotos = Visibility.Visible;
-            else DisplayPhotos = Visibility.Collapsed;
+            DisplayPhotos = Visibility.Visible;
         }
     }
 }

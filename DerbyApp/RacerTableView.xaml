@@ -4,7 +4,6 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:DerbyApp"
-        xmlns:rd="clr-namespace:DerbyApp.RacerDatabase"
         xmlns:helpers="clr-namespace:DerbyApp.Helpers"
         xmlns:racestats="clr-namespace:DerbyApp.RaceStats"
         mc:Ignorable="d"
@@ -39,8 +38,8 @@
                     </DataGridTemplateColumn>
                 </DataGrid.Columns>
             </DataGrid>
-            <Slider Value="25" AutoToolTipPlacement="TopLeft" AutoToolTipPrecision="0" Grid.Row="0" Name="_zoom" Minimum="1" Maximum="100" VerticalAlignment="Bottom" Margin="0,0,150,5" />
-            <CheckBox HorizontalAlignment="Right" Content="Display Photo" Margin="0,0,15,0" VerticalAlignment="Bottom" IsChecked="{Binding ElementName=rtWindow, Path=DisplayPhotosChecked, Mode=TwoWay}" Click="CheckBox_Checked" Grid.Column="2" FontWeight="Bold" FontSize="16"/>
+            <Slider Value="25" AutoToolTipPlacement="TopLeft" AutoToolTipPrecision="0" Grid.Row="0" Name="_zoom" Minimum="1" Maximum="100" VerticalAlignment="Bottom" Margin="5,0,5,5" />
+            
         </Grid>
     </Viewbox>
 </Page>
