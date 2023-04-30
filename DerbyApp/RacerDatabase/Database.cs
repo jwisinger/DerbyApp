@@ -9,6 +9,7 @@ using Microsoft.Win32;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
 using DerbyApp.RaceStats;
+using System.Diagnostics;
 
 namespace DerbyApp.RacerDatabase
 {
@@ -64,6 +65,45 @@ namespace DerbyApp.RacerDatabase
             command.ExecuteNonQuery();
         }
 
+        public void UpdateResultsTable(ObservableCollection<Racer> racers, string raceName, int heatCount)
+        {
+            int racerCount = 0;
+            string sql;
+            SQLiteCommand command;
+
+            try
+            {
+                sql = "DELETE FROM [" + raceName + "]";
+                command = new SQLiteCommand(sql, SqliteConn);
+                command.ExecuteNonQuery();
+            }
+            catch
+            {
+                sql = "CREATE TABLE IF NOT EXISTS \"" + raceName + "\" ([RacePosition] INTEGER PRIMARY KEY AUTOINCREMENT, [Number] INTEGER";
+                for (int i = 0; i < heatCount; i++) sql += ", [Heat " + (i + 1) + "] DOUBLE";
+                sql += ")";
+                command = new SQLiteCommand(sql, SqliteConn);
+                command.ExecuteNonQuery();
+            }
+
+            try
+            {
+                sql = "DELETE FROM sqlite_sequence WHERE NAME='" + raceName + "'";
+                command = new SQLiteCommand(sql, SqliteConn);
+                command.ExecuteNonQuery();
+            }
+            catch { }
+
+            foreach (Racer r in racers)
+            {
+
+                sql = "INSERT INTO \"" + raceName + "\" ([Number]) VALUES (@Number)";
+                command = new SQLiteCommand(sql, SqliteConn);
+                command.Parameters.Add("@Number", DbType.Int64).Value = r.Number;
+                racerCount += command.ExecuteNonQuery();
+            }
+        }
+
         public bool CreateResultsTable(RaceResults race)
         {
             int racerCount = 0;
@@ -97,7 +137,7 @@ namespace DerbyApp.RacerDatabase
                 racerCount += command.ExecuteNonQuery();
             }
 
-            MessageBox.Show(racerCount + " racer(s) added to " + race.RaceName + ".");
+            //MessageBox.Show(racerCount + " racer(s) added to " + race.RaceName + ".");
 
             if (racerCount > 0) return true;
             else return false;

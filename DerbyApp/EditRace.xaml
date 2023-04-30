@@ -15,13 +15,13 @@
             <RowDefinition Height="1*"/>
         </Grid.RowDefinitions>
         <Label Grid.Row="0" Content="Race Name" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Center"/>
-        <ComboBox Name="cbName" Grid.Row="0" ItemsSource="{Binding Path=., Mode=TwoWay}" HorizontalAlignment="Left" Margin="80,0,0,0" VerticalAlignment="Center" Width="200" SelectionChanged="ComboBoxRaceName_SelectionChanged"/>
-        <DataGrid Grid.Row="1" AutoGenerateColumns="False" CanUserAddRows="False" Margin="5,5,5,5" Name="dataGridRacers" BorderThickness="5,5,5,5" Background="Transparent" RowBackground="Transparent" ItemsSource="{Binding Path=., Mode=TwoWay}">
+        <ComboBox Name="cbName" Grid.Row="0" IsEditable="True" ItemsSource="{Binding Path=., Mode=TwoWay}" HorizontalAlignment="Left" Margin="80,0,0,0" VerticalAlignment="Center" Width="200" SelectionChanged="ComboBoxRaceName_SelectionChanged" KeyUp="CbName_KeyUp"/>
+        <DataGrid Grid.Row="1" AutoGenerateColumns="False" CanUserAddRows="True" Margin="5,5,5,5" Name="dataGridRacers" BorderThickness="5,5,5,5" Background="Transparent" RowBackground="Transparent" ItemsSource="{Binding Path=., Mode=TwoWay}" CellEditEnding="DataGridRacers_CellEditEnding" AddingNewItem="DataGridRacers_AddingNewItem">
             <DataGrid.Resources>
                 <helpers:BindingProxy x:Key="proxy" Data="{Binding ElementName=erWindow}" />
             </DataGrid.Resources>
             <DataGrid.Columns>
-                <DataGridTextColumn Header="Number" Width="60" Binding="{Binding Number}" IsReadOnly="True"></DataGridTextColumn>
+                <DataGridTextColumn Header="Number" Width="60" Binding="{Binding Number, Mode=TwoWay}" IsReadOnly="True"></DataGridTextColumn>
                 <DataGridComboBoxColumn x:Name="cbColumn" Header="Name" Width="150" SelectedValueBinding="{Binding RacerName, Mode=TwoWay}" SelectedValuePath="RacerName" DisplayMemberPath="RacerName">
                     <DataGridComboBoxColumn.EditingElementStyle>
                         <Style TargetType="{x:Type ComboBox}">
@@ -42,5 +42,12 @@
                 </DataGridTemplateColumn>
             </DataGrid.Columns>
         </DataGrid>
+        <CheckBox Name="cbDaisy" Content="Daisy" HorizontalAlignment="Left" Margin="290,0,0,0" VerticalAlignment="Center" IsChecked="True" Click="CheckBox_Click"/>
+        <CheckBox Name="cbBrownie" Content="Brownie" HorizontalAlignment="Left" Margin="352,0,0,0" VerticalAlignment="Center" IsChecked="True" Click="CheckBox_Click"/>
+        <CheckBox Name="cbJunior" Content="Junior" HorizontalAlignment="Left" Margin="429,0,0,0" VerticalAlignment="Center" IsChecked="True" Click="CheckBox_Click"/>
+        <CheckBox Name="cbCadette" Content="Cadette" HorizontalAlignment="Left" Margin="495,0,0,0" VerticalAlignment="Center" IsChecked="True" Click="CheckBox_Click"/>
+        <CheckBox Name="cbSenior" Content="Senior" HorizontalAlignment="Left" Margin="570,0,0,0" VerticalAlignment="Center" IsChecked="True" Click="CheckBox_Click"/>
+        <CheckBox Name="cbAmbassador" Content="Ambassador" HorizontalAlignment="Left" Margin="638,0,0,0" VerticalAlignment="Center" IsChecked="True" Click="CheckBox_Click"/>
+        <CheckBox Name="cbAdult" Content="Adult" HorizontalAlignment="Left" Margin="738,0,0,0" VerticalAlignment="Center" IsChecked="True" Click="CheckBox_Click"/>
     </Grid>
 </Page>
