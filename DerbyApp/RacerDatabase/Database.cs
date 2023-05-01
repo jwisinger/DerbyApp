@@ -246,7 +246,6 @@ namespace DerbyApp.RacerDatabase
             SQLiteCommand command = new SQLiteCommand(sql, SqliteConn);
 
             command.Parameters.Add("@Number", DbType.Int64).Value = racer.Number;
-            MessageBox.Show(command.ExecuteNonQuery() + " racer(s) deleted.");
         }
 
         public static void StoreDatabaseRegistry(string database, string activeRace)

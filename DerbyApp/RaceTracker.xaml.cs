@@ -9,8 +9,8 @@ namespace DerbyApp
 {
 #warning FEATURE: Add "get data from track" button
 #warning FEATURE: Somehow highlight current heat on datagrid
-#warning DATABASE: Store updated race timing info into database each run
 #warning TODO: Fix scaling on RaceTracker
+#warning TODO: Store current race in registry or database
 
     public partial class RaceTracker : Page, INotifyPropertyChanged
     {
@@ -109,6 +109,7 @@ namespace DerbyApp
         {
             Results.UpdateResults((e.EditingElement as TextBox).Text, e.Column.DisplayIndex, e.Row.GetIndex());
             LdrBoard.CalculateResults(Results.ResultsTable);
+#warning DATABASE: Store updated race timing info into database each run
         }
 
         private void RaceTrackerWindow_Loaded(object sender, RoutedEventArgs e)

@@ -10,6 +10,8 @@
   <ItemGroup>
     <None Remove=".jpg" />
     <None Remove="Girl-Scout-Logo.png" />
+    <None Remove="Images\Camera.png" />
+    <None Remove="Images\No Camera.png" />
     <None Remove="Images\STEM.jpg" />
     <None Remove="STEM.jpg" />
   </ItemGroup>
@@ -22,9 +24,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Resource Include="Images\Camera.png" />
     <Resource Include="Images\Girl-Scout-Logo.png" />
     <Resource Include="Images\GIRL.jpg" />
     <Resource Include="Images\GIRL2.jpg" />
+    <Resource Include="Images\No Camera.png" />
     <Resource Include="Images\STEM.jpg" />
   </ItemGroup>
 

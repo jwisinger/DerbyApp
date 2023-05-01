@@ -8,7 +8,6 @@ using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 
-#warning TODO: Allow deleting a racer
 #warning TODO: Ensure a newly added racer is available in the add racer drop down (any similar checks)?
 
 namespace DerbyApp
@@ -111,6 +110,11 @@ namespace DerbyApp
                 Racers.Add(cbRacers.SelectedItem as Racer);
             }
             _db.UpdateResultsTable(Racers, cbName.Text, 13);
+        }
+
+        private void Delete_OnClick(object sender, RoutedEventArgs e)
+        {
+            Racers.RemoveAt(dataGridRacers.SelectedIndex);
         }
     }
 }

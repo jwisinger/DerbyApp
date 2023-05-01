@@ -25,6 +25,11 @@
                 <DataGrid.Resources>
                     <helpers:BindingProxy x:Key="proxy" Data="{Binding ElementName=erWindow}" />
                 </DataGrid.Resources>
+                <DataGrid.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="Delete" Click="Delete_OnClick" CommandParameter="{Binding RelativeSource={RelativeSource Self}, Path=Parent}"/>
+                    </ContextMenu>
+                </DataGrid.ContextMenu>
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="Number" Width="60" Binding="{Binding Number, Mode=TwoWay}" IsReadOnly="True"></DataGridTextColumn>
                     <DataGridTextColumn Header="Name" Width="150" Binding="{Binding RacerName}" IsReadOnly="True"></DataGridTextColumn>
