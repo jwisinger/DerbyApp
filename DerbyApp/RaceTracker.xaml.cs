@@ -11,6 +11,7 @@ namespace DerbyApp
 #warning FEATURE: Somehow highlight current heat on datagrid
 #warning DATABASE: Store updated race timing info into database each run
 #warning TODO: Fix scaling on RaceTracker
+
     public partial class RaceTracker : Page, INotifyPropertyChanged
     {
         private Visibility _displayPhotos = Visibility.Collapsed;

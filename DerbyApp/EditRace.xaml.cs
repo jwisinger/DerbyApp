@@ -8,10 +8,8 @@ using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 
-#warning TODO: Show race position
-#warning TODO: When a racer is added, auto populate other fields
-#warning TODO: Block same racer being selected twice
-#warning TODO: Ensure a newly added racer is available in the drop down (any similar checks)?
+#warning TODO: Allow deleting a racer
+#warning TODO: Ensure a newly added racer is available in the add racer drop down (any similar checks)?
 
 namespace DerbyApp
 {
@@ -19,7 +17,6 @@ namespace DerbyApp
     {
         private readonly Database _db;
         private readonly Dictionary<string, CheckBox> _cbList = new Dictionary<string, CheckBox>();
-        private bool _handleSelection = true;
         public List<string> Races;
         public ObservableCollection<Racer> Racers = new ObservableCollection<Racer>();
         public ObservableCollection<Racer> AllRacers = new ObservableCollection<Racer>();
@@ -44,7 +41,7 @@ namespace DerbyApp
             Races = _db.GetListOfRaces();
             cbName.DataContext = Races;
             AllRacers = _db.GetAllRacers();
-            cbColumn.ItemsSource = AvailableRacers;
+            cbRacers.ItemsSource = AvailableRacers;
             dataGridRacers.DataContext = Racers;
 
             _cbList.Add("Daisy", cbDaisy);
@@ -57,6 +54,7 @@ namespace DerbyApp
 
             AvailableRacers.Clear();
             foreach (Racer r in AllRacers) AvailableRacers.Add(r);
+#warning TODO: Show race position
             /*for (int i = 0; i < _raceHeatList.RacerCount; i++)
             {
                 tlpRacer.RowCount++;
@@ -64,16 +62,6 @@ namespace DerbyApp
                 tlpRacer.Controls.Add(new Label() { Text = "Racer in Position " + (i + 1), Dock = DockStyle.Fill, TextAlign = ContentAlignment.MiddleLeft }, 0, i + 1);
                 tlpRacer.Controls.Add(new ComboBox() { Text = "", Dock = DockStyle.Fill, DropDownStyle = ComboBoxStyle.DropDownList }, 1, i + 1);
             }*/
-
-            /*tlpLevel.Controls.Add(new TextBox() { Multiline = true, ReadOnly = true, Dock = DockStyle.Fill, Text = "Choose the levels you want to include racers from and click \"Load Racers\", then choose the desired racer name for each position and click \"OK\"." });
-            foreach (string s in GirlScoutLevels.ScoutLevels)
-            {
-                tlpLevel.RowCount++;
-                tlpLevel.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-                tlpLevel.Controls.Add(new CheckBox() { Text = s, Dock = DockStyle.Fill, Checked = true, Name = "cb" + s }, 0, tlpLevel.RowCount - 1);
-            }
-            tlpLevel.RowCount++;
-            tlpLevel.RowStyles.Add(new RowStyle(SizeType.Absolute, 40));*/
         }
 
         private void ComboBoxRaceName_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -86,55 +74,6 @@ namespace DerbyApp
             {
                 Racers.Clear();
             }
-        }
-
-        private void DataGridComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            try
-            {
-                /*int oldRacer = -1;
-                int newRacer = -1;
-
-                e.Handled = true;
-                if (e.RemovedItems.Count > 0)
-                {
-                    oldRacer = Racers.IndexOf(Racers.Where(x => x.Number == (e.RemovedItems[0] as Racer).Number).FirstOrDefault());
-                }
-                newRacer = Racers.IndexOf(Racers.Where(x => x.Number == (e.AddedItems[0] as Racer).Number).FirstOrDefault());
-                if (oldRacer < 0)
-                {
-                    Racers.Add(e.AddedItems[0] as Racer);
-                }
-                else if (newRacer == -1) Racers[oldRacer] = (e.AddedItems[0] as Racer);
-                else
-                {
-                    if (_handleSelection)
-                    {
-                        _handleSelection = false;
-                        (sender as ComboBox).SelectedItem = e.RemovedItems[0];
-                        _handleSelection = true;
-                    }
-                }*/
-            }
-            catch { }
-
-            //Racers[sender. e.Row.GetIndex()] = AllRacers.Where(racer => racer.RacerName == racerName).FirstOrDefault();
-            //_db.AddRacerToRacerTable(Racers[e.Row.GetIndex()]);
-        }
-
-        private void DataGridRacers_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
-        {
-            /*for (int i = 0; i < Racers.Count; i++)
-            {
-                if (Racers[i] != null)
-                {
-                    Racer r = AllRacers.Where(x => x.RacerName == Racers[i].RacerName).FirstOrDefault();
-                    if (r != null) Racers[i] = r;
-                }
-            }*/
-#warning TODO: Get rid of these two hardcoded 13
-            if (Racers.Count > 13) Racers.RemoveAt(Racers.Count - 1);
-            _db.UpdateResultsTable(Racers, cbName.Text, 13);
         }
 
         private void DataGridRacers_AddingNewItem(object sender, AddingNewItemEventArgs e)
@@ -159,6 +98,19 @@ namespace DerbyApp
                     foreach (Racer r in racers) AvailableRacers.Add(r);
                 }
             }
+        }
+
+        private void ButtonAddRacer_Click(object sender, RoutedEventArgs e)
+        {
+#warning TODO: Get rid of this hardcoded 13
+            if (Racers.Count > 13) return;
+
+            // Check if added racer already in list
+            if (Racers.Where(x => x.Number == (cbRacers.SelectedItem as Racer).Number).FirstOrDefault() == null)
+            {
+                Racers.Add(cbRacers.SelectedItem as Racer);
+            }
+            _db.UpdateResultsTable(Racers, cbName.Text, 13);
         }
     }
 }
