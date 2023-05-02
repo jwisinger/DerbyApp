@@ -9,7 +9,7 @@
         mc:Ignorable="d"
         Title="Racer Table View" Name="rtWindow">
     <Viewbox Stretch="Uniform">
-        <Grid Height="400" Width="800">
+        <Grid Height="400" Width="700">
             <DataGrid AutoGenerateColumns="False" RowHeight="{Binding Path=Value, ElementName=_zoom}" CanUserAddRows="False" Margin="5,35,5,30" Name="dataGridRacerTable" BorderThickness="5,5,5,5" Grid.ColumnSpan="3" RowBackground="Transparent" ItemsSource="{Binding Path=.}" RowEditEnding="DataGridRacerTable_RowEditEnding" >
                 <DataGrid.Background>
                     <ImageBrush ImageSource="/Images/GIRL.jpg" Opacity=".1"/>

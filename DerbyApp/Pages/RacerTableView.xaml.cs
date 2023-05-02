@@ -1,11 +1,9 @@
 ﻿using System.Windows;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Runtime.CompilerServices;
 using DerbyApp.RacerDatabase;
 using DerbyApp.RaceStats;
 using System.Windows.Controls;
-using System.Xml.Linq;
 
 namespace DerbyApp
 {
@@ -33,6 +31,11 @@ namespace DerbyApp
             _db = db;
             _db.GetAllRacers(Racers);
             dataGridRacerTable.DataContext = Racers;
+        }
+
+        public void UpdateRacerList()
+        {
+            _db.GetAllRacers(Racers);
         }
 
         private void DataGridRacerTable_RowEditEnding(object sender, DataGridRowEditEndingEventArgs e)

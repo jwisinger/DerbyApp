@@ -1,4 +1,5 @@
-﻿using DerbyApp.RaceStats;
+﻿using DerbyApp.RacerDatabase;
+using DerbyApp.RaceStats;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows;
@@ -18,6 +19,7 @@ namespace DerbyApp
         private bool _previousHeatEnabled = false;
         private bool _nextHeatEnabled = true;
         private string _currentHeatLabelString = "Current Heat (1)";
+        private Database _db = null;
 
         public RaceResults Results { get; set; }
         public RaceHeat Heat { get; set; }
@@ -70,11 +72,12 @@ namespace DerbyApp
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
 
-        public RaceTracker(RaceResults race, RaceHeat heat)
+        public RaceTracker(RaceResults race, RaceHeat heat, Database db)
         {
             InitializeComponent();
             Results = race;
             Heat = heat;
+            _db = db;
             heat.UpdateHeat(Results.CurrentHeatNumber, race.Racers);
             LdrBoard = new Leaderboard(race.Racers, heat.HeatCount);
             gridRaceResults.DataContext = Results.ResultsTable.DefaultView;
@@ -109,7 +112,7 @@ namespace DerbyApp
         {
             Results.UpdateResults((e.EditingElement as TextBox).Text, e.Column.DisplayIndex, e.Row.GetIndex());
             LdrBoard.CalculateResults(Results.ResultsTable);
-#warning DATABASE: Store updated race timing info into database each run
+            _db.UpdateResultsTable(Results.RaceName, Results.ResultsTable.Rows[e.Row.GetIndex()]);
         }
 
         private void RaceTrackerWindow_Loaded(object sender, RoutedEventArgs e)

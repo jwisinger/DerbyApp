@@ -8,8 +8,6 @@ using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 
-#warning TODO: Ensure a newly added racer is available in the add racer drop down (any similar checks)?
-
 namespace DerbyApp
 {
     public partial class EditRace : Page, INotifyPropertyChanged
@@ -39,7 +37,6 @@ namespace DerbyApp
             InitializeComponent();
             Races = _db.GetListOfRaces();
             cbName.DataContext = Races;
-            AllRacers = _db.GetAllRacers();
             cbRacers.ItemsSource = AvailableRacers;
             dataGridRacers.DataContext = Racers;
 
@@ -51,23 +48,30 @@ namespace DerbyApp
             _cbList.Add("Ambassador", cbAmbassador);
             _cbList.Add("Adult", cbAdult);
 
+            UpdateRacerList();
+        }
+
+        public void UpdateRacerList()
+        {
+            AllRacers = _db.GetAllRacers();
             AvailableRacers.Clear();
-            foreach (Racer r in AllRacers) AvailableRacers.Add(r);
-#warning TODO: Show race position
-            /*for (int i = 0; i < _raceHeatList.RacerCount; i++)
+            foreach (var item in _cbList)
             {
-                tlpRacer.RowCount++;
-                tlpRacer.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-                tlpRacer.Controls.Add(new Label() { Text = "Racer in Position " + (i + 1), Dock = DockStyle.Fill, TextAlign = ContentAlignment.MiddleLeft }, 0, i + 1);
-                tlpRacer.Controls.Add(new ComboBox() { Text = "", Dock = DockStyle.Fill, DropDownStyle = ComboBoxStyle.DropDownList }, 1, i + 1);
-            }*/
+                if ((bool)item.Value.IsChecked)
+                {
+                    var racers = AllRacers.Where(x => x.Level == item.Key);
+                    foreach (Racer r in racers) AvailableRacers.Add(r);
+                }
+            }
         }
 
         private void ComboBoxRaceName_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (e.AddedItems.Count > 0)
             {
+                int order = 1;
                 Racers = _db.GetRacers((string)e.AddedItems[0], Racers);
+                foreach (Racer r in Racers) r.RaceOrder = order++;
             }
             else
             {
@@ -101,6 +105,7 @@ namespace DerbyApp
 
         private void ButtonAddRacer_Click(object sender, RoutedEventArgs e)
         {
+            int order = 1;
 #warning TODO: Get rid of this hardcoded 13
             if (Racers.Count > 13) return;
 
@@ -109,12 +114,19 @@ namespace DerbyApp
             {
                 Racers.Add(cbRacers.SelectedItem as Racer);
             }
-            _db.UpdateResultsTable(Racers, cbName.Text, 13);
+
+            foreach (Racer r in Racers) r.RaceOrder = order++;
+#warning TODO: Get rid of this hardcoded 13
+            _db.ModifyResultsTable(Racers, cbName.Text, 13);
         }
 
         private void Delete_OnClick(object sender, RoutedEventArgs e)
         {
+            int order = 1;
             Racers.RemoveAt(dataGridRacers.SelectedIndex);
+            foreach (Racer r in Racers) r.RaceOrder = order++;
+#warning TODO: Get rid of this hardcoded 13
+            _db.ModifyResultsTable(Racers, cbName.Text, 13);
         }
     }
 }

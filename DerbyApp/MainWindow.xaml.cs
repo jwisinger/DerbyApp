@@ -81,7 +81,8 @@ namespace DerbyApp
             _databaseName = databaseName;
             _editRace = new EditRace(_db);
             _racerTableView = new RacerTableView(_db);
-            _raceTracker = new RaceTracker(new RaceResults(), RaceHeats.ThirteenCarsFourLanes);
+#warning TODO: 13 Cars 4 Lanes
+            _raceTracker = new RaceTracker(new RaceResults(), RaceHeats.ThirteenCarsFourLanes, _db);
             mainFrame.Navigate(new Default());
         }
 
@@ -111,6 +112,8 @@ namespace DerbyApp
             if (nr.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
                 _db.AddRacerToRacerTable(nr.Racer);
+                _racerTableView.UpdateRacerList();
+                _editRace.UpdateRacerList();
             }
         }
 
@@ -128,8 +131,9 @@ namespace DerbyApp
         {
             if (_editRace.Racers.Count > 0)
             {
+#warning TODO: 13 Cars 4 Lanes
                 RaceResults Race = new RaceResults(_editRace.cbName.Text, _editRace.Racers, RaceHeats.ThirteenCarsFourLanes.HeatCount);
-                _raceTracker = new RaceTracker(Race, RaceHeats.ThirteenCarsFourLanes);
+                _raceTracker = new RaceTracker(Race, RaceHeats.ThirteenCarsFourLanes, _db);
                 mainFrame.Navigate(_raceTracker);
             }
             else

@@ -31,6 +31,7 @@
                     </ContextMenu>
                 </DataGrid.ContextMenu>
                 <DataGrid.Columns>
+                    <DataGridTextColumn Header="Race Position" Width="80" Binding="{Binding RaceOrder}" IsReadOnly="True"></DataGridTextColumn>
                     <DataGridTextColumn Header="Number" Width="60" Binding="{Binding Number, Mode=TwoWay}" IsReadOnly="True"></DataGridTextColumn>
                     <DataGridTextColumn Header="Name" Width="150" Binding="{Binding RacerName}" IsReadOnly="True"></DataGridTextColumn>
                     <DataGridTextColumn Header="Weight" Width="80" Binding="{Binding Weight}" IsReadOnly="True"></DataGridTextColumn>

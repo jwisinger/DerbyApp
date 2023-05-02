@@ -6,10 +6,8 @@ using System.Data;
 using System.Windows;
 using System.Collections.ObjectModel;
 using Microsoft.Win32;
-using System.Text.RegularExpressions;
 using System.Collections.Generic;
 using DerbyApp.RaceStats;
-using System.Diagnostics;
 
 namespace DerbyApp.RacerDatabase
 {
@@ -65,7 +63,7 @@ namespace DerbyApp.RacerDatabase
             command.ExecuteNonQuery();
         }
 
-        public void UpdateResultsTable(ObservableCollection<Racer> racers, string raceName, int heatCount)
+        public void ModifyResultsTable(ObservableCollection<Racer> racers, string raceName, int heatCount)
         {
             int racerCount = 0;
             string sql;
@@ -96,7 +94,6 @@ namespace DerbyApp.RacerDatabase
 
             foreach (Racer r in racers)
             {
-
                 sql = "INSERT INTO \"" + raceName + "\" ([Number]) VALUES (@Number)";
                 command = new SQLiteCommand(sql, SqliteConn);
                 command.Parameters.Add("@Number", DbType.Int64).Value = r.Number;
@@ -104,7 +101,26 @@ namespace DerbyApp.RacerDatabase
             }
         }
 
-        public bool CreateResultsTable(RaceResults race)
+        public void UpdateResultsTable(string raceName, DataRow row)
+        {
+            string sql = "UPDATE " + raceName + " SET ";
+            SQLiteCommand command;
+
+            for (int i = 2; i < row.ItemArray.Length; i++)
+            {
+                double? num = row.ItemArray[i] as double?;
+                if (num != null)
+                {
+                    sql += "[Heat " + (i - 1) + "]=" + num + ", ";
+                }
+            }
+            sql = sql.Remove(sql.Length - 2);
+            sql += " WHERE [Number]=" + (int)row["Number"];
+            command = new SQLiteCommand(sql, SqliteConn);
+            command.ExecuteNonQuery();
+        }
+
+        /*public bool CreateResultsTable(RaceResults race)
         {
             int racerCount = 0;
             string sql;
@@ -141,7 +157,7 @@ namespace DerbyApp.RacerDatabase
 
             if (racerCount > 0) return true;
             else return false;
-        }
+        }*/
 
         public ObservableCollection<Racer> GetAllRacers(ObservableCollection<Racer> Racers = null)
         {

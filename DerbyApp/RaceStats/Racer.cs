@@ -17,6 +17,7 @@ namespace DerbyApp.RaceStats
         private string _level = "";
         private string _email = "";
         private int _score = 0;
+        private int _raceOrder = 0;
         private ImageSource _photosource = GetImageSource(new Bitmap(640, 480));
         private Image _photo = new Bitmap(640, 480);
 
@@ -40,7 +41,15 @@ namespace DerbyApp.RaceStats
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Score"));
             }
         }
-        public int RaceOrder = 0;
+        public int RaceOrder
+        {
+            get => _raceOrder;
+            set
+            {
+                _raceOrder = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("RaceOrder"));
+            }
+        }
 
         public ImageSource PhotoSource { get => _photosource; set => _photosource = value; }
         public Image Photo { get => _photo; set { _photo = value; PhotoSource = GetImageSource(_photo); } }
