@@ -6,10 +6,8 @@ using System.IO;
 using System.Windows;
 using DerbyApp.RacerDatabase;
 using DerbyApp.RaceStats;
-using System.Runtime.CompilerServices;
 
-#warning FEATURE: Add ability to generate per racer and overall reports
-#warning TODO: See if I still need "RaceList"
+#warning REPORTS: Add ability to generate per racer and overall reports
 
 namespace DerbyApp
 {
@@ -18,13 +16,11 @@ namespace DerbyApp
         private Database _db;
         public string _currentRace = "";
         private readonly string _databaseName = "";
-        private readonly ObservableCollection<string> _raceList = new ObservableCollection<string>();
         private readonly EditRace _editRace;
         private readonly RacerTableView _racerTableView;
         private RaceTracker _raceTracker;
         private bool _displayPhotosChecked = false;
 
-        public ObservableCollection<string> RaceList { get { return _raceList; } }
         public event PropertyChangedEventHandler PropertyChanged;
 
         public string CurrentRace
@@ -77,11 +73,10 @@ namespace DerbyApp
             _db = new Database(databaseName);
             CurrentRace = activeRace;
             Database.StoreDatabaseRegistry(databaseName, CurrentRace);
-            UpdateRaceList();
             _databaseName = databaseName;
             _editRace = new EditRace(_db);
             _racerTableView = new RacerTableView(_db);
-#warning TODO: 13 Cars 4 Lanes
+#warning HARDCODE: 13 Cars 4 Lanes
             _raceTracker = new RaceTracker(new RaceResults(), RaceHeats.ThirteenCarsFourLanes, _db);
             mainFrame.Navigate(new Default());
         }
@@ -131,7 +126,7 @@ namespace DerbyApp
         {
             if (_editRace.Racers.Count > 0)
             {
-#warning TODO: 13 Cars 4 Lanes
+#warning HARDCODE: 13 Cars 4 Lanes
                 RaceResults Race = new RaceResults(_editRace.cbName.Text, _editRace.Racers, RaceHeats.ThirteenCarsFourLanes.HeatCount);
                 _raceTracker = new RaceTracker(Race, RaceHeats.ThirteenCarsFourLanes, _db);
                 mainFrame.Navigate(_raceTracker);
@@ -142,13 +137,6 @@ namespace DerbyApp
                 MessageBox.Show("Your currently selected race " + CurrentRace + " has no racers in it.");
             }
             Database.StoreDatabaseRegistry(_databaseName, CurrentRace);
-        }
-
-        private void UpdateRaceList()
-        {
-            List<string> rl = _db.GetListOfRaces();
-            _raceList.Clear();
-            foreach (string r in rl) _raceList.Add(r);
         }
     }
 }

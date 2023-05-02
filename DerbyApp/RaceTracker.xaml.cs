@@ -9,9 +9,9 @@ using System.Windows.Data;
 namespace DerbyApp
 {
 #warning FEATURE: Add "get data from track" button
-#warning FEATURE: Somehow highlight current heat on datagrid
-#warning TODO: Fix scaling on RaceTracker
-#warning TODO: Store current race in registry or database
+#warning FEATURE: Store current race in registry or database
+#warning HIGHLIGHT: Somehow highlight current heat on datagrid
+#warning PRETTY: Fix scaling on RaceTracker
 
     public partial class RaceTracker : Page, INotifyPropertyChanged
     {
@@ -19,7 +19,7 @@ namespace DerbyApp
         private bool _previousHeatEnabled = false;
         private bool _nextHeatEnabled = true;
         private string _currentHeatLabelString = "Current Heat (1)";
-        private Database _db = null;
+        private readonly Database _db = null;
 
         public RaceResults Results { get; set; }
         public RaceHeat Heat { get; set; }

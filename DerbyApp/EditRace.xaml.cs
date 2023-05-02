@@ -106,7 +106,7 @@ namespace DerbyApp
         private void ButtonAddRacer_Click(object sender, RoutedEventArgs e)
         {
             int order = 1;
-#warning TODO: Get rid of this hardcoded 13
+#warning HARDCODE: Get rid of this hardcoded 13
             if (Racers.Count > 13) return;
 
             // Check if added racer already in list
@@ -116,7 +116,7 @@ namespace DerbyApp
             }
 
             foreach (Racer r in Racers) r.RaceOrder = order++;
-#warning TODO: Get rid of this hardcoded 13
+#warning HARDCODE: Get rid of this hardcoded 13
             _db.ModifyResultsTable(Racers, cbName.Text, 13);
         }
 
@@ -125,7 +125,7 @@ namespace DerbyApp
             int order = 1;
             Racers.RemoveAt(dataGridRacers.SelectedIndex);
             foreach (Racer r in Racers) r.RaceOrder = order++;
-#warning TODO: Get rid of this hardcoded 13
+#warning HARDCODE: Get rid of this hardcoded 13
             _db.ModifyResultsTable(Racers, cbName.Text, 13);
         }
     }

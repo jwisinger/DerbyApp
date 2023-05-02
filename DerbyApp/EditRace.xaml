@@ -10,7 +10,7 @@
       d:DesignHeight="450" d:DesignWidth="800"
       Title="EditRace" Name="erWindow">
     <Viewbox Stretch="Uniform">
-        <Grid Name="EditRaceGrid" Height="400" Width="800">
+        <Grid Name="EditRaceGrid" Height="400" Width="700">
             <Grid.RowDefinitions>
                 <RowDefinition Height="30"/>
                 <RowDefinition Height="30"/>
@@ -34,9 +34,9 @@
                     <DataGridTextColumn Header="Race Position" Width="80" Binding="{Binding RaceOrder}" IsReadOnly="True"></DataGridTextColumn>
                     <DataGridTextColumn Header="Number" Width="60" Binding="{Binding Number, Mode=TwoWay}" IsReadOnly="True"></DataGridTextColumn>
                     <DataGridTextColumn Header="Name" Width="150" Binding="{Binding RacerName}" IsReadOnly="True"></DataGridTextColumn>
-                    <DataGridTextColumn Header="Weight" Width="80" Binding="{Binding Weight}" IsReadOnly="True"></DataGridTextColumn>
-                    <DataGridTextColumn Header="Troop" Width="80" Binding="{Binding Troop}" IsReadOnly="True"></DataGridTextColumn>
-                    <DataGridTextColumn Header="Level" Width="100" Binding="{Binding Level}" IsReadOnly="True"></DataGridTextColumn>
+                    <DataGridTextColumn Header="Weight" Width="70" Binding="{Binding Weight}" IsReadOnly="True"></DataGridTextColumn>
+                    <DataGridTextColumn Header="Troop" Width="60" Binding="{Binding Troop}" IsReadOnly="True"></DataGridTextColumn>
+                    <DataGridTextColumn Header="Level" Width="50" Binding="{Binding Level}" IsReadOnly="True"></DataGridTextColumn>
                     <DataGridTextColumn Header="Email" Width="100" Binding="{Binding Email}" IsReadOnly="True"></DataGridTextColumn>
                     <DataGridTemplateColumn Header="Photo" Width="1*" IsReadOnly="True" Visibility="{Binding Data.DisplayPhotos, Source={StaticResource proxy}, UpdateSourceTrigger=PropertyChanged}">
                         <DataGridTemplateColumn.CellTemplate>
