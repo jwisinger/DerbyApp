@@ -1,40 +1,22 @@
 ﻿using Microsoft.Win32;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.IO;
 using System.Windows;
 using DerbyApp.RacerDatabase;
 using DerbyApp.RaceStats;
 
 #warning REPORTS: Add ability to generate per racer and overall reports
+#warning PRETTY: Pick a better icon
 
 namespace DerbyApp
 {
-    public partial class MainWindow : Window, INotifyPropertyChanged
+    public partial class MainWindow : Window
     {
         private Database _db;
-        public string _currentRace = "";
         private readonly string _databaseName = "";
-        private readonly EditRace _editRace;
-        private readonly RacerTableView _racerTableView;
+        private EditRace _editRace;
+        private RacerTableView _racerTableView;
         private RaceTracker _raceTracker;
         private bool _displayPhotosChecked = false;
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        public string CurrentRace
-        {
-            get
-            {
-                return _currentRace;
-            }
-            set
-            {
-                _currentRace = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("CurrentRace"));
-            }
-        }
 
         public bool DisplayPhotosChecked
         {
@@ -71,13 +53,14 @@ namespace DerbyApp
             InitializeComponent();
             this.Title = "Current Event = " + Path.GetFileNameWithoutExtension(databaseName);
             _db = new Database(databaseName);
-            CurrentRace = activeRace;
-            Database.StoreDatabaseRegistry(databaseName, CurrentRace);
+            Database.StoreDatabaseRegistry(databaseName, activeRace);
             _databaseName = databaseName;
-            _editRace = new EditRace(_db);
+            _editRace = new EditRace(_db)
+            {
+                CurrentRace = activeRace
+            };
             _racerTableView = new RacerTableView(_db);
-#warning HARDCODE: 13 Cars 4 Lanes
-            _raceTracker = new RaceTracker(new RaceResults(), RaceHeats.ThirteenCarsFourLanes, _db);
+            _raceTracker = new RaceTracker(new RaceResults(), RaceHeats.Default, _db);
             mainFrame.Navigate(new Default());
         }
 
@@ -95,9 +78,12 @@ namespace DerbyApp
             if ((bool)dialog.ShowDialog())
             {
                 string databaseName = dialog.FileName;
-                this.Title = Path.GetFileNameWithoutExtension(databaseName);
+                this.Title = "Current Event = " + Path.GetFileNameWithoutExtension(databaseName);
                 _db = new Database(databaseName);
-                Database.StoreDatabaseRegistry(databaseName, CurrentRace);
+                Database.StoreDatabaseRegistry(databaseName, _editRace.CurrentRace);
+                _editRace = new EditRace(_db);
+                _racerTableView = new RacerTableView(_db);
+                _raceTracker = new RaceTracker(new RaceResults(), RaceHeats.Default, _db);
             }
         }
 
@@ -126,7 +112,6 @@ namespace DerbyApp
         {
             if (_editRace.Racers.Count > 0)
             {
-#warning HARDCODE: 13 Cars 4 Lanes
                 RaceResults Race = new RaceResults(_editRace.cbName.Text, _editRace.Racers, RaceHeats.ThirteenCarsFourLanes.HeatCount);
                 _raceTracker = new RaceTracker(Race, RaceHeats.ThirteenCarsFourLanes, _db);
                 mainFrame.Navigate(_raceTracker);
@@ -134,9 +119,9 @@ namespace DerbyApp
             else
             {
                 mainFrame.Navigate(new Default());
-                MessageBox.Show("Your currently selected race " + CurrentRace + " has no racers in it.");
+                MessageBox.Show("Your currently selected race " + _editRace.CurrentRace + " has no racers in it.");
             }
-            Database.StoreDatabaseRegistry(_databaseName, CurrentRace);
+            Database.StoreDatabaseRegistry(_databaseName, _editRace.CurrentRace);
         }
     }
 }

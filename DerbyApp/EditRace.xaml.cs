@@ -19,7 +19,21 @@ namespace DerbyApp
         public ObservableCollection<Racer> AllRacers = new ObservableCollection<Racer>();
         public ObservableCollection<Racer> AvailableRacers = new ObservableCollection<Racer>();
         private Visibility _displayPhotos = Visibility.Collapsed;
+        private readonly int _heatCount = RaceHeats.Default.HeatCount;
+        private readonly int _racerCount = RaceHeats.Default.RacerCount;
         public event PropertyChangedEventHandler PropertyChanged;
+
+        public string CurrentRace
+        {
+            get => cbName.Text;
+            set
+            {
+                int order = 1;
+                cbName.Text = value;
+                Racers = _db.GetRacers(cbName.Text, Racers);
+                foreach (Racer r in Racers) r.RaceOrder = order++;
+            }
+        }
 
         public Visibility DisplayPhotos
         {
@@ -79,11 +93,6 @@ namespace DerbyApp
             }
         }
 
-        private void DataGridRacers_AddingNewItem(object sender, AddingNewItemEventArgs e)
-        {
-            if (Racers.Count > 13) Racers.RemoveAt(Racers.Count - 1);
-        }
-
         private void CbName_KeyUp(object sender, System.Windows.Input.KeyEventArgs e)
         {
             var regex = new Regex(@"[^a-zA-Z0-9\s]");
@@ -106,8 +115,7 @@ namespace DerbyApp
         private void ButtonAddRacer_Click(object sender, RoutedEventArgs e)
         {
             int order = 1;
-#warning HARDCODE: Get rid of this hardcoded 13
-            if (Racers.Count > 13) return;
+            if (Racers.Count > _racerCount) return;
 
             // Check if added racer already in list
             if (Racers.Where(x => x.Number == (cbRacers.SelectedItem as Racer).Number).FirstOrDefault() == null)
@@ -116,8 +124,7 @@ namespace DerbyApp
             }
 
             foreach (Racer r in Racers) r.RaceOrder = order++;
-#warning HARDCODE: Get rid of this hardcoded 13
-            _db.ModifyResultsTable(Racers, cbName.Text, 13);
+            _db.ModifyResultsTable(Racers, cbName.Text, _heatCount);
         }
 
         private void Delete_OnClick(object sender, RoutedEventArgs e)
@@ -125,8 +132,7 @@ namespace DerbyApp
             int order = 1;
             Racers.RemoveAt(dataGridRacers.SelectedIndex);
             foreach (Racer r in Racers) r.RaceOrder = order++;
-#warning HARDCODE: Get rid of this hardcoded 13
-            _db.ModifyResultsTable(Racers, cbName.Text, 13);
+            _db.ModifyResultsTable(Racers, cbName.Text, _heatCount);
         }
     }
 }

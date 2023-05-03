@@ -198,24 +198,28 @@ namespace DerbyApp.RacerDatabase
                 SQLiteCommand cmd = new SQLiteCommand(sql, SqliteConn);
                 SQLiteDataAdapter sda = new SQLiteDataAdapter(cmd);
                 DataSet ds = new DataSet();
-                sda.Fill(ds);
-                if (ds.Tables[0].Rows.Count > 0)
+                try
                 {
-                    foreach (DataRow dataRow in ds.Tables[0].Rows)
+                    sda.Fill(ds);
+                    if (ds.Tables[0].Rows.Count > 0)
                     {
-                        try
+                        foreach (DataRow dataRow in ds.Tables[0].Rows)
                         {
-                            Racers.Add(new Racer((Int64)dataRow[0],
-                                             (string)dataRow[1],
-                                             (decimal)dataRow[2],
-                                             (string)dataRow[3],
-                                             (string)dataRow[4],
-                                             (string)dataRow[5],
-                                             ByteArrayToImage((byte[])dataRow[6])));
+                            try
+                            {
+                                Racers.Add(new Racer((Int64)dataRow[0],
+                                                 (string)dataRow[1],
+                                                 (decimal)dataRow[2],
+                                                 (string)dataRow[3],
+                                                 (string)dataRow[4],
+                                                 (string)dataRow[5],
+                                                 ByteArrayToImage((byte[])dataRow[6])));
+                            }
+                            catch { }
                         }
-                        catch { }
                     }
                 }
+                catch { /* invalid race name stored in registry */ }
             }
 
             return Racers;
