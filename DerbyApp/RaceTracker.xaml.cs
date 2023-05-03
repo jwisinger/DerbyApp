@@ -8,8 +8,7 @@ using System.Windows.Data;
 
 namespace DerbyApp
 {
-#warning FEATURE: Add "get data from track" button
-#warning FEATURE: Store current race in registry or database
+#warning FEATURE: Add communication with track (2 buttons)
 #warning HIGHLIGHT: Somehow highlight current heat on datagrid
 #warning PRETTY: Fix scaling on RaceTracker
 
