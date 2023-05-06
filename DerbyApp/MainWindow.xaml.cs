@@ -3,13 +3,20 @@ using System.IO;
 using System.Windows;
 using DerbyApp.RacerDatabase;
 using DerbyApp.RaceStats;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
+using System.Timers;
+using System.Threading;
+using System.Windows.Threading;
+using System;
 
 #warning REPORTS: Add ability to generate per racer and overall reports
 #warning PRETTY: Pick a better icon
+#warning TODO: Enable database switching correctly??
 
 namespace DerbyApp
 {
-    public partial class MainWindow : Window
+    public partial class MainWindow : Window, INotifyPropertyChanged
     {
         private Database _db;
         private readonly string _databaseName = "";
@@ -17,11 +24,24 @@ namespace DerbyApp
         private RacerTableView _racerTableView;
         private RaceTracker _raceTracker;
         private bool _displayPhotosChecked = false;
+        private Visibility _collapsedVisibility = Visibility.Visible;
+
+        public event PropertyChangedEventHandler PropertyChanged;
 
         public bool DisplayPhotosChecked
         {
             get => _displayPhotosChecked;
             set => _displayPhotosChecked = value;
+        }
+
+        public Visibility CollapsedVisibility
+        {
+            get => _collapsedVisibility;
+            set
+            {
+                _collapsedVisibility = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("CollapsedVisibility"));
+            }
         }
 
         private void CheckBox_Checked(object sender, RoutedEventArgs e)
@@ -122,6 +142,52 @@ namespace DerbyApp
                 MessageBox.Show("Your currently selected race " + _editRace.CurrentRace + " has no racers in it.");
             }
             Database.StoreDatabaseRegistry(_databaseName, _editRace.CurrentRace);
+        }
+
+        private void ButtonCollapse_Click(object sender, RoutedEventArgs e)
+        {
+            DispatcherTimer t = new DispatcherTimer
+            {
+                Interval = TimeSpan.FromMilliseconds(10)
+            };
+            t.Tick += TimeTickCollapse;
+            CollapseArrow.Visibility = Visibility.Hidden;
+            t.Start();
+        }
+
+        private void ButtonExpand_Click(object sender, RoutedEventArgs e)
+        {
+            DispatcherTimer t = new DispatcherTimer
+            {
+                Interval = TimeSpan.FromMilliseconds(10)
+            };
+            t.Tick += TimeTickExpand;
+            CollapsedVisibility = Visibility.Visible;
+            ExpandArrow.Visibility = Visibility.Hidden;
+            t.Start();
+        }
+
+        void TimeTickCollapse(object sender, EventArgs e)
+        {
+            buttonColumn.Width = new GridLength(buttonColumn.Width.Value - 2);
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("buttonColumn"));
+            if (buttonColumn.Width.Value < 30)
+            {
+                (sender as DispatcherTimer).Stop();
+                ExpandArrow.Visibility = Visibility.Visible;
+                CollapsedVisibility = Visibility.Hidden;
+            }
+        }
+
+        void TimeTickExpand(object sender, EventArgs e)
+        {
+            buttonColumn.Width = new GridLength(buttonColumn.Width.Value + 2);
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("buttonColumn"));
+            if (buttonColumn.Width.Value > 250)
+            {
+                (sender as DispatcherTimer).Stop();
+                CollapseArrow.Visibility = Visibility.Visible;
+            }
         }
     }
 }

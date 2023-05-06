@@ -24,7 +24,14 @@
                                     <Condition Property="IsMouseOver" Value="True"/>
                                     <Condition Property="IsChecked" Value="False"/>
                                 </MultiTrigger.Conditions>
-                                <!--<Setter TargetName="checkboxImage" Property="Source" Value="hover.png"/>-->
+                                <Setter TargetName="checkboxImage" Property="Source" Value="/Images/No Camera2.png"/>
+                            </MultiTrigger>
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsMouseOver" Value="True"/>
+                                    <Condition Property="IsChecked" Value="True"/>
+                                </MultiTrigger.Conditions>
+                                <Setter TargetName="checkboxImage" Property="Source" Value="/Images/Camera2.png"/>
                             </MultiTrigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -37,41 +44,95 @@
             <RowDefinition Height="1*"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="200"/>
+            <ColumnDefinition Name="buttonColumn" Width="250"/>
             <ColumnDefinition Width="1*"/>
         </Grid.ColumnDefinitions>
-        <Button Content="Add New Racer" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" FontSize="20" Width="170" Height="35" Grid.ColumnSpan="2">
-            <Button.Effect>
-                <DropShadowEffect/>
-            </Button.Effect>
-        </Button>
-        <Button Content="View All Racers" HorizontalAlignment="Left" Margin="10,60,0,0" VerticalAlignment="Top" FontSize="20" Width="170" Height="35" Grid.ColumnSpan="2">
-            <Button.Effect>
-                <DropShadowEffect/>
-            </Button.Effect>
-        </Button>
-        <Button Content="" HorizontalAlignment="Left" Margin="10,110,0,0" VerticalAlignment="Top" FontSize="20" Width="170" Height="35" Grid.ColumnSpan="2">
-            <Button.Effect>
-                <DropShadowEffect/>
-            </Button.Effect>
-        </Button>
-        <Button Content="" HorizontalAlignment="Left" Margin="10,160,0,0" VerticalAlignment="Top" FontSize="20" Width="170" Height="35" Grid.ColumnSpan="2">
-            <Button.Effect>
-                <DropShadowEffect/>
-            </Button.Effect>
-        </Button>
-        <Button Content="" HorizontalAlignment="Left" Margin="10,210,0,0" VerticalAlignment="Top" FontSize="20" Width="170" Height="35" Grid.ColumnSpan="2">
-            <Button.Effect>
-                <DropShadowEffect/>
-            </Button.Effect>
-        </Button>
-        <Button Content="Change Event" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Click="ButtonChangeDatabase_Click" FontSize="20" Width="170" Height="35" Grid.ColumnSpan="2"/>
-        <Button Content="Add New Racer" HorizontalAlignment="Left" Margin="10,60,0,0" VerticalAlignment="Top" Click="ButtonAddRacer_Click" FontSize="20" Width="170" Height="35" Grid.ColumnSpan="2"/>
-        <Button Content="View All Racers" HorizontalAlignment="Left" Margin="10,110,0,0" VerticalAlignment="Top" Click="ButtonViewRacerTable_Click" FontSize="20" Width="170" Height="35" Grid.ColumnSpan="2"/>
-        <Button Content="Select Race" HorizontalAlignment="Left" Margin="10,160,0,0" VerticalAlignment="Top" Click="ButtonSelectRace_Click" FontSize="20" Width="170" Height="35" Grid.ColumnSpan="2"/>
-        <Button Content="Start Race" HorizontalAlignment="Left" Margin="10,210,0,0" VerticalAlignment="Top" FontSize="20" Width="170" Height="35" Grid.ColumnSpan="2" Click="ButtonStartRace_Click"/>
-        <ComboBox HorizontalAlignment="Center" Margin="0,260,0,0" VerticalAlignment="Top" Width="100" Height="35"/>
-        <CheckBox HorizontalAlignment="Center" Style="{StaticResource cameraCheckboxStyle}" VerticalAlignment="Bottom" IsChecked="{Binding ElementName=MainWindowName, Path=DisplayPhotosChecked, Mode=TwoWay}" Click="CheckBox_Checked" Grid.Column="0" FontWeight="Bold" FontSize="20" Margin="0,0,0,10"/>
+        <GridSplitter Width="5" Grid.Column="0" IsEnabled="False"></GridSplitter>
+        <Image Visibility="{Binding ElementName=MainWindowName, Path=CollapsedVisibility}" HorizontalAlignment="Left" Margin="0,10,0,0" VerticalAlignment="Top" MouseLeftButtonDown="ButtonChangeDatabase_Click" >
+            <Image.Style>
+                <Style TargetType="{x:Type Image}">
+                    <Setter Property="Source" Value="/Images/SelectEvent.png"/>
+                    <Style.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Source" Value="/Images/SelectEvent2.png"/>
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </Image.Style>
+        </Image>
+        <Image Visibility="{Binding ElementName=MainWindowName, Path=CollapsedVisibility}" HorizontalAlignment="Left" Margin="0,60,0,0" VerticalAlignment="Top" MouseLeftButtonDown="ButtonAddRacer_Click" >
+            <Image.Style>
+                <Style TargetType="{x:Type Image}">
+                    <Setter Property="Source" Value="/Images/AddRacer.png"/>
+                    <Style.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Source" Value="/Images/AddRacer2.png"/>
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </Image.Style>
+        </Image>
+        <Image Visibility="{Binding ElementName=MainWindowName, Path=CollapsedVisibility}" HorizontalAlignment="Left" Margin="0,110,0,0" VerticalAlignment="Top" MouseLeftButtonDown="ButtonViewRacerTable_Click" >
+            <Image.Style>
+                <Style TargetType="{x:Type Image}">
+                    <Setter Property="Source" Value="/Images/ViewRacers.png"/>
+                    <Style.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Source" Value="/Images/ViewRacers2.png"/>
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </Image.Style>
+        </Image>
+        <Image Visibility="{Binding ElementName=MainWindowName, Path=CollapsedVisibility}" HorizontalAlignment="Left" Margin="0,160,0,0" VerticalAlignment="Top" MouseLeftButtonDown="ButtonSelectRace_Click" >
+            <Image.Style>
+                <Style TargetType="{x:Type Image}">
+                    <Setter Property="Source" Value="/Images/SelectRace.png"/>
+                    <Style.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Source" Value="/Images/SelectRace2.png"/>
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </Image.Style>
+        </Image>
+        <Image Visibility="{Binding ElementName=MainWindowName, Path=CollapsedVisibility}" HorizontalAlignment="Left" Margin="0,210,0,0" VerticalAlignment="Top" MouseLeftButtonDown="ButtonStartRace_Click" >
+            <Image.Style>
+                <Style TargetType="{x:Type Image}">
+                    <Setter Property="Source" Value="/Images/StartRace.png"/>
+                    <Style.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Source" Value="/Images/StartRace2.png"/>
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </Image.Style>
+        </Image>
+        <Image Margin="0,0,0,10" Name="ExpandArrow" VerticalAlignment="Bottom" Visibility="Hidden" MouseLeftButtonDown="ButtonExpand_Click" HorizontalAlignment="Left" Width="32" >
+            <Image.Style>
+                <Style TargetType="{x:Type Image}">
+                    <Setter Property="Source" Value="/Images/Right.png"/>
+                    <Style.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Source" Value="/Images/Right2.png"/>
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </Image.Style>
+        </Image>
+        <Image Margin="0,0,0,10" Name="CollapseArrow" VerticalAlignment="Bottom" MouseLeftButtonDown="ButtonCollapse_Click" HorizontalAlignment="Right" Width="32" >
+            <Image.Style>
+                <Style TargetType="{x:Type Image}">
+                    <Setter Property="Source" Value="/Images/Left.png"/>
+                    <Style.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Source" Value="/Images/Left2.png"/>
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </Image.Style>
+        </Image>
+        <CheckBox Visibility="{Binding ElementName=MainWindowName, Path=CollapsedVisibility}" HorizontalAlignment="Center" Style="{StaticResource cameraCheckboxStyle}" VerticalAlignment="Bottom" IsChecked="{Binding ElementName=MainWindowName, Path=DisplayPhotosChecked, Mode=TwoWay}" Click="CheckBox_Checked" Grid.Column="0" FontWeight="Bold" FontSize="20" Margin="0,0,0,10"/>
         <ScrollViewer Grid.Column="1" CanContentScroll="True" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
             <Frame Name="mainFrame" NavigationUIVisibility="Hidden" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Margin="0,0,0,0"/>
         </ScrollViewer>

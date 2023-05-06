@@ -10,9 +10,27 @@
   <ItemGroup>
     <None Remove=".jpg" />
     <None Remove="Girl-Scout-Logo.png" />
+    <None Remove="Images\AddRacer.png" />
+    <None Remove="Images\AddRacer2.png" />
     <None Remove="Images\Camera.png" />
+    <None Remove="Images\Camera2.png" />
+    <None Remove="Images\Left.png" />
+    <None Remove="Images\Left2.png" />
     <None Remove="Images\No Camera.png" />
+    <None Remove="Images\No Camera2.png" />
+    <None Remove="Images\Right.png" />
+    <None Remove="Images\Right2.png" />
+    <None Remove="Images\SelectEvent.png" />
+    <None Remove="Images\SelectEvent2.png" />
+    <None Remove="Images\SelectRace.png" />
+    <None Remove="Images\SelectRace2.png" />
+    <None Remove="Images\StartRace.png" />
+    <None Remove="Images\StartRace2.png" />
     <None Remove="Images\STEM.jpg" />
+    <None Remove="Images\ViewRacers.png" />
+    <None Remove="Images\ViewRacers2.png" />
+    <None Remove="Images\ViewReport.png" />
+    <None Remove="Images\ViewReport2.png" />
     <None Remove="STEM.jpg" />
   </ItemGroup>
 
@@ -24,12 +42,30 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Resource Include="Images\AddRacer.png" />
+    <Resource Include="Images\AddRacer2.png" />
     <Resource Include="Images\Camera.png" />
+    <Resource Include="Images\Camera2.png" />
     <Resource Include="Images\Girl-Scout-Logo.png" />
     <Resource Include="Images\GIRL.jpg" />
     <Resource Include="Images\GIRL2.jpg" />
+    <Resource Include="Images\Left2.png" />
+    <Resource Include="Images\Left.png" />
     <Resource Include="Images\No Camera.png" />
+    <Resource Include="Images\No Camera2.png" />
+    <Resource Include="Images\Right2.png" />
+    <Resource Include="Images\Right.png" />
+    <Resource Include="Images\SelectEvent.png" />
+    <Resource Include="Images\SelectEvent2.png" />
+    <Resource Include="Images\SelectRace.png" />
+    <Resource Include="Images\SelectRace2.png" />
+    <Resource Include="Images\StartRace.png" />
+    <Resource Include="Images\StartRace2.png" />
     <Resource Include="Images\STEM.jpg" />
+    <Resource Include="Images\ViewRacers.png" />
+    <Resource Include="Images\ViewRacers2.png" />
+    <Resource Include="Images\ViewReport.png" />
+    <Resource Include="Images\ViewReport2.png" />
   </ItemGroup>
 
 </Project>
