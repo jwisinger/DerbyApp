@@ -10,7 +10,6 @@ namespace DerbyApp
 {
 #warning FEATURE: Add communication with track (2 buttons)
 #warning HIGHLIGHT: Somehow highlight current heat on datagrid
-#warning PRETTY: Fix scaling on RaceTracker
 
     public partial class RaceTracker : Page, INotifyPropertyChanged
     {
