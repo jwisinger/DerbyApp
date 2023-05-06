@@ -38,20 +38,18 @@
             <Label Grid.Column="0" Grid.Row="0" Content="Race Results" HorizontalAlignment="Center" Margin="0,0,0,0" VerticalAlignment="Center" FontSize="28" FontWeight="Bold"/>
             <Label Grid.Column="1" Grid.Row="0" Content="{Binding Path=CurrentHeatLabelString, Mode=TwoWay}" Name="CurrentHeatLabel" HorizontalAlignment="Center" Margin="0,0,0,0" VerticalAlignment="Center" FontSize="28" FontWeight="Bold"/>
             <Label Grid.Column="1" Grid.Row="2" Content="Leader Board" HorizontalAlignment="Center" Margin="0,0,0,0" VerticalAlignment="Center" FontSize="28" Background="{x:Null}" FontWeight="Bold"/>
-            <!--<Rectangle Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Left" Stretch="UniformToFill" Margin="0,0,0,0" Grid.Row="4" Stroke="Black" VerticalAlignment="Top" Fill="#FFD9F0F8"/>-->
-
             <Button Grid.Column="0" Grid.Row="0" Content="" HorizontalAlignment="Left" Margin="0,0,10,0" VerticalAlignment="Center" Height="35" Width="120">
                 <Button.Effect>
                     <DropShadowEffect/>
                 </Button.Effect>
             </Button>
-            <Button Grid.Column="0" Grid.Row="0" Content="Start Heat" HorizontalAlignment="Left" Margin="0,0,10,0" VerticalAlignment="Center" Height="35" Width="120" FontSize="18"/>
+            <Button Grid.Column="0" Grid.Row="0" Content="Start Heat" HorizontalAlignment="Left" Margin="0,0,10,0" VerticalAlignment="Center" Height="35" Width="120" FontSize="18" Click="ButtonStart_Click"/>
             <Button Grid.Column="0" Grid.Row="0" Content="" HorizontalAlignment="Left" Margin="130,0,0,0" VerticalAlignment="Center" Height="35" Width="120">
                 <Button.Effect>
                     <DropShadowEffect/>
                 </Button.Effect>
             </Button>
-            <Button Grid.Column="0" Grid.Row="0" Content="Get Times" HorizontalAlignment="Left" Margin="130,0,0,0" VerticalAlignment="Center" Height="35" Width="120" FontSize="18"/>
+            <Button Grid.Column="0" Grid.Row="0" Content="Get Times" HorizontalAlignment="Left" Margin="130,0,0,0" VerticalAlignment="Center" Height="35" Width="120" FontSize="18" Click="ButtonGetTimes_Click"/>
 
             <DataGrid FontSize="20" RowHeight="{Binding Path=Value, ElementName=_zoom}" BorderThickness="5,5,0,5" Name="gridRaceResults" SelectionMode="Single" SelectionUnit="Cell" ItemsSource="{Binding Path=., Mode=TwoWay, NotifyOnSourceUpdated=True, UpdateSourceTrigger=PropertyChanged}" Grid.Column="0" Grid.Row="1" Grid.RowSpan="3" Margin="0,0,0,0" CellEditEnding="GridRaceResults_CellEditEnding" CanUserAddRows="False" Background="Transparent" RowBackground="Transparent">
                 <DataGrid.ColumnHeaderStyle>

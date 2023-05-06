@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:DerbyApp"
         mc:Ignorable="d"
-        Title="MainWindow" Height="500" Width="859" Name="MainWindowName" Background="AliceBlue">
+        Title="MainWindow" Height="500" Width="859" Name="MainWindowName" Background="AliceBlue" Closing="MainWindowName_Closing">
     <Window.Resources>
         <Style TargetType="{x:Type CheckBox}" x:Key="cameraCheckboxStyle">
             <Setter Property="Template">
@@ -132,9 +132,7 @@
                 </Style>
             </Image.Style>
         </Image>
-        <CheckBox Visibility="{Binding ElementName=MainWindowName, Path=CollapsedVisibility}" HorizontalAlignment="Center" Style="{StaticResource cameraCheckboxStyle}" VerticalAlignment="Bottom" IsChecked="{Binding ElementName=MainWindowName, Path=DisplayPhotosChecked, Mode=TwoWay}" Click="CheckBox_Checked" Grid.Column="0" FontWeight="Bold" FontSize="20" Margin="0,0,0,10"/>
-        <ScrollViewer Grid.Column="1" CanContentScroll="True" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
-            <Frame Name="mainFrame" NavigationUIVisibility="Hidden" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Margin="0,0,0,0"/>
-        </ScrollViewer>
+        <CheckBox Name="cameraCheckbox" Visibility="{Binding ElementName=MainWindowName, Path=CollapsedVisibility}" HorizontalAlignment="Center" Style="{StaticResource cameraCheckboxStyle}" VerticalAlignment="Bottom" IsChecked="{Binding ElementName=MainWindowName, Path=DisplayPhotosChecked, Mode=TwoWay}" Click="CheckBox_Checked" Grid.Column="0" FontWeight="Bold" FontSize="20" Margin="0,0,0,10"/>
+        <Frame Name="mainFrame" NavigationUIVisibility="Hidden" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Margin="0,0,0,0" />
     </Grid>
 </Window>

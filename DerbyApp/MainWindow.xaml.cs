@@ -22,6 +22,7 @@ namespace DerbyApp
         private EditRace _editRace;
         private RacerTableView _racerTableView;
         private RaceTracker _raceTracker;
+        private NewRacer _newRacer;
         private bool _displayPhotosChecked = false;
         private Visibility _collapsedVisibility = Visibility.Visible;
 
@@ -80,6 +81,7 @@ namespace DerbyApp
             };
             _racerTableView = new RacerTableView(_db);
             _raceTracker = new RaceTracker(new RaceResults(), RaceHeats.Default, _db);
+            _newRacer = new NewRacer();
             mainFrame.Navigate(new Default());
         }
 
@@ -108,13 +110,13 @@ namespace DerbyApp
 
         private void ButtonAddRacer_Click(object sender, RoutedEventArgs e)
         {
-            NewRacer nr = new NewRacer();
-            if (nr.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            mainFrame.Navigate(_newRacer);
+            /*if (nr.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
                 _db.AddRacerToRacerTable(nr.Racer);
                 _racerTableView.UpdateRacerList();
                 _editRace.UpdateRacerList();
-            }
+            }*/
         }
 
         private void ButtonViewRacerTable_Click(object sender, RoutedEventArgs e)
@@ -170,7 +172,7 @@ namespace DerbyApp
         {
             buttonColumn.Width = new GridLength(buttonColumn.Width.Value - 2);
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("buttonColumn"));
-            if (buttonColumn.Width.Value < 30)
+            if (buttonColumn.Width.Value < 36)
             {
                 (sender as DispatcherTimer).Stop();
                 ExpandArrow.Visibility = Visibility.Visible;
@@ -187,6 +189,12 @@ namespace DerbyApp
                 (sender as DispatcherTimer).Stop();
                 CollapseArrow.Visibility = Visibility.Visible;
             }
+        }
+
+        private void MainWindowName_Closing(object sender, CancelEventArgs e)
+        {
+            _newRacer.VideoThread?.Abort();
+            _newRacer.LocalWebCam?.Stop();
         }
     }
 }
