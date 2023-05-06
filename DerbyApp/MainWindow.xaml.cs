@@ -12,7 +12,6 @@ using System;
 
 #warning REPORTS: Add ability to generate per racer and overall reports
 #warning PRETTY: Pick a better icon
-#warning TODO: Enable database switching correctly??
 
 namespace DerbyApp
 {
