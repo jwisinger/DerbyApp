@@ -4,6 +4,7 @@ using System.ComponentModel;
 using DerbyApp.RacerDatabase;
 using DerbyApp.RaceStats;
 using System.Windows.Controls;
+using System;
 
 namespace DerbyApp
 {
@@ -14,6 +15,7 @@ namespace DerbyApp
         private bool _editHandle = true;
         private Visibility _displayPhotos = Visibility.Collapsed;
         public event PropertyChangedEventHandler PropertyChanged;
+        public event EventHandler RacerRemoved;
 
         public Visibility DisplayPhotos
         {
@@ -55,8 +57,10 @@ namespace DerbyApp
 
         private void Delete_OnClick(object sender, RoutedEventArgs e)
         {
+            Racer r = Racers[dataGridRacerTable.SelectedIndex];
             _db.RemoveRacerFromRacerTable(Racers[dataGridRacerTable.SelectedIndex]);
             Racers.RemoveAt(dataGridRacerTable.SelectedIndex);
+            RacerRemoved?.Invoke(this, new RacerEventArgs() { racer = r});
         }
     }
 }

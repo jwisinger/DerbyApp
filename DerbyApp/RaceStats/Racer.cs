@@ -11,7 +11,7 @@ namespace DerbyApp.RaceStats
     public class Racer : INotifyPropertyChanged
     {
         private long _number = 0;
-        private string _name = "None";
+        private string _name = "";
         private decimal _weight = 0;
         private string _troop = "";
         private string _level = "";
@@ -23,18 +23,63 @@ namespace DerbyApp.RaceStats
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public long Number { get => _number; set => _number = value; }
-        public string RacerName { get => _name; set => _name = value; }
-        public decimal Weight { get => _weight; set => _weight = value; }
-        public string Troop { get => _troop; set => _troop = value; }
-        public string Level { get => _level; set => _level = value; }
-        public string Email { get => _email; set => _email = value; }
+        public long Number
+        {
+            get => _number;
+            set
+            {
+                _number = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Number"));
+            }
+        }
+        public string RacerName
+        {
+            get => _name;
+            set
+            {
+                _name = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("RacerName"));
+            }
+        }
+        public decimal Weight
+        {
+            get => _weight;
+            set
+            {
+                _weight = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Weight"));
+            }
+        }
+        public string Troop
+        {
+            get => _troop;
+            set
+            {
+                _troop = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Troop"));
+            }
+        }
+        public string Level
+        {
+            get => _level;
+            set
+            {
+                _level = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Level"));
+            }
+        }
+        public string Email
+        {
+            get => _email;
+            set
+            {
+                _email = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Email"));
+            }
+        }
         public int Score
         {
-            get
-            {
-                return _score;
-            }
+            get => _score;
             set
             {
                 _score = value;

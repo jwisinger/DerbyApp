@@ -15,8 +15,6 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 
-#warning TODO: Add a button to add the racer and make it do something
-
 namespace DerbyApp
 {
     public partial class NewRacer : Page, INotifyPropertyChanged
@@ -27,10 +25,16 @@ namespace DerbyApp
         private static bool _needSnapshot = false;
         public Racer Racer = new Racer();
         public event PropertyChangedEventHandler PropertyChanged;
+        public event EventHandler RacerAdded;
 
         public NewRacer()
         {
             InitializeComponent();
+            tbName.DataContext = Racer;
+            tbTroop.DataContext = Racer;
+            tbWeight.DataContext = Racer;
+            tbEmail.DataContext = Racer;
+            cbLevel.DataContext = Racer;
         }
 
         public void UpdateCaptureSnapshotManifast(Bitmap image)
@@ -88,19 +92,19 @@ namespace DerbyApp
             _needSnapshot = true;
         }
 
-        private void ButtonOk_Click(object sender, EventArgs e)
+        private void ButtonAddRacer_Click(object sender, EventArgs e)
         {
-            //Racer.RacerName = tbName.Text;
-            //Racer.Troop = tbTroop.Text;
-            //Racer.Level = cbLevel.Text;
-            //Racer.Weight = nuWeight.Value;
-            //Racer.Email = tbEmail.Text;
-            /*foreach (string s in GirlScoutLevels.ScoutLevels)
+            if (Racer.RacerName == "")
             {
-                cbLevel.Items.Add(s);
+                MessageBox.Show("Name cannot be left blank.", "Invalid Entry", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
             }
-            errorProvider1.SetError(tbName, "Name should not be left blank!");
-            errorProvider1.SetError(cbLevel, "Level should not be left blank!");*/
+            if (Racer.Level == "")
+            {
+                MessageBox.Show("Level cannot be left blank.", "Invalid Entry", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+            RacerAdded?.Invoke(this, new EventArgs());
         }
 
         [DllImport("gdi32.dll", EntryPoint = "DeleteObject")]
@@ -115,6 +119,15 @@ namespace DerbyApp
                 return Imaging.CreateBitmapSourceFromHBitmap(handle, IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
             }
             finally { DeleteObject(handle); }
+        }
+
+        public void ClearRacer()
+        {
+            Racer.RacerName = "";
+            Racer.Troop = "";
+            Racer.Weight = 0;
+            Racer.Email = "";
+            Racer.Number = 0;
         }
 
         private void Page_Unloaded(object sender, RoutedEventArgs e)

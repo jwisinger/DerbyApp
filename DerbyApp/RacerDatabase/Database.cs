@@ -120,45 +120,6 @@ namespace DerbyApp.RacerDatabase
             command.ExecuteNonQuery();
         }
 
-        /*public bool CreateResultsTable(RaceResults race)
-        {
-            int racerCount = 0;
-            string sql;
-            var regex = new Regex(@"[^a-zA-Z0-9\s]");
-            if (regex.IsMatch(race.RaceName))
-            {
-                MessageBox.Show("Invalid character in race name.");
-                return false;
-            }
-
-            sql = "SELECT name FROM sqlite_master WHERE type='table' AND name='" + race.RaceName + "'";
-            SQLiteCommand command = new SQLiteCommand(sql, SqliteConn);
-            if (command.ExecuteScalar() != null)
-            {
-                MessageBox.Show("A Race with that name already exists.");
-                return false;
-            }
-
-            sql = "CREATE TABLE IF NOT EXISTS \"" + race.RaceName + "\" ([RacePosition] INTEGER PRIMARY KEY AUTOINCREMENT, [Number] INTEGER";
-            for (int i = 0; i < race.HeatCount; i++) sql += ", [Heat " + (i + 1) + "] DOUBLE";
-            sql += ")";
-            command = new SQLiteCommand(sql, SqliteConn);
-            command.ExecuteNonQuery();
-
-            foreach (Racer r in race.Racers)
-            {
-                sql = "INSERT INTO \"" + race.RaceName + "\" ([Number]) VALUES (@Number)";
-                command = new SQLiteCommand(sql, SqliteConn);
-                command.Parameters.Add("@Number", DbType.Int64).Value = r.Number;
-                racerCount += command.ExecuteNonQuery();
-            }
-
-            //MessageBox.Show(racerCount + " racer(s) added to " + race.RaceName + ".");
-
-            if (racerCount > 0) return true;
-            else return false;
-        }*/
-
         public ObservableCollection<Racer> GetAllRacers(ObservableCollection<Racer> Racers = null)
         {
             SQLiteCommand cmd = new SQLiteCommand("SELECT * FROM " + _racerTableName, SqliteConn);
@@ -257,15 +218,15 @@ namespace DerbyApp.RacerDatabase
             command.Parameters.Add("@Level", DbType.String).Value = racer.Level;
             command.Parameters.Add("@Email", DbType.String).Value = racer.Email;
             command.Parameters.Add("@Image", DbType.Binary).Value = photo;
-            MessageBox.Show(command.ExecuteNonQuery() + " racer(s) added.");
+            command.ExecuteNonQuery();
         }
 
         public void RemoveRacerFromRacerTable(Racer racer)
         {
             string sql = "DELETE FROM " + _racerTableName + " WHERE [Number]=@Number";
             SQLiteCommand command = new SQLiteCommand(sql, SqliteConn);
-
             command.Parameters.Add("@Number", DbType.Int64).Value = racer.Number;
+            command.ExecuteNonQuery();
         }
 
         public static void StoreDatabaseRegistry(string database, string activeRace)

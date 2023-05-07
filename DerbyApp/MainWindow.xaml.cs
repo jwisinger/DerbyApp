@@ -4,14 +4,11 @@ using System.Windows;
 using DerbyApp.RacerDatabase;
 using DerbyApp.RaceStats;
 using System.ComponentModel;
-using System.Runtime.CompilerServices;
-using System.Timers;
-using System.Threading;
 using System.Windows.Threading;
 using System;
+using System.Linq;
 
 #warning REPORTS: Add ability to generate per racer and overall reports
-#warning PRETTY: Pick a better icon
 
 namespace DerbyApp
 {
@@ -22,7 +19,7 @@ namespace DerbyApp
         private EditRace _editRace;
         private RacerTableView _racerTableView;
         private RaceTracker _raceTracker;
-        private NewRacer _newRacer;
+        private readonly NewRacer _newRacer;
         private bool _displayPhotosChecked = false;
         private Visibility _collapsedVisibility = Visibility.Visible;
 
@@ -82,7 +79,24 @@ namespace DerbyApp
             _racerTableView = new RacerTableView(_db);
             _raceTracker = new RaceTracker(new RaceResults(), RaceHeats.Default, _db);
             _newRacer = new NewRacer();
+            _newRacer.RacerAdded += Racer_RacerAdded;
+            _racerTableView.RacerRemoved += RacerTableView_RacerRemoved;
             mainFrame.Navigate(new Default());
+        }
+
+        private void RacerTableView_RacerRemoved(object sender, EventArgs e)
+        {
+            Racer r = (e as RacerEventArgs).racer;
+            _editRace.AllRacers.Remove(_editRace.AllRacers.First(x => x.Number == r.Number));
+            _editRace.AvailableRacers.Remove(_editRace.AvailableRacers.First(x => x.Number == r.Number));
+        }
+
+        private void Racer_RacerAdded(object sender, EventArgs e)
+        {
+            _db.AddRacerToRacerTable(_newRacer.Racer);
+            _racerTableView.UpdateRacerList();
+            _editRace.UpdateRacerList();
+            _newRacer.ClearRacer();
         }
 
         private void ButtonChangeDatabase_Click(object sender, RoutedEventArgs e)
@@ -111,12 +125,6 @@ namespace DerbyApp
         private void ButtonAddRacer_Click(object sender, RoutedEventArgs e)
         {
             mainFrame.Navigate(_newRacer);
-            /*if (nr.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-            {
-                _db.AddRacerToRacerTable(nr.Racer);
-                _racerTableView.UpdateRacerList();
-                _editRace.UpdateRacerList();
-            }*/
         }
 
         private void ButtonViewRacerTable_Click(object sender, RoutedEventArgs e)
