@@ -63,6 +63,22 @@ namespace DerbyApp.RacerDatabase
             command.ExecuteNonQuery();
         }
 
+        public void LoadResultsTable(DataTable resultsTable, string raceName)
+        {
+            SQLiteCommand cmd = new SQLiteCommand("SELECT * FROM " + raceName, SqliteConn);
+            SQLiteDataAdapter sda = new SQLiteDataAdapter(cmd);
+            DataSet ds = new DataSet();
+            sda.Fill(ds);
+            if (ds.Tables[0].Rows.Count > 0)
+            {
+                foreach (DataRow row in ds.Tables[0].Rows)
+                {
+#warning TODO: Need to deal with overwriting and merging of rows here (or just make sure table comes in empty)
+                    //resultsTable.ImportRow(row);
+                }
+            }
+        }
+
         public void ModifyResultsTable(ObservableCollection<Racer> racers, string raceName, int heatCount)
         {
             int racerCount = 0;

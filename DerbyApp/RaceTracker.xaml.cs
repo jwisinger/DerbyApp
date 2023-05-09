@@ -3,17 +3,19 @@ using DerbyApp.RaceStats;
 using System;
 using System.ComponentModel;
 using System.Data;
+using System.Drawing;
 using System.Net;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Data;
+using System.Windows.Media;
 using System.Windows.Threading;
 
 namespace DerbyApp
 {
 #warning FEATURE: Results aren't read from database on boot, nor on tab switching
-#warning HIGHLIGHT: Somehow highlight current heat on datagrid
 
     public partial class RaceTracker : Page, INotifyPropertyChanged
     {
@@ -100,6 +102,21 @@ namespace DerbyApp
             else NextHeatEnabled = true;
             if (Results.CurrentHeatNumber <= 1) PreviousHeatEnabled = false;
             else PreviousHeatEnabled = true;
+
+            Style style = new Style(typeof(DataGridColumnHeader))
+            {
+                BasedOn = TryFindResource("baseStyle") as Style
+            };
+            style.Setters.Add(new Setter(Control.FontWeightProperty, FontWeights.Bold));
+            style.Setters.Add(new Setter(Control.BackgroundProperty, new SolidColorBrush(Colors.LightGreen)));
+            gridRaceResults.Columns[Results.CurrentHeatNumber + 1].HeaderStyle = style;
+            Style style2 = new Style(typeof(DataGridColumnHeader))
+            {
+                BasedOn = TryFindResource("baseStyle") as Style
+            };
+            style2.Setters.Add(new Setter(Control.FontWeightProperty, FontWeights.Bold));
+            style2.Setters.Add(new Setter(Control.BackgroundProperty, new SolidColorBrush(Colors.Transparent)));
+            gridRaceResults.Columns[Results.CurrentHeatNumber].HeaderStyle = style2;
         }
 
         private void ButtonPreviousHeat_Click(object sender, RoutedEventArgs e)
@@ -111,6 +128,21 @@ namespace DerbyApp
             else NextHeatEnabled = true;
             if (Results.CurrentHeatNumber <= 1) PreviousHeatEnabled = false;
             else PreviousHeatEnabled = true;
+
+            Style style = new Style(typeof(DataGridColumnHeader))
+            {
+                BasedOn = TryFindResource("baseStyle") as Style
+            };
+            style.Setters.Add(new Setter(Control.FontWeightProperty, FontWeights.Bold));
+            style.Setters.Add(new Setter(Control.BackgroundProperty, new SolidColorBrush(Colors.LightGreen)));
+            gridRaceResults.Columns[Results.CurrentHeatNumber + 1].HeaderStyle = style;
+            Style style2 = new Style(typeof(DataGridColumnHeader))
+            {
+                BasedOn = TryFindResource("baseStyle") as Style
+            };
+            style2.Setters.Add(new Setter(Control.FontWeightProperty, FontWeights.Bold));
+            style2.Setters.Add(new Setter(Control.BackgroundProperty, new SolidColorBrush(Colors.Transparent)));
+            gridRaceResults.Columns[Results.CurrentHeatNumber + 2].HeaderStyle = style2;
         }
 
         private void GridRaceResults_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
@@ -128,6 +160,14 @@ namespace DerbyApp
             dataView.Refresh();
             gridRaceResults.Columns[0].IsReadOnly = true;
             gridRaceResults.Columns[1].IsReadOnly = true;
+
+            Style style = new Style(typeof(DataGridColumnHeader))
+            {
+                BasedOn = TryFindResource("baseStyle") as Style
+            };
+            style.Setters.Add(new Setter(Control.FontWeightProperty, FontWeights.Bold));
+            style.Setters.Add(new Setter(Control.BackgroundProperty, new SolidColorBrush(Colors.LightGreen)));
+            gridRaceResults.Columns[Results.CurrentHeatNumber + 1].HeaderStyle = style;
         }
 
         public void CheckBox_Checked()

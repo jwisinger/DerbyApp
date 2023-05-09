@@ -9,6 +9,7 @@ using System;
 using System.Linq;
 
 #warning REPORTS: Add ability to generate per racer and overall reports
+#warning TODO: Test with starting no database or race in registry
 
 namespace DerbyApp
 {
@@ -79,8 +80,14 @@ namespace DerbyApp
             _racerTableView = new RacerTableView(_db);
             _raceTracker = new RaceTracker(new RaceResults(), RaceHeats.Default, _db);
             _newRacer = new NewRacer();
+
             _newRacer.RacerAdded += Racer_RacerAdded;
             _racerTableView.RacerRemoved += RacerTableView_RacerRemoved;
+
+            RaceResults Race = new RaceResults(_editRace.CurrentRace, _editRace.Racers, RaceHeats.Default.HeatCount);
+            _db.LoadResultsTable(Race.ResultsTable, _editRace.CurrentRace);
+            _raceTracker = new RaceTracker(Race, RaceHeats.ThirteenCarsFourLanes, _db);
+
             mainFrame.Navigate(new Default());
         }
 
