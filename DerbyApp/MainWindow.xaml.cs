@@ -122,7 +122,6 @@ namespace DerbyApp
                 Filter = "SQLite files | *.sqlite",
                 Title = "Choose Event Database"
             };
-
             if ((bool)dialog.ShowDialog())
             {
                 string databaseName = dialog.FileName;
@@ -132,6 +131,8 @@ namespace DerbyApp
                 _editRace = new EditRace(_db);
                 _racerTableView = new RacerTableView(_db);
                 _raceTracker = new RaceTracker(new RaceResults(), RaceHeats.Default, _db);
+                _raceModified = true;
+                mainFrame.Navigate(new Default());
             }
         }
 
