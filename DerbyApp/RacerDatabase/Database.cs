@@ -65,16 +65,17 @@ namespace DerbyApp.RacerDatabase
 
         public void LoadResultsTable(DataTable resultsTable, string raceName)
         {
-            SQLiteCommand cmd = new SQLiteCommand("SELECT * FROM " + raceName, SqliteConn);
+            if (raceName == "") return;
+            SQLiteCommand cmd = new SQLiteCommand("SELECT *  FROM " + _racerTableName + " INNER JOIN " + raceName + " ON " + raceName + ".number = " + _racerTableName + ".Number", SqliteConn);
             SQLiteDataAdapter sda = new SQLiteDataAdapter(cmd);
             DataSet ds = new DataSet();
             sda.Fill(ds);
             if (ds.Tables[0].Rows.Count > 0)
             {
+                resultsTable.Clear();
                 foreach (DataRow row in ds.Tables[0].Rows)
                 {
-#warning TODO: Need to deal with overwriting and merging of rows here (or just make sure table comes in empty)
-                    //resultsTable.ImportRow(row);
+                    resultsTable.ImportRow(row);
                 }
             }
         }

@@ -9,7 +9,6 @@ using System;
 using System.Linq;
 
 #warning REPORTS: Add ability to generate per racer and overall reports
-#warning TODO: Test with starting no database or race in registry
 
 namespace DerbyApp
 {
@@ -23,6 +22,7 @@ namespace DerbyApp
         private readonly NewRacer _newRacer;
         private bool _displayPhotosChecked = false;
         private Visibility _collapsedVisibility = Visibility.Visible;
+        private bool _raceModified = false;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -77,6 +77,7 @@ namespace DerbyApp
             {
                 CurrentRace = activeRace
             };
+            _editRace.Racers.CollectionChanged += Racers_CollectionChanged;
             _racerTableView = new RacerTableView(_db);
             _raceTracker = new RaceTracker(new RaceResults(), RaceHeats.Default, _db);
             _newRacer = new NewRacer();
@@ -89,6 +90,11 @@ namespace DerbyApp
             _raceTracker = new RaceTracker(Race, RaceHeats.ThirteenCarsFourLanes, _db);
 
             mainFrame.Navigate(new Default());
+        }
+
+        private void Racers_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            _raceModified = true;
         }
 
         private void RacerTableView_RacerRemoved(object sender, EventArgs e)
@@ -148,8 +154,12 @@ namespace DerbyApp
         {
             if (_editRace.Racers.Count > 0)
             {
-                RaceResults Race = new RaceResults(_editRace.cbName.Text, _editRace.Racers, RaceHeats.ThirteenCarsFourLanes.HeatCount);
-                _raceTracker = new RaceTracker(Race, RaceHeats.ThirteenCarsFourLanes, _db);
+                if (_raceModified)
+                {
+                    _raceModified = false;
+                    RaceResults Race = new RaceResults(_editRace.cbName.Text, _editRace.Racers, RaceHeats.ThirteenCarsFourLanes.HeatCount);
+                    _raceTracker = new RaceTracker(Race, RaceHeats.ThirteenCarsFourLanes, _db);
+                }
                 mainFrame.Navigate(_raceTracker);
             }
             else

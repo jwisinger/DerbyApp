@@ -13,10 +13,10 @@ using System.Windows.Data;
 using System.Windows.Media;
 using System.Windows.Threading;
 
+#warning: TODO Changing event database causes problems with RaceTracker
+
 namespace DerbyApp
 {
-#warning FEATURE: Results aren't read from database on boot, nor on tab switching
-
     public partial class RaceTracker : Page, INotifyPropertyChanged
     {
         private Visibility _displayPhotos = Visibility.Collapsed;
