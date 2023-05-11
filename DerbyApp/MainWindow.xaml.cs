@@ -7,8 +7,10 @@ using System.ComponentModel;
 using System.Windows.Threading;
 using System;
 using System.Linq;
+using System.Collections.ObjectModel;
+using System.Collections.Generic;
 
-#warning REPORTS: Add ability to generate per racer and overall reports
+#warning TODO: Test if a newly added race joins the list on the EditRace page
 
 namespace DerbyApp
 {
@@ -169,6 +171,16 @@ namespace DerbyApp
                 MessageBox.Show("Your currently selected race " + _editRace.CurrentRace + " has no racers in it.");
             }
             Database.StoreDatabaseRegistry(_databaseName, _editRace.CurrentRace);
+        }
+
+        private void ButtonReport_Click(object sender, RoutedEventArgs e)
+        {
+            List<ObservableCollection<Racer>> races = new List<ObservableCollection<Racer>>();
+            foreach (string raceName in _db.GetListOfRaces())
+            {
+                _db.GetRacers(raceName);
+            }
+            GenerateReport.Generate(Path.GetFileNameWithoutExtension(_db.EventName), _db.GetAllRacers(), races);
         }
 
         private void ButtonCollapse_Click(object sender, RoutedEventArgs e)

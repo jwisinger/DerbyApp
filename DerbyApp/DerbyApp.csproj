@@ -40,6 +40,7 @@
     <PackageReference Include="AForge.Controls" Version="2.2.5" />
     <PackageReference Include="AForge.Video" Version="2.2.5" />
     <PackageReference Include="AForge.Video.DirectShow" Version="2.2.5" />
+    <PackageReference Include="PDFsharp-MigraDoc-GDI" Version="1.50.5147" />
     <PackageReference Include="System.Data.SQLite" Version="1.0.117" />
   </ItemGroup>
 

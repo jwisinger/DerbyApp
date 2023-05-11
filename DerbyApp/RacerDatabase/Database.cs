@@ -1,19 +1,19 @@
 ﻿using System.Data.SQLite;
 using System;
-using System.Drawing;
 using System.IO;
 using System.Data;
-using System.Windows;
 using System.Collections.ObjectModel;
 using Microsoft.Win32;
 using System.Collections.Generic;
 using DerbyApp.RaceStats;
+using DerbyApp.Helpers;
 
 namespace DerbyApp.RacerDatabase
 {
     public class Database
     {
-        readonly public SQLiteConnection SqliteConn;
+        public readonly SQLiteConnection SqliteConn;
+        public readonly string EventName = "";
         private readonly string _racerTableName = "raceTable";
 
         private SQLiteConnection CreateConnection()
@@ -29,24 +29,9 @@ namespace DerbyApp.RacerDatabase
             return SqliteConn;
         }
 
-        private static byte[] ImageToByteArray(Image img)
-        {
-            using (var stream = new MemoryStream())
-            {
-                img.Save(stream, System.Drawing.Imaging.ImageFormat.Png);
-                return stream.ToArray();
-            }
-        }
-
-        private static Image ByteArrayToImage(byte[] byteArrayIn)
-        {
-            MemoryStream ms = new MemoryStream(byteArrayIn);
-            Image returnImage = Image.FromStream(ms);
-            return returnImage;
-        }
-
         public Database(string databaseFile)
         {
+            EventName = databaseFile;
             if (!File.Exists(databaseFile))
             {
                 SQLiteConnection.CreateFile(databaseFile);
@@ -157,7 +142,7 @@ namespace DerbyApp.RacerDatabase
                                          (string)dataRow[3],
                                          (string)dataRow[4],
                                          (string)dataRow[5],
-                                         ByteArrayToImage((byte[])dataRow[6])));
+                                         ImageHandler.ByteArrayToImage((byte[])dataRow[6])));
                     }
                     catch { }
                 }
@@ -191,7 +176,7 @@ namespace DerbyApp.RacerDatabase
                                                  (string)dataRow[3],
                                                  (string)dataRow[4],
                                                  (string)dataRow[5],
-                                                 ByteArrayToImage((byte[])dataRow[6])));
+                                                 ImageHandler.ByteArrayToImage((byte[])dataRow[6])));
                             }
                             catch { }
                         }
@@ -226,7 +211,7 @@ namespace DerbyApp.RacerDatabase
                 sql = "REPLACE INTO " + _racerTableName + " ([Number], [Name], [Weight(oz)], [Troop], [Level], [Email], [Image]) VALUES (@Number, @Name, @Weight, @Troop, @Level, @Email, @Image)";
             }
             SQLiteCommand command = new SQLiteCommand(sql, SqliteConn);
-            byte[] photo = ImageToByteArray(racer.Photo);
+            byte[] photo = ImageHandler.ImageToByteArray(racer.Photo);
 
             command.Parameters.Add("@Number", DbType.Int64).Value = racer.Number;
             command.Parameters.Add("@Name", DbType.String).Value = racer.RacerName;
