@@ -12,8 +12,6 @@ using System.Windows.Data;
 using System.Windows.Media;
 using System.Windows.Threading;
 
-#warning TODO: Make "get data from track" auto increment heat when successful
-
 namespace DerbyApp
 {
     public partial class RaceTracker : Page, INotifyPropertyChanged
@@ -83,7 +81,7 @@ namespace DerbyApp
             Heat = heat;
             _db = db;
             heat.UpdateHeat(Results.CurrentHeatNumber, race.Racers);
-            LdrBoard = new Leaderboard(race.Racers, heat.HeatCount);
+            LdrBoard = new Leaderboard(race.Racers, heat.HeatCount, heat.LaneCount);
             gridRaceResults.DataContext = Results.ResultsTable.DefaultView;
             gridLeaderBoard.DataContext = LdrBoard.Board;
             gridCurrentHeat.DataContext = Heat.CurrentRacers;
@@ -215,6 +213,7 @@ namespace DerbyApp
                         _db.UpdateResultsTable(Results.RaceName, dr);
                     }
                 }
+                ButtonNextHeat_Click(sender, new RoutedEventArgs());
             }
         }
 

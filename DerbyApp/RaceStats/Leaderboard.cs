@@ -11,11 +11,13 @@ namespace DerbyApp.RaceStats
     {
         public DataTable RaceScoreTable;
         public TrulyObservableCollection<Racer> Board;
+        private readonly int _laneCount = 0;
 
-        public Leaderboard(ObservableCollection<Racer> racers, int heatCount)
+        public Leaderboard(ObservableCollection<Racer> racers, int heatCount, int laneCount)
         {
             int racerNum = 0;
 
+            _laneCount = laneCount;
             Board = new TrulyObservableCollection<Racer>();
             foreach (Racer r in racers) Board.Add(r);
 
@@ -62,8 +64,7 @@ namespace DerbyApp.RaceStats
                     int index = l.FindIndex(x => x.Item2 == (string)dataRow["Name"]);
                     if (index >= 0)
                     {
-#warning TODO: Hardcoded 4
-                        dataRow["Heat " + i] = 4 - index;
+                        dataRow["Heat " + i] = _laneCount - index;
                     }
                 }
             }

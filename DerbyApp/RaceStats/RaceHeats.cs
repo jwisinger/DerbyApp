@@ -3,7 +3,7 @@
     internal class RaceHeats
     {
         public static readonly RaceHeat Default =
-            new RaceHeat(13, 13, new int[][]
+            new RaceHeat(13, 13, 4, new int[][]
             {
                         new int[] { 6, 10, 11, 2 },
                         new int[] { 11, 4, 12, 0 },
@@ -20,7 +20,7 @@
                         new int[] { 5, 3, 8, 11 },
             });
         public static readonly RaceHeat ThirteenCarsFourLanes =
-            new RaceHeat(13, 13, new int[][]
+            new RaceHeat(13, 13, 4, new int[][]
             {
                 new int[] { 6, 10, 11, 2 },
                 new int[] { 11, 4, 12, 0 },

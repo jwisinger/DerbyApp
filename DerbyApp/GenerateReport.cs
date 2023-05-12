@@ -11,6 +11,8 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 
+#warning TODO: Don't print races that the racer isn't involved with
+
 namespace DerbyApp
 {
     internal class GenerateReport
@@ -62,7 +64,7 @@ namespace DerbyApp
 
             foreach (RaceResults result in races)
             {
-                Leaderboard ldr = new Leaderboard(result.Racers, result.HeatCount);
+                Leaderboard ldr = new Leaderboard(result.Racers, result.HeatCount, result.LaneCount);
                 ldr.CalculateResults(result.ResultsTable);
                 paragraph = section.AddParagraph();
                 paragraph.Format.Borders.Bottom = new Border() { Width = "1pt", Color = Colors.DarkGray };
@@ -76,8 +78,7 @@ namespace DerbyApp
                     { 
                         if (resultRow[i+2] != DBNull.Value)
                         {
-#warning TODO: hardcoded 5
-                            paragraph.AddFormattedText("Heat " + (i + 1) + " Time: " + resultRow[i + 2] + " seconds (" + (5 - (int)scoreRow[i + 2]) + ")\r\n", "Normal");
+                            paragraph.AddFormattedText("Heat " + (i + 1) + " Time: " + resultRow[i + 2] + " seconds (" + (1 + result.LaneCount - (int)scoreRow[i + 2]) + ")\r\n", "Normal");
                         }
                     }
                 }

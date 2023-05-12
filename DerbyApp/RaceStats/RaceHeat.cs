@@ -10,12 +10,14 @@ namespace DerbyApp.RaceStats
 
         public readonly int HeatCount;
         public readonly int RacerCount;
+        public readonly int LaneCount;
         public readonly int[][] Heats;
 
-        public RaceHeat(int heatCount, int racerCount, int[][] heats)
+        public RaceHeat(int heatCount, int racerCount, int laneCount, int[][] heats)
         {
             HeatCount = heatCount;
             RacerCount = racerCount;
+            LaneCount = laneCount;
             Heats = heats;
             CurrentRacers = new ObservableCollection<Racer>();
         }

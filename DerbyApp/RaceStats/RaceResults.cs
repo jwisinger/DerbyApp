@@ -13,6 +13,7 @@ namespace DerbyApp.RaceStats
         public ObservableCollection<Racer> Racers;
         public DataTable ResultsTable;
         public int HeatCount = 0;
+        public int LaneCount = 0;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -29,15 +30,16 @@ namespace DerbyApp.RaceStats
             }
         }
 
-        public RaceResults() : this("", new ObservableCollection<Racer>(), RaceHeats.Default.HeatCount) { }
+        public RaceResults() : this("", new ObservableCollection<Racer>(), RaceHeats.Default) { }
 
-        public RaceResults(string raceName, ObservableCollection<Racer> racers, int heatCount)
+        public RaceResults(string raceName, ObservableCollection<Racer> racers, RaceHeat raceHeat)
         {
             int racerNum = 0;
 
             RaceName = raceName;
             Racers = racers;
-            HeatCount = heatCount;
+            HeatCount = raceHeat.HeatCount;
+            LaneCount = raceHeat.LaneCount;
 
             ResultsTable = new DataTable();
             ResultsTable.Columns.Add("Number", Type.GetType("System.Int32"));

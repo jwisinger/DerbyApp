@@ -7,11 +7,10 @@ using System.ComponentModel;
 using System.Windows.Threading;
 using System;
 using System.Linq;
-using System.Collections.ObjectModel;
 using System.Collections.Generic;
 using DerbyApp.Pages;
 
-#warning TODO: Test if a newly added race joins the list on the EditRace page
+#warning TODO: Make a newly added race join the list on the EditRace page
 
 namespace DerbyApp
 {
@@ -88,7 +87,7 @@ namespace DerbyApp
             _newRacer.RacerAdded += Racer_RacerAdded;
             _racerTableView.RacerRemoved += RacerTableView_RacerRemoved;
 
-            RaceResults Race = new RaceResults(_editRace.CurrentRace, _editRace.Racers, RaceHeats.Default.HeatCount);
+            RaceResults Race = new RaceResults(_editRace.CurrentRace, _editRace.Racers, RaceHeats.ThirteenCarsFourLanes);
             _db.LoadResultsTable(Race.ResultsTable, _editRace.CurrentRace);
             _raceTracker = new RaceTracker(Race, RaceHeats.ThirteenCarsFourLanes, _db);
 
@@ -161,7 +160,7 @@ namespace DerbyApp
                 if (_raceModified)
                 {
                     _raceModified = false;
-                    RaceResults Race = new RaceResults(_editRace.cbName.Text, _editRace.Racers, RaceHeats.ThirteenCarsFourLanes.HeatCount);
+                    RaceResults Race = new RaceResults(_editRace.cbName.Text, _editRace.Racers, RaceHeats.ThirteenCarsFourLanes);
                     _raceTracker = new RaceTracker(Race, RaceHeats.ThirteenCarsFourLanes, _db);
                 }
                 mainFrame.Navigate(_raceTracker);
@@ -179,7 +178,7 @@ namespace DerbyApp
             List<RaceResults> races = new List<RaceResults>();
             foreach (string raceName in _db.GetListOfRaces())
             {
-                RaceResults race = new RaceResults(raceName, _db.GetRacers(raceName), RaceHeats.Default.HeatCount);
+                RaceResults race = new RaceResults(raceName, _db.GetRacers(raceName), RaceHeats.ThirteenCarsFourLanes);
                 _db.LoadResultsTable(race.ResultsTable, race.RaceName);
                 races.Add(race);
             }
