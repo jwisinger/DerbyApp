@@ -9,6 +9,7 @@ using System.Data;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 
 namespace DerbyApp
 {
@@ -22,10 +23,6 @@ namespace DerbyApp
             // font of the whole document. Or, more exactly, it changes the font of
             // all styles and paragraphs that do not redefine the font.
             style.Font.Name = "Times New Roman";
-
-            // Heading1 to Heading9 are predefined styles with an outline level. An outline level
-            // other than OutlineLevel.BodyText automatically creates the outline (or bookmarks)
-            // in PDF.
 
             style = document.Styles["Heading1"];
             style.Font.Size = 20;
@@ -44,12 +41,6 @@ namespace DerbyApp
             style.Font.Bold = false;
             style.ParagraphFormat.SpaceBefore = 6;
             style.ParagraphFormat.SpaceAfter = 3;
-
-            // Create a new style called TextBox based on style Normal
-            style = document.Styles.AddStyle("TextBox", "Normal");
-            style.ParagraphFormat.Alignment = ParagraphAlignment.Justify;
-            style.ParagraphFormat.Borders.Width = 2.5;
-            style.ParagraphFormat.Borders.Distance = "3pt";
         }
 
         static Document CreateDocument(Racer r, List<RaceResults> races)
@@ -78,18 +69,19 @@ namespace DerbyApp
                 paragraph.AddFormattedText("\r\nRace Name: " + result.RaceName + "\r\n", "Heading3");
                 try
                 {
-                    DataRow row = result.ResultsTable.Select("Number = " + r.Number)[0];
+                    paragraph.AddFormattedText("Overall Race Finish: " + (1 + ldr.Board.OrderByDescending(x => x.Score).ToList().FindIndex(x => x.Number == r.Number)) + "\r\n", "Normal");
+                    DataRow resultRow = result.ResultsTable.Select("Number = " + r.Number)[0];
+                    DataRow scoreRow = ldr.RaceScoreTable.Select("Number = " + r.Number)[0];
                     for (int i = 0; i < result.HeatCount; i++)
                     { 
-                        if (row[i+2] != DBNull.Value)
+                        if (resultRow[i+2] != DBNull.Value)
                         {
-#warning TODO: Add "place" next to time
-                            paragraph.AddFormattedText("Heat " + (i + 1) + " Time: " + row[i + 2] + " seconds\r\n", "Normal");
+#warning TODO: hardcoded 5
+                            paragraph.AddFormattedText("Heat " + (i + 1) + " Time: " + resultRow[i + 2] + " seconds (" + (5 - (int)scoreRow[i + 2]) + ")\r\n", "Normal");
                         }
                     }
                 }
                 catch { }
-#warning TODO: Add overall "place" (maybe at top)
             }
 
             return document;

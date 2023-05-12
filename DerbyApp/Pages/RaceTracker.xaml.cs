@@ -90,6 +90,7 @@ namespace DerbyApp
             CurrentHeatLabel.DataContext = this;
             _startTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(5) };
             _startTimer.Tick += TimeTickStart;
+            LdrBoard.CalculateResults(Results.ResultsTable);
         }
 
         private void ButtonNextHeat_Click(object sender, RoutedEventArgs e)
