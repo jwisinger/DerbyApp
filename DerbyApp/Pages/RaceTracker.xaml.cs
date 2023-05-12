@@ -12,6 +12,8 @@ using System.Windows.Data;
 using System.Windows.Media;
 using System.Windows.Threading;
 
+#warning TODO: Make "get data from track" auto increment heat when successful
+
 namespace DerbyApp
 {
     public partial class RaceTracker : Page, INotifyPropertyChanged

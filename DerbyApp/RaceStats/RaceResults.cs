@@ -29,7 +29,7 @@ namespace DerbyApp.RaceStats
             }
         }
 
-        public RaceResults() : this("", new ObservableCollection<Racer>(), RaceHeats.ThirteenCarsFourLanes.HeatCount) { }
+        public RaceResults() : this("", new ObservableCollection<Racer>(), RaceHeats.Default.HeatCount) { }
 
         public RaceResults(string raceName, ObservableCollection<Racer> racers, int heatCount)
         {

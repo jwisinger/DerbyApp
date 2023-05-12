@@ -9,6 +9,7 @@ using System;
 using System.Linq;
 using System.Collections.ObjectModel;
 using System.Collections.Generic;
+using DerbyApp.Pages;
 
 #warning TODO: Test if a newly added race joins the list on the EditRace page
 
@@ -175,10 +176,12 @@ namespace DerbyApp
 
         private void ButtonReport_Click(object sender, RoutedEventArgs e)
         {
-            List<ObservableCollection<Racer>> races = new List<ObservableCollection<Racer>>();
+            List<RaceResults> races = new List<RaceResults>();
             foreach (string raceName in _db.GetListOfRaces())
             {
-                _db.GetRacers(raceName);
+                RaceResults race = new RaceResults(raceName, _db.GetRacers(raceName), RaceHeats.Default.HeatCount);
+                _db.LoadResultsTable(race.ResultsTable, race.RaceName);
+                races.Add(race);
             }
             GenerateReport.Generate(Path.GetFileNameWithoutExtension(_db.EventName), _db.GetAllRacers(), races);
         }
@@ -233,6 +236,11 @@ namespace DerbyApp
         {
             _newRacer.VideoThread?.Abort();
             _newRacer.LocalWebCam?.Stop();
+        }
+
+        private void MenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            mainFrame.Navigate(new Help());
         }
     }
 }

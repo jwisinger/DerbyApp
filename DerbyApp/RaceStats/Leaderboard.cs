@@ -62,6 +62,7 @@ namespace DerbyApp.RaceStats
                     int index = l.FindIndex(x => x.Item2 == (string)dataRow["Name"]);
                     if (index >= 0)
                     {
+#warning TODO: Hardcoded 4
                         dataRow["Heat " + i] = 4 - index;
                     }
                 }

@@ -2,13 +2,13 @@
 using DerbyApp.RaceStats;
 using MigraDoc.DocumentObjectModel;
 using MigraDoc.Rendering;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Data;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
-
-#warning REPORTS: Add ability to generate per racer and overall reports
 
 namespace DerbyApp
 {
@@ -52,7 +52,7 @@ namespace DerbyApp
             style.ParagraphFormat.Borders.Distance = "3pt";
         }
 
-        static Document CreateDocument(Racer r)
+        static Document CreateDocument(Racer r, List<RaceResults> races)
         {
             Document document = new Document();
             DefineStyles(document);
@@ -64,21 +64,43 @@ namespace DerbyApp
             paragraph.AddFormattedText("Level: " + r.Level + "\r\n", "Heading2");
             paragraph.AddFormattedText("Car Weight: " + r.Weight.ToString() + "\r\n", "Heading3");
             paragraph = section.AddParagraph();
-            paragraph.Format.SpaceBefore = -110;
-            paragraph.AddImage(ImageHandler.LoadImageFromBytes(ImageHandler.ImageToByteArray(new Bitmap(r.Photo, new Size(200, 200)))));
-            paragraph.Format.Borders.Top = new Border() { Width = "2pt", Color = Colors.DarkGray };
-            paragraph.Format.Borders.Bottom = new Border() { Width = "2pt", Color = Colors.DarkGray };
-            paragraph = section.AddParagraph();
-            paragraph.AddFormattedText("Race Info", "Normal");
+            paragraph.Format.SpaceBefore = -80;
+            paragraph.AddImage(ImageHandler.LoadImageFromBytes(ImageHandler.ImageToByteArray(new Bitmap(r.Photo, new Size(224, 168)))));
+            paragraph.Format.Borders.Top = new Border() { Width = "4pt", Color = Colors.DarkGray };
+            paragraph.Format.Borders.Bottom = new Border() { Width = "4pt", Color = Colors.DarkGray };
+
+            foreach (RaceResults result in races)
+            {
+                Leaderboard ldr = new Leaderboard(result.Racers, result.HeatCount);
+                ldr.CalculateResults(result.ResultsTable);
+                paragraph = section.AddParagraph();
+                paragraph.Format.Borders.Bottom = new Border() { Width = "1pt", Color = Colors.DarkGray };
+                paragraph.AddFormattedText("\r\nRace Name: " + result.RaceName + "\r\n", "Heading3");
+                try
+                {
+                    DataRow row = result.ResultsTable.Select("Number = " + r.Number)[0];
+                    for (int i = 0; i < result.HeatCount; i++)
+                    { 
+                        if (row[i+2] != DBNull.Value)
+                        {
+#warning TODO: Add "place" next to time
+                            paragraph.AddFormattedText("Heat " + (i + 1) + " Time: " + row[i + 2] + " seconds\r\n", "Normal");
+                        }
+                    }
+                }
+                catch { }
+#warning TODO: Add overall "place" (maybe at top)
+            }
+
             return document;
         }
 
-        static public void Generate(string EventName, ObservableCollection<Racer> racers, List<ObservableCollection<Racer>> races)
+        static public void Generate(string EventName, ObservableCollection<Racer> racers, List<RaceResults> races)
         {
             Directory.CreateDirectory(EventName);
             foreach (Racer r in racers)
             {
-                Document document = CreateDocument(r);
+                Document document = CreateDocument(r, races);
                 PdfDocumentRenderer pdfRenderer = new PdfDocumentRenderer(false)
                 {
                     Document = document
