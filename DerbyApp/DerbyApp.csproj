@@ -6,6 +6,11 @@
     <UseWPF>true</UseWPF>
     <UseWindowsForms>True</UseWindowsForms>
     <ApplicationIcon>racecar.ico</ApplicationIcon>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+	<ContentSQLiteInteropFiles>true</ContentSQLiteInteropFiles>
+	<CopySQLiteInteropFiles>false</CopySQLiteInteropFiles>
+	<CleanSQLiteInteropFiles>false</CleanSQLiteInteropFiles>
+	<CollectSQLiteInteropFiles>false</CollectSQLiteInteropFiles>
   </PropertyGroup>
 
   <ItemGroup>
@@ -42,6 +47,7 @@
     <PackageReference Include="AForge.Video.DirectShow" Version="2.2.5" />
     <PackageReference Include="PDFsharp-MigraDoc-GDI" Version="1.50.5147" />
     <PackageReference Include="System.Data.SQLite" Version="1.0.117" />
+    <PackageReference Include="System.Data.SQLite.Core" Version="1.0.117" />
   </ItemGroup>
 
   <ItemGroup>
