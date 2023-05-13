@@ -10,8 +10,6 @@ using System.Linq;
 using System.Collections.Generic;
 using DerbyApp.Pages;
 
-#warning TODO: Make a newly added race join the list on the EditRace page
-
 namespace DerbyApp
 {
     public partial class MainWindow : Window, INotifyPropertyChanged

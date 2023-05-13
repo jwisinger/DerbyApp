@@ -11,8 +11,6 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 
-#warning TODO: Don't print races that the racer isn't involved with
-
 namespace DerbyApp
 {
     internal class GenerateReport
@@ -66,23 +64,27 @@ namespace DerbyApp
             {
                 Leaderboard ldr = new Leaderboard(result.Racers, result.HeatCount, result.LaneCount);
                 ldr.CalculateResults(result.ResultsTable);
-                paragraph = section.AddParagraph();
-                paragraph.Format.Borders.Bottom = new Border() { Width = "1pt", Color = Colors.DarkGray };
-                paragraph.AddFormattedText("\r\nRace Name: " + result.RaceName + "\r\n", "Heading3");
-                try
+                if (ldr.Board.OrderByDescending(x => x.Score).ToList().FindIndex(x => x.Number == r.Number) > -1)
                 {
-                    paragraph.AddFormattedText("Overall Race Finish: " + (1 + ldr.Board.OrderByDescending(x => x.Score).ToList().FindIndex(x => x.Number == r.Number)) + "\r\n", "Normal");
-                    DataRow resultRow = result.ResultsTable.Select("Number = " + r.Number)[0];
-                    DataRow scoreRow = ldr.RaceScoreTable.Select("Number = " + r.Number)[0];
-                    for (int i = 0; i < result.HeatCount; i++)
-                    { 
-                        if (resultRow[i+2] != DBNull.Value)
+                    paragraph = section.AddParagraph();
+                    paragraph.Format.Borders.Bottom = new Border() { Width = "1pt", Color = Colors.DarkGray };
+                    paragraph.AddFormattedText("\r\nRace Name: " + result.RaceName + "\r\n", "Heading3");
+                    try
+                    {
+                        paragraph.AddFormattedText("Overall Race Finish: " + (1 + ldr.Board.OrderByDescending(x => x.Score).ToList().FindIndex(x => x.Number == r.Number)) + "\r\n", "Normal");
+                        DataRow resultRow = result.ResultsTable.Select("Number = " + r.Number)[0];
+                        DataRow scoreRow = ldr.RaceScoreTable.Select("Number = " + r.Number)[0];
+                        for (int i = 0; i < result.HeatCount; i++)
                         {
-                            paragraph.AddFormattedText("Heat " + (i + 1) + " Time: " + resultRow[i + 2] + " seconds (" + (1 + result.LaneCount - (int)scoreRow[i + 2]) + ")\r\n", "Normal");
+                            if (resultRow[i + 2] != DBNull.Value)
+                            {
+
+                                paragraph.AddFormattedText("Heat " + (i + 1) + " Time: " + resultRow[i + 2] + " seconds (" + (1 + result.LaneCount - (int)scoreRow[i + 2]) + ")\r\n", "Normal");
+                            }
                         }
                     }
+                    catch { }
                 }
-                catch { }
             }
 
             return document;

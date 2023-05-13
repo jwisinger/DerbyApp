@@ -50,19 +50,23 @@ namespace DerbyApp.RacerDatabase
 
         public void LoadResultsTable(DataTable resultsTable, string raceName)
         {
-            if (raceName == "") return;
-            SQLiteCommand cmd = new SQLiteCommand("SELECT *  FROM [" + _racerTableName + "] INNER JOIN [" + raceName + "] ON [" + raceName + "].number = [" + _racerTableName + "].Number", SqliteConn);
-            SQLiteDataAdapter sda = new SQLiteDataAdapter(cmd);
-            DataSet ds = new DataSet();
-            sda.Fill(ds);
-            if (ds.Tables[0].Rows.Count > 0)
+            try
             {
-                resultsTable.Clear();
-                foreach (DataRow row in ds.Tables[0].Rows)
+                if (raceName == "") return;
+                SQLiteCommand cmd = new SQLiteCommand("SELECT *  FROM [" + _racerTableName + "] INNER JOIN [" + raceName + "] ON [" + raceName + "].number = [" + _racerTableName + "].Number", SqliteConn);
+                SQLiteDataAdapter sda = new SQLiteDataAdapter(cmd);
+                DataSet ds = new DataSet();
+                sda.Fill(ds);
+                if (ds.Tables[0].Rows.Count > 0)
                 {
-                    resultsTable.ImportRow(row);
+                    resultsTable.Clear();
+                    foreach (DataRow row in ds.Tables[0].Rows)
+                    {
+                        resultsTable.ImportRow(row);
+                    }
                 }
             }
+            catch { }
         }
 
         public void ModifyResultsTable(ObservableCollection<Racer> racers, string raceName, int heatCount)
@@ -105,7 +109,7 @@ namespace DerbyApp.RacerDatabase
 
         public void UpdateResultsTable(string raceName, DataRow row)
         {
-            string sql = "UPDATE " + raceName + " SET ";
+            string sql = "UPDATE [" + raceName + "] SET ";
             SQLiteCommand command;
 
             for (int i = 2; i < row.ItemArray.Length; i++)
@@ -188,9 +192,9 @@ namespace DerbyApp.RacerDatabase
             return Racers;
         }
 
-        public List<string> GetListOfRaces()
+        public ObservableCollection<string> GetListOfRaces()
         {
-            List<string> retVal = new List<string>();
+            ObservableCollection<string> retVal = new ObservableCollection<string>();
             string sql = "SELECT name FROM sqlite_schema WHERE type ='table' AND name NOT LIKE 'sqlite_%';";
             SQLiteCommand command = new SQLiteCommand(sql, SqliteConn);
             SQLiteDataReader r = command.ExecuteReader();

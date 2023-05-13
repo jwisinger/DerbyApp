@@ -49,13 +49,13 @@
             </DataGrid>
             <Button Content="Add Racer" Grid.Row="1" Width="100" HorizontalAlignment="Left" Margin="5,2,0,2" Click="ButtonAddRacer_Click"></Button>
             <ComboBox Name="cbRacers" Grid.Row="1" HorizontalAlignment="Left" Width="170" Margin="110,2,0,2" SelectedValuePath="RacerName" DisplayMemberPath="RacerName"></ComboBox>
-            <CheckBox Grid.Row="1" Name="cbDaisy" Content="Daisy" HorizontalAlignment="Left" Margin="290,0,0,0" VerticalAlignment="Center" IsChecked="True" Click="CheckBox_Click"/>
-            <CheckBox Grid.Row="1" Name="cbBrownie" Content="Brownie" HorizontalAlignment="Left" Margin="352,0,0,0" VerticalAlignment="Center" IsChecked="True" Click="CheckBox_Click"/>
-            <CheckBox Grid.Row="1" Name="cbJunior" Content="Junior" HorizontalAlignment="Left" Margin="429,0,0,0" VerticalAlignment="Center" IsChecked="True" Click="CheckBox_Click"/>
-            <CheckBox Grid.Row="1" Name="cbCadette" Content="Cadette" HorizontalAlignment="Left" Margin="495,0,0,0" VerticalAlignment="Center" IsChecked="True" Click="CheckBox_Click"/>
-            <CheckBox Grid.Row="1" Name="cbSenior" Content="Senior" HorizontalAlignment="Left" Margin="570,0,0,0" VerticalAlignment="Center" IsChecked="True" Click="CheckBox_Click"/>
-            <CheckBox Grid.Row="1" Name="cbAmbassador" Content="Ambassador" HorizontalAlignment="Left" Margin="638,0,0,0" VerticalAlignment="Center" IsChecked="True" Click="CheckBox_Click"/>
-            <CheckBox Grid.Row="1" Name="cbAdult" Content="Adult" HorizontalAlignment="Left" Margin="738,0,0,0" VerticalAlignment="Center" IsChecked="True" Click="CheckBox_Click"/>
+            <CheckBox Grid.Row="0" Name="cbDaisy" Content="Daisy" HorizontalAlignment="Left" Margin="300,0,0,0" VerticalAlignment="Center" IsChecked="True" Click="CheckBox_Click"/>
+            <CheckBox Grid.Row="1" Name="cbBrownie" Content="Brownie" HorizontalAlignment="Left" Margin="350,0,0,0" VerticalAlignment="Center" IsChecked="True" Click="CheckBox_Click"/>
+            <CheckBox Grid.Row="0" Name="cbJunior" Content="Junior" HorizontalAlignment="Left" Margin="400,0,0,0" VerticalAlignment="Center" IsChecked="True" Click="CheckBox_Click"/>
+            <CheckBox Grid.Row="1" Name="cbCadette" Content="Cadette" HorizontalAlignment="Left" Margin="450,0,0,0" VerticalAlignment="Center" IsChecked="True" Click="CheckBox_Click"/>
+            <CheckBox Grid.Row="0" Name="cbSenior" Content="Senior" HorizontalAlignment="Left" Margin="500,0,0,0" VerticalAlignment="Center" IsChecked="True" Click="CheckBox_Click"/>
+            <CheckBox Grid.Row="1" Name="cbAmbassador" Content="Ambassador" HorizontalAlignment="Left" Margin="550,0,0,0" VerticalAlignment="Center" IsChecked="True" Click="CheckBox_Click"/>
+            <CheckBox Grid.Row="0" Name="cbAdult" Content="Adult" HorizontalAlignment="Left" Margin="600,0,0,0" VerticalAlignment="Center" IsChecked="True" Click="CheckBox_Click"/>
             <Slider Value="25" AutoToolTipPlacement="TopLeft" AutoToolTipPrecision="0" Grid.Row="2" Name="_zoom" Minimum="1" Maximum="100" VerticalAlignment="Bottom" Margin="5,0,5,5" />
         </Grid>
     </Viewbox>

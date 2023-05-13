@@ -15,7 +15,7 @@ namespace DerbyApp
     {
         private readonly Database _db;
         private readonly Dictionary<string, CheckBox> _cbList = new Dictionary<string, CheckBox>();
-        public List<string> Races;
+        public ObservableCollection<string> Races;
         public ObservableCollection<Racer> Racers = new ObservableCollection<Racer>();
         public ObservableCollection<Racer> AllRacers = new ObservableCollection<Racer>();
         public ObservableCollection<Racer> AvailableRacers = new ObservableCollection<Racer>();
@@ -117,23 +117,31 @@ namespace DerbyApp
         {
             int order = 1;
             if (Racers.Count > _racerCount) return;
+            if (!Races.Contains(cbName.Text)) Races.Add(cbName.Text);
 
-            // Check if added racer already in list
-            if (Racers.Where(x => x.Number == (cbRacers.SelectedItem as Racer).Number).FirstOrDefault() == null)
+            try
             {
-                Racers.Add(cbRacers.SelectedItem as Racer);
+                // Check if added racer already in list
+                if (Racers.Where(x => x.Number == (cbRacers.SelectedItem as Racer).Number).FirstOrDefault() == null)
+                {
+                    Racers.Add(cbRacers.SelectedItem as Racer);
+                }
+                foreach (Racer r in Racers) r.RaceOrder = order++;
+                _db.ModifyResultsTable(Racers, cbName.Text, _heatCount);
             }
-
-            foreach (Racer r in Racers) r.RaceOrder = order++;
-            _db.ModifyResultsTable(Racers, cbName.Text, _heatCount);
+            catch { }
         }
 
         private void Delete_OnClick(object sender, RoutedEventArgs e)
         {
             int order = 1;
-            Racers.RemoveAt(dataGridRacers.SelectedIndex);
-            foreach (Racer r in Racers) r.RaceOrder = order++;
-            _db.ModifyResultsTable(Racers, cbName.Text, _heatCount);
+            try
+            {
+                Racers.RemoveAt(dataGridRacers.SelectedIndex);
+                foreach (Racer r in Racers) r.RaceOrder = order++;
+                _db.ModifyResultsTable(Racers, cbName.Text, _heatCount);
+            }
+            catch { }
         }
     }
 }

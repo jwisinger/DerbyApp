@@ -213,7 +213,10 @@ namespace DerbyApp
                         _db.UpdateResultsTable(Results.RaceName, dr);
                     }
                 }
-                ButtonNextHeat_Click(sender, new RoutedEventArgs());
+                if (Results.CurrentHeatNumber < Results.HeatCount)
+                {
+                    ButtonNextHeat_Click(sender, new RoutedEventArgs());
+                }
             }
         }
 
