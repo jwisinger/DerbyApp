@@ -180,7 +180,7 @@ namespace DerbyApp
                 _db.LoadResultsTable(race.ResultsTable, race.RaceName);
                 races.Add(race);
             }
-            GenerateReport.Generate(Path.GetFileNameWithoutExtension(_db.EventName), _db.GetAllRacers(), races);
+            GenerateReport.Generate(_db.EventName, _db.GetAllRacers(), races);
         }
 
         private void ButtonCollapse_Click(object sender, RoutedEventArgs e)

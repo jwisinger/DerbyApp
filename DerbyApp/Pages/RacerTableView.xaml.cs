@@ -50,9 +50,9 @@ namespace DerbyApp
                     dataGridRacerTable.CommitEdit();
                     _db.AddRacerToRacerTable(Racers[e.Row.GetIndex()]);
                     _editHandle = true;
+                    _db.GetAllRacers(Racers);
                 }
             }
-            _db.GetAllRacers(Racers);
         }
 
         private void Delete_OnClick(object sender, RoutedEventArgs e)

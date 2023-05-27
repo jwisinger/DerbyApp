@@ -1,4 +1,6 @@
-﻿namespace DerbyApp.RaceStats
+﻿#warning TODO: Add abilty to run smaller races (at least 4 or less)
+
+namespace DerbyApp.RaceStats
 {
     internal class RaceHeats
     {

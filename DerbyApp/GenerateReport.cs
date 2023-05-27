@@ -90,9 +90,10 @@ namespace DerbyApp
             return document;
         }
 
-        static public void Generate(string EventName, ObservableCollection<Racer> racers, List<RaceResults> races)
+        static public void Generate(string eventName, ObservableCollection<Racer> racers, List<RaceResults> races)
         {
-            Directory.CreateDirectory(EventName);
+            string eventPath = Path.Combine(Path.GetDirectoryName(eventName), Path.GetFileNameWithoutExtension(eventName));
+            Directory.CreateDirectory(eventPath);
             foreach (Racer r in racers)
             {
                 Document document = CreateDocument(r, races);
@@ -102,8 +103,8 @@ namespace DerbyApp
                 };
                 pdfRenderer.RenderDocument();
 
-                pdfRenderer.PdfDocument.Save(EventName + "/" + r.RacerName + ".pdf");
-                Process.Start(Path.Combine(EventName,r.RacerName + ".pdf"));
+                pdfRenderer.PdfDocument.Save(Path.Combine(eventPath, r.RacerName + ".pdf"));
+                Process.Start(Path.Combine(eventPath, r.RacerName + ".pdf"));
             }
         }
     }

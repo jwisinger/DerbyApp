@@ -47,8 +47,8 @@
                     </DataGridTemplateColumn>
                 </DataGrid.Columns>
             </DataGrid>
-            <Button Content="Add Racer" Grid.Row="1" Width="100" HorizontalAlignment="Left" Margin="5,2,0,2" Click="ButtonAddRacer_Click"></Button>
-            <ComboBox Name="cbRacers" Grid.Row="1" HorizontalAlignment="Left" Width="170" Margin="110,2,0,2" SelectedValuePath="RacerName" DisplayMemberPath="RacerName"></ComboBox>
+            <Button Name="buttonAddRacer" Content="Add Racer" IsEnabled="False" Grid.Row="1" Width="100" HorizontalAlignment="Left" Margin="5,2,0,2" Click="ButtonAddRacer_Click"></Button>
+            <ComboBox Name="cbRacers" Grid.Row="1" HorizontalAlignment="Left" Width="170" Margin="110,2,0,2" SelectedValuePath="RacerName" DisplayMemberPath="RacerName" SelectionChanged="cbRacers_SelectionChanged"></ComboBox>
             <CheckBox Grid.Row="0" Name="cbDaisy" Content="Daisy" HorizontalAlignment="Left" Margin="300,0,0,0" VerticalAlignment="Center" IsChecked="True" Click="CheckBox_Click"/>
             <CheckBox Grid.Row="1" Name="cbBrownie" Content="Brownie" HorizontalAlignment="Left" Margin="350,0,0,0" VerticalAlignment="Center" IsChecked="True" Click="CheckBox_Click"/>
             <CheckBox Grid.Row="0" Name="cbJunior" Content="Junior" HorizontalAlignment="Left" Margin="400,0,0,0" VerticalAlignment="Center" IsChecked="True" Click="CheckBox_Click"/>

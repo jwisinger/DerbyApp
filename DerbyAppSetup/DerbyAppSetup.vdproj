@@ -13,6 +13,18 @@
 "SccProvider" = "8:"
     "Hierarchy"
     {
+        "Entry"
+        {
+        "MsmKey" = "8:_58E1FE0B5E5745598F8086E7B30D22C5"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_E59258712CA24F3088F5E60178D09C77"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
     }
     "Configurations"
     {
@@ -110,6 +122,26 @@
         }
         "File"
         {
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_E59258712CA24F3088F5E60178D09C77"
+            {
+            "SourcePath" = "8:..\\DerbyApp\\racecar.ico"
+            "TargetName" = "8:racecar.ico"
+            "Tag" = "8:"
+            "Folder" = "8:_83410229E6314098BE3423BF1E4B1601"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
         }
         "FileType"
         {
@@ -166,15 +198,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:DerbyApp"
-        "ProductCode" = "8:{D59D472B-3DEC-4B31-972B-3D7AF8280C18}"
-        "PackageCode" = "8:{E05E0BD2-1D19-48DB-8394-684DBF13159E}"
+        "ProductCode" = "8:{86C2C3DB-0C3D-4DC9-B00A-991DA1206635}"
+        "PackageCode" = "8:{27A2DE3E-C4BE-4CF7-A150-C0B0EBB4D76D}"
         "UpgradeCode" = "8:{CB435258-E6B3-4868-A452-4D503AE0E293}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:TRUE"
-        "ProductVersion" = "8:0.0.1"
+        "ProductVersion" = "8:1.0.0"
         "Manufacturer" = "8:Derby"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"
@@ -287,6 +319,20 @@
         }
         "Shortcut"
         {
+            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_B0D86A8B497944B9924DA6512E45AF19"
+            {
+            "Name" = "8:DerbyApp"
+            "Arguments" = "8:"
+            "Description" = "8:"
+            "ShowCmd" = "3:1"
+            "IconIndex" = "3:0"
+            "Transitive" = "11:FALSE"
+            "Target" = "8:_58E1FE0B5E5745598F8086E7B30D22C5"
+            "Folder" = "8:_8E597EAC03BE4CCB99499194B7E30A9C"
+            "WorkingFolder" = "8:_83410229E6314098BE3423BF1E4B1601"
+            "Icon" = "8:_E59258712CA24F3088F5E60178D09C77"
+            "Feature" = "8:"
+            }
         }
         "UserInterface"
         {
@@ -708,6 +754,34 @@
             "ProjectOutputGroupRegister" = "3:1"
             "OutputConfiguration" = "8:"
             "OutputGroupCanonicalName" = "8:PublishItems"
+            "OutputProjectGuid" = "8:{4B9BD93F-9A94-4436-866A-664582237C37}"
+            "ShowKeyOutput" = "11:TRUE"
+                "ExcludeFilters"
+                {
+                }
+            }
+            "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_58E1FE0B5E5745598F8086E7B30D22C5"
+            {
+            "SourcePath" = "8:..\\DerbyApp\\obj\\Release\\net481\\DerbyApp.exe"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_83410229E6314098BE3423BF1E4B1601"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            "ProjectOutputGroupRegister" = "3:1"
+            "OutputConfiguration" = "8:"
+            "OutputGroupCanonicalName" = "8:Built"
             "OutputProjectGuid" = "8:{4B9BD93F-9A94-4436-866A-664582237C37}"
             "ShowKeyOutput" = "11:TRUE"
                 "ExcludeFilters"

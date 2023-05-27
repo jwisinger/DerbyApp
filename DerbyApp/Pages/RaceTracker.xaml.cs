@@ -12,6 +12,8 @@ using System.Windows.Data;
 using System.Windows.Media;
 using System.Windows.Threading;
 
+#warning TODO: There was a crash on Stella's PC when manually editing race times and pressing "enter"
+
 namespace DerbyApp
 {
     public partial class RaceTracker : Page, INotifyPropertyChanged

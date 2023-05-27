@@ -143,5 +143,11 @@ namespace DerbyApp
             }
             catch { }
         }
+
+        private void cbRacers_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (cbRacers.SelectedItem != null) buttonAddRacer.IsEnabled = true;
+            else buttonAddRacer.IsEnabled = false;
+        }
     }
 }
