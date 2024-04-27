@@ -1,11 +1,18 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections.ObjectModel;
 
 namespace DerbyApp.RaceStats
 {
     internal class GirlScoutLevels
     {
-        public static List<string> ScoutLevels { get; set; } = new List<string> {
-            "Daisy", "Brownie", "Junior", "Cadette", "Senior", "Ambassador", "Adult" };
-
+        public static ObservableCollection<GirlScoutLevel> ScoutLevels { get; set; } =
+            new ObservableCollection<GirlScoutLevel> {
+                new("Daisy"),
+                new("Brownie"),
+                new("Junior"),
+                new("Cadette"),
+                new("Senior"),
+                new("Ambassador"),
+                new("Adult")
+            };
     }
 }

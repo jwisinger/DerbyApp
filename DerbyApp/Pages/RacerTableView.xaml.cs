@@ -10,7 +10,7 @@ namespace DerbyApp
 {
     public partial class RacerTableView : Page, INotifyPropertyChanged
     {
-        public ObservableCollection<Racer> Racers = new ObservableCollection<Racer>();
+        public ObservableCollection<Racer> Racers = new();
         private readonly Database _db;
         private bool _editHandle = true;
         private Visibility _displayPhotos = Visibility.Collapsed;
@@ -23,7 +23,7 @@ namespace DerbyApp
             set
             {
                 _displayPhotos = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("DisplayPhotos"));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(DisplayPhotos)));
             }
         }
 
@@ -42,7 +42,7 @@ namespace DerbyApp
 
         private void DataGridRacerTable_RowEditEnding(object sender, DataGridRowEditEndingEventArgs e)
         {
-            if (e.Row.GetIndex() >= 0)
+            if ((e.Row.GetIndex() >= 0) && (e.Row.GetIndex() < Racers.Count))
             {
                 if (_editHandle)
                 {
@@ -57,10 +57,13 @@ namespace DerbyApp
 
         private void Delete_OnClick(object sender, RoutedEventArgs e)
         {
-            Racer r = Racers[dataGridRacerTable.SelectedIndex];
-            _db.RemoveRacerFromRacerTable(Racers[dataGridRacerTable.SelectedIndex]);
-            Racers.RemoveAt(dataGridRacerTable.SelectedIndex);
-            RacerRemoved?.Invoke(this, new RacerEventArgs() { racer = r});
+            if (dataGridRacerTable.SelectedIndex < Racers.Count)
+            {
+                Racer r = Racers[dataGridRacerTable.SelectedIndex];
+                _db.RemoveRacerFromRacerTable(Racers[dataGridRacerTable.SelectedIndex]);
+                Racers.RemoveAt(dataGridRacerTable.SelectedIndex);
+                RacerRemoved?.Invoke(this, new RacerEventArgs() { racer = r });
+            }
         }
     }
 }

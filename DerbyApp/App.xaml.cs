@@ -17,7 +17,7 @@ namespace DerbyApp
         void App_DispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
         {
             // Process unhandled exception
-            using (StreamWriter sw = new StreamWriter("Error.Log"))
+            using (StreamWriter sw = new("Error.Log"))
             {
                 sw.WriteLine(e.Exception.Message);
             }

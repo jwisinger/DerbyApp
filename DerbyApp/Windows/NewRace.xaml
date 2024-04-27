@@ -1,0 +1,66 @@
+﻿<Window x:Class="DerbyApp.Windows.NewRace"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:DerbyApp.Windows"
+        mc:Ignorable="d"
+        Title="NewRace" Height="120" Width="300">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="80"/>
+                <ColumnDefinition Width="220"/>
+            </Grid.ColumnDefinitions>
+            <Grid Grid.Column="0">
+                <Border BorderBrush="Black" BorderThickness="1">
+                    <Label Grid.Column="0" Content="Race Name"/>
+                </Border>
+            </Grid>
+            <Grid Grid.Column="1">
+                <Border BorderBrush="Black" BorderThickness="1">
+                    <TextBox Grid.Column="1" Name="tbRaceName" Text="{Binding RaceName, Mode=TwoWay}" ></TextBox>
+                </Border>
+            </Grid>
+        </Grid>
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="80"/>
+                <ColumnDefinition Width="220"/>
+            </Grid.ColumnDefinitions>
+            <Grid Grid.Column="0" >
+                <Border BorderBrush="Black" BorderThickness="1">
+                    <Label Content="Race Format"/>
+                </Border>
+            </Grid>
+            <Grid Grid.Column="1" >
+                <Border BorderBrush="Black" BorderThickness="1">
+                    <ComboBox Name="cbFormat">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Name}"/>
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+                </Border>
+            </Grid>
+        </Grid>
+        <Grid Grid.Row="2">
+            <Border BorderBrush="Black" BorderThickness="1">
+                <Grid Grid.Row="2">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="150"/>
+                        <ColumnDefinition Width="150"/>
+                    </Grid.ColumnDefinitions>
+                    <Button Grid.Column="0" Width="100" Content="OK" Click="ButtonOk_Click" />
+                    <Button Grid.Column="1" Width="100" Content="Cancel" Click="ButtonCancel_Click" Height="30" Margin="25,0,25,0" VerticalAlignment="Bottom" />
+                </Grid>
+            </Border>
+        </Grid>
+    </Grid>
+</Window>

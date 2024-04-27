@@ -29,7 +29,7 @@ namespace DerbyApp.RaceStats
             set
             {
                 _number = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Number"));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Number)));
             }
         }
         public string RacerName
@@ -38,7 +38,7 @@ namespace DerbyApp.RaceStats
             set
             {
                 _name = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("RacerName"));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(RacerName)));
             }
         }
         public decimal Weight
@@ -47,7 +47,7 @@ namespace DerbyApp.RaceStats
             set
             {
                 _weight = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Weight"));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Weight)));
             }
         }
         public string Troop
@@ -56,7 +56,7 @@ namespace DerbyApp.RaceStats
             set
             {
                 _troop = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Troop"));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Troop)));
             }
         }
         public string Level
@@ -65,7 +65,7 @@ namespace DerbyApp.RaceStats
             set
             {
                 _level = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Level"));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Level)));
             }
         }
         public string Email
@@ -74,7 +74,7 @@ namespace DerbyApp.RaceStats
             set
             {
                 _email = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Email"));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Email)));
             }
         }
         public int Score
@@ -83,7 +83,7 @@ namespace DerbyApp.RaceStats
             set
             {
                 _score = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Score"));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Score)));
             }
         }
         public int RaceOrder
@@ -92,7 +92,7 @@ namespace DerbyApp.RaceStats
             set
             {
                 _raceOrder = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("RaceOrder"));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(RaceOrder)));
             }
         }
 
@@ -101,17 +101,15 @@ namespace DerbyApp.RaceStats
 
         private static ImageSource GetImageSource(Image photo)
         {
-            using (var ms = new MemoryStream())
-            {
-                var bitmapImage = new BitmapImage();
-                photo.Save(ms, ImageFormat.Bmp);
-                ms.Seek(0, SeekOrigin.Begin);
-                bitmapImage.BeginInit();
-                bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
-                bitmapImage.StreamSource = ms;
-                bitmapImage.EndInit();
-                return bitmapImage;
-            }
+            using var ms = new MemoryStream();
+            var bitmapImage = new BitmapImage();
+            photo.Save(ms, ImageFormat.Bmp);
+            ms.Seek(0, SeekOrigin.Begin);
+            bitmapImage.BeginInit();
+            bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
+            bitmapImage.StreamSource = ms;
+            bitmapImage.EndInit();
+            return bitmapImage;
         }
 
         public Racer()

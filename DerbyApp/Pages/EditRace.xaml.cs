@@ -1,7 +1,8 @@
-﻿using DerbyApp.RacerDatabase;
+﻿#warning 7: If no racer is added to a new race, it gets saved to the database without a format
+
+using DerbyApp.RacerDatabase;
 using DerbyApp.RaceStats;
-using System;
-using System.Collections.Generic;
+using DerbyApp.Windows;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
@@ -9,20 +10,35 @@ using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 
-namespace DerbyApp
+namespace DerbyApp.Pages
 {
     public partial class EditRace : Page, INotifyPropertyChanged
     {
         private readonly Database _db;
-        private readonly Dictionary<string, CheckBox> _cbList = new Dictionary<string, CheckBox>();
+        private int _raceFormatIndex = 0;
         public ObservableCollection<string> Races;
-        public ObservableCollection<Racer> Racers = new ObservableCollection<Racer>();
-        public ObservableCollection<Racer> AllRacers = new ObservableCollection<Racer>();
-        public ObservableCollection<Racer> AvailableRacers = new ObservableCollection<Racer>();
+        public ObservableCollection<Racer> Racers = new();
+        public ObservableCollection<Racer> AllRacers = new();
+        public ObservableCollection<Racer> AvailableRacers = new();
         private Visibility _displayPhotos = Visibility.Collapsed;
-        private readonly int _heatCount = RaceHeats.Default.HeatCount;
-        private readonly int _racerCount = RaceHeats.Default.RacerCount;
+        private int _heatCount = RaceHeats.Heats[RaceHeats.DefaultHeat].HeatCount;
+        private int _racerCount = RaceHeats.Heats[RaceHeats.DefaultHeat].RacerCount;
         public event PropertyChangedEventHandler PropertyChanged;
+
+        public int RaceFormatIndex
+        {
+            get => _raceFormatIndex;
+            set
+            {
+                _raceFormatIndex = value;
+                RaceFormat = RaceHeats.Heats[_raceFormatIndex].Name;
+                _heatCount = RaceHeats.Heats[_raceFormatIndex].HeatCount;
+                _racerCount = RaceHeats.Heats[_raceFormatIndex].RacerCount;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(RaceFormat)));
+            }
+        }
+
+        public string RaceFormat { get; set; }
 
         public string CurrentRace
         {
@@ -30,8 +46,15 @@ namespace DerbyApp
             set
             {
                 int order = 1;
-                cbName.Text = value;
-                Racers = _db.GetRacers(cbName.Text, Racers);
+                int raceFormat;
+                cbName.SelectedValue = value;
+                (Racers, raceFormat) = _db.GetRacers((string)cbName.SelectedValue, Racers);
+                if (raceFormat >= 0)
+                {
+                    _heatCount = RaceHeats.Heats[raceFormat].HeatCount;
+                    _racerCount = RaceHeats.Heats[raceFormat].RacerCount;
+                    RaceFormatIndex = raceFormat;
+                }
                 foreach (Racer r in Racers) r.RaceOrder = order++;
             }
         }
@@ -42,7 +65,7 @@ namespace DerbyApp
             set
             {
                 _displayPhotos = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("DisplayPhotos"));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(DisplayPhotos)));
             }
         }
 
@@ -52,16 +75,9 @@ namespace DerbyApp
             InitializeComponent();
             Races = _db.GetListOfRaces();
             cbName.DataContext = Races;
-            cbRacers.ItemsSource = AvailableRacers;
             dataGridRacers.DataContext = Racers;
-
-            _cbList.Add("Daisy", cbDaisy);
-            _cbList.Add("Brownie", cbBrownie);
-            _cbList.Add("Junior", cbJunior);
-            _cbList.Add("Cadette", cbCadette);
-            _cbList.Add("Senior", cbSenior);
-            _cbList.Add("Ambassador", cbAmbassador);
-            _cbList.Add("Adult", cbAdult);
+            cbLevels.ItemsSource = GirlScoutLevels.ScoutLevels;
+            tbFormat.DataContext = this;
 
             UpdateRacerList();
         }
@@ -70,11 +86,11 @@ namespace DerbyApp
         {
             AllRacers = _db.GetAllRacers();
             AvailableRacers.Clear();
-            foreach (var item in _cbList)
+            foreach (var item in GirlScoutLevels.ScoutLevels)
             {
-                if ((bool)item.Value.IsChecked)
+                if (item.IsSelected)
                 {
-                    var racers = AllRacers.Where(x => x.Level == item.Key);
+                    var racers = AllRacers.Where(x => x.Level == item.Level);
                     foreach (Racer r in racers) AvailableRacers.Add(r);
                 }
             }
@@ -82,15 +98,16 @@ namespace DerbyApp
 
         private void ComboBoxRaceName_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (e.AddedItems.Count > 0)
+            buttonAddRacer.IsEnabled = true;
+            CurrentRace = cbName.SelectedValue as string;
+            try
             {
-                int order = 1;
-                Racers = _db.GetRacers((string)e.AddedItems[0], Racers);
-                foreach (Racer r in Racers) r.RaceOrder = order++;
+                if ((cbName.SelectedValue as string).Length > 0) buttonDeleteRace.IsEnabled = true;
+                else buttonDeleteRace.IsEnabled = false;
             }
-            else
+            catch
             {
-                Racers.Clear();
+                buttonDeleteRace.IsEnabled = false;
             }
         }
 
@@ -98,16 +115,18 @@ namespace DerbyApp
         {
             var regex = new Regex(@"[^a-zA-Z0-9\s]");
             cbName.Text = regex.Replace(cbName.Text, "");
+            if (cbName.Text.Length > 0) buttonDeleteRace.IsEnabled = true;
+            else buttonDeleteRace.IsEnabled = false;
         }
 
         private void CheckBox_Click(object sender, RoutedEventArgs e)
         {
             AvailableRacers.Clear();
-            foreach (var item in _cbList)
+            foreach (var item in GirlScoutLevels.ScoutLevels)
             {
-                if ((bool)item.Value.IsChecked)
+                if (item.IsSelected)
                 {
-                    var racers = AllRacers.Where(x => x.Level == item.Key);
+                    var racers = AllRacers.Where(x => x.Level == item.Level);
                     foreach (Racer r in racers) AvailableRacers.Add(r);
                 }
             }
@@ -116,18 +135,24 @@ namespace DerbyApp
         private void ButtonAddRacer_Click(object sender, RoutedEventArgs e)
         {
             int order = 1;
-            if (Racers.Count > _racerCount) return;
-            if (!Races.Contains(cbName.Text)) Races.Add(cbName.Text);
+            if (Racers.Count > _racerCount)
+            {
+                MessageBox.Show("Max number of racers already added.", "Max Racers Exceeded", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
 
             try
             {
+                AddRacer addRacerWindow = new(AllRacers, _racerCount - Racers.Count);
+                addRacerWindow.ShowDialog();
+
                 // Check if added racer already in list
-                if (Racers.Where(x => x.Number == (cbRacers.SelectedItem as Racer).Number).FirstOrDefault() == null)
+                foreach (Racer racer in addRacerWindow.SelectedRacers)
                 {
-                    Racers.Add(cbRacers.SelectedItem as Racer);
+                    if (!Racers.Contains(racer)) Racers.Add(racer);
                 }
                 foreach (Racer r in Racers) r.RaceOrder = order++;
-                _db.ModifyResultsTable(Racers, cbName.Text, _heatCount);
+                _db.ModifyResultsTable(Racers, cbName.Text, _heatCount, RaceFormatIndex);
             }
             catch { }
         }
@@ -139,15 +164,48 @@ namespace DerbyApp
             {
                 Racers.RemoveAt(dataGridRacers.SelectedIndex);
                 foreach (Racer r in Racers) r.RaceOrder = order++;
-                _db.ModifyResultsTable(Racers, cbName.Text, _heatCount);
+                _db.ModifyResultsTable(Racers, cbName.Text, _heatCount, 0);
             }
             catch { }
         }
 
-        private void cbRacers_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void CbLevels_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (cbRacers.SelectedItem != null) buttonAddRacer.IsEnabled = true;
-            else buttonAddRacer.IsEnabled = false;
+            cbLevels.Text = "A";
+        }
+
+        private void ButtonNewRace_Click(object sender, RoutedEventArgs e)
+        {
+            NewRace nr = new();
+            if((bool)nr.ShowDialog())
+            {
+                if (!Races.Contains(nr.RaceName))
+                {
+                    Races.Add(nr.RaceName);
+                    cbName.SelectedItem = nr.RaceName;
+                    RaceFormatIndex = nr.RaceFormatIndex;
+                    RaceFormat = RaceHeats.Heats[nr.RaceFormatIndex].Name;
+                    Racers.Clear();
+                }
+                else
+                {
+                    MessageBox.Show("A race with that name already exists.", "Name Exists",
+                        MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
+
+        private void ButtonDeleteRace_Click(object sender, RoutedEventArgs e)
+        {
+            if (cbName.SelectedItem != null)
+            {
+                if(MessageBox.Show("This will delete the race named " + cbName.SelectedItem + " and all associated data. Are you sure?",
+                    "Delete Race", MessageBoxButton.OKCancel, MessageBoxImage.Question) == MessageBoxResult.OK)
+                {
+                    _db.DeleteResultsTable(cbName.SelectedItem as string);
+                    Races.Remove(cbName.SelectedItem as string);
+                }
+            }
         }
     }
 }

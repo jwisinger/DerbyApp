@@ -1,4 +1,11 @@
-﻿using DerbyApp.RacerDatabase;
+﻿#warning 9: There was a crash on Stella's PC when manually editing race times and pressing "enter"
+#warning 6: Avoid 15 digit decimal places when reading from track
+#warning FUN: When clicking "start heat", should the PC do the countdown (and remote control the lights) ... this would mean bypassing the embedded countdown?
+#warning 3: Need to find a way to handle ties on the leaderboard (right now, the report shows the first in a tie as a higher place)
+#warning 4: Add runoff capability to break ties
+#warning 5: after ~10s automatically get data from track (on the embedded side do the same with slightly less time)
+
+using DerbyApp.RacerDatabase;
 using DerbyApp.RaceStats;
 using System;
 using System.ComponentModel;
@@ -11,8 +18,6 @@ using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Media;
 using System.Windows.Threading;
-
-#warning TODO: There was a crash on Stella's PC when manually editing race times and pressing "enter"
 
 namespace DerbyApp
 {
@@ -103,14 +108,14 @@ namespace DerbyApp
             if (Results.CurrentHeatNumber <= 1) PreviousHeatEnabled = false;
             else PreviousHeatEnabled = true;
 
-            Style style = new Style(typeof(DataGridColumnHeader))
+            Style style = new(typeof(DataGridColumnHeader))
             {
                 BasedOn = TryFindResource("baseStyle") as Style
             };
             style.Setters.Add(new Setter(Control.FontWeightProperty, FontWeights.Bold));
             style.Setters.Add(new Setter(Control.BackgroundProperty, new SolidColorBrush(Colors.LightGreen)));
             gridRaceResults.Columns[Results.CurrentHeatNumber + 1].HeaderStyle = style;
-            Style style2 = new Style(typeof(DataGridColumnHeader))
+            Style style2 = new(typeof(DataGridColumnHeader))
             {
                 BasedOn = TryFindResource("baseStyle") as Style
             };
@@ -129,14 +134,14 @@ namespace DerbyApp
             if (Results.CurrentHeatNumber <= 1) PreviousHeatEnabled = false;
             else PreviousHeatEnabled = true;
 
-            Style style = new Style(typeof(DataGridColumnHeader))
+            Style style = new(typeof(DataGridColumnHeader))
             {
                 BasedOn = TryFindResource("baseStyle") as Style
             };
             style.Setters.Add(new Setter(Control.FontWeightProperty, FontWeights.Bold));
             style.Setters.Add(new Setter(Control.BackgroundProperty, new SolidColorBrush(Colors.LightGreen)));
             gridRaceResults.Columns[Results.CurrentHeatNumber + 1].HeaderStyle = style;
-            Style style2 = new Style(typeof(DataGridColumnHeader))
+            Style style2 = new(typeof(DataGridColumnHeader))
             {
                 BasedOn = TryFindResource("baseStyle") as Style
             };
@@ -161,7 +166,7 @@ namespace DerbyApp
             gridRaceResults.Columns[0].IsReadOnly = true;
             gridRaceResults.Columns[1].IsReadOnly = true;
 
-            Style style = new Style(typeof(DataGridColumnHeader))
+            Style style = new(typeof(DataGridColumnHeader))
             {
                 BasedOn = TryFindResource("baseStyle") as Style
             };
@@ -177,12 +182,12 @@ namespace DerbyApp
 
         private void ButtonStart_Click(object sender, RoutedEventArgs e)
         {
-            using (WebClient client = new WebClient())
-            {
-                client.DownloadStringCompleted += Client_DownloadStringCompleted;
-                client.DownloadStringAsync(new Uri("http://192.168.0.1/start"));
-                _startTimer.Start();
-            }
+            //using System.Net.Http.HttpClient client2 = new();
+            //string page = await client2.GetStringAsync(new Uri("http://192.168.0.1/start"));
+            using WebClient client = new();
+            client.DownloadStringCompleted += Client_DownloadStringCompleted;
+            client.DownloadStringAsync(new Uri("http://192.168.0.1/start"));
+            _startTimer.Start();
         }
 
         private void Client_DownloadStringCompleted(object sender, DownloadStringCompletedEventArgs e)
@@ -194,26 +199,39 @@ namespace DerbyApp
             }
             else if(e.Result.Contains("Times"))
             {
-                string[] times = e.Result.Split(' ')[1].Split(',');
-                if(times.Length < 4)
+                string[] times;
+                try
+                {
+                    times = e.Result.Split(' ')[1].Split(',');
+                }
+                catch
+                {
+                    MessageBox.Show("Received a bad response from track.", "Track Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+                if (times.Length < 4)
                 {
                     MessageBox.Show("Received a bad response from track.", "Track Error", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
                 for (int i = 0; i < 4; i++)
                 {
-                    if(!float.TryParse(times[i], out float result))
+                    if (!float.TryParse(times[i], out float result))
                     {
                         MessageBox.Show("Received a bad response from track.", "Track Error", MessageBoxButton.OK, MessageBoxImage.Error);
                         return;
                     }
-                    DataRow dr = Results.ResultsTable.Rows.Find(Heat.CurrentRacers[i].Number);
-                    if (dr != null)
+                    try
                     {
-                        dr["Heat " + Results.CurrentHeatNumber] = result;
-                        LdrBoard.CalculateResults(Results.ResultsTable);
-                        _db.UpdateResultsTable(Results.RaceName, dr);
+                        DataRow dr = Results.ResultsTable.Rows.Find(Heat.CurrentRacers[i].Number);
+                        if (dr != null)
+                        {
+                            dr["Heat " + Results.CurrentHeatNumber] = result;
+                            LdrBoard.CalculateResults(Results.ResultsTable);
+                            _db.UpdateResultsTable(Results.RaceName, dr);
+                        }
                     }
+                    catch { }
                 }
                 if (Results.CurrentHeatNumber < Results.HeatCount)
                 {
@@ -230,12 +248,10 @@ namespace DerbyApp
 
         private void ButtonGetTimes_Click(object sender, RoutedEventArgs e)
         {
-            using (WebClient client = new WebClient())
-            {
-                client.DownloadStringCompleted += Client_DownloadStringCompleted;
-                client.DownloadStringAsync(new Uri("http://192.168.0.1/read"));
-                _startTimer.Start();
-            }
+            using WebClient client = new();
+            client.DownloadStringCompleted += Client_DownloadStringCompleted;
+            client.DownloadStringAsync(new Uri("http://192.168.0.1/read"));
+            _startTimer.Start();
         }
     }
 }

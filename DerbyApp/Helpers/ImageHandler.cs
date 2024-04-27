@@ -8,16 +8,14 @@ namespace DerbyApp.Helpers
     {
         public static byte[] ImageToByteArray(Image img)
         {
-            using (var stream = new MemoryStream())
-            {
-                img.Save(stream, System.Drawing.Imaging.ImageFormat.Png);
-                return stream.ToArray();
-            }
+            using var stream = new MemoryStream();
+            img.Save(stream, System.Drawing.Imaging.ImageFormat.Png);
+            return stream.ToArray();
         }
 
         public static Image ByteArrayToImage(byte[] byteArrayIn)
         {
-            MemoryStream ms = new MemoryStream(byteArrayIn);
+            MemoryStream ms = new(byteArrayIn);
             Image returnImage = Image.FromStream(ms);
             return returnImage;
         }

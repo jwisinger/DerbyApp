@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net481</TargetFramework>
+    <TargetFramework>net6.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
     <UseWindowsForms>True</UseWindowsForms>
     <ApplicationIcon>racecar.ico</ApplicationIcon>
@@ -12,7 +12,7 @@
 	<CleanSQLiteInteropFiles>false</CleanSQLiteInteropFiles>
 	<CollectSQLiteInteropFiles>false</CollectSQLiteInteropFiles>
   </PropertyGroup>
-
+	
   <ItemGroup>
     <None Remove=".jpg" />
     <None Remove="Girl-Scout-Logo.png" />

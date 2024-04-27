@@ -45,7 +45,7 @@ namespace DerbyApp
 
         static Document CreateDocument(Racer r, List<RaceResults> races)
         {
-            Document document = new Document();
+            Document document = new();
             DefineStyles(document);
             Section section = document.AddSection();
             Paragraph paragraph = section.AddParagraph();
@@ -62,7 +62,7 @@ namespace DerbyApp
 
             foreach (RaceResults result in races)
             {
-                Leaderboard ldr = new Leaderboard(result.Racers, result.HeatCount, result.LaneCount);
+                Leaderboard ldr = new(result.Racers, result.HeatCount, result.LaneCount);
                 ldr.CalculateResults(result.ResultsTable);
                 if (ldr.Board.OrderByDescending(x => x.Score).ToList().FindIndex(x => x.Number == r.Number) > -1)
                 {
@@ -97,7 +97,7 @@ namespace DerbyApp
             foreach (Racer r in racers)
             {
                 Document document = CreateDocument(r, races);
-                PdfDocumentRenderer pdfRenderer = new PdfDocumentRenderer(false)
+                PdfDocumentRenderer pdfRenderer = new(false)
                 {
                     Document = document
                 };

@@ -1,4 +1,11 @@
-﻿using Microsoft.Win32;
+﻿#warning 1: Remove all references to RaceHeats.Heats[0]
+#warning FUN: Add an actual report page to give options for per racer, per race and maybe overall
+#warning FUN: Improve Help and add an "About" with version
+#warning FUN: Change "start race" button to just "race"?
+#warning SECOND: Default photo on?
+#warning FUN: shrink photo file size?
+
+using Microsoft.Win32;
 using System.IO;
 using System.Windows;
 using DerbyApp.RacerDatabase;
@@ -38,7 +45,7 @@ namespace DerbyApp
             set
             {
                 _collapsedVisibility = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("CollapsedVisibility"));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CollapsedVisibility)));
             }
         }
 
@@ -64,7 +71,7 @@ namespace DerbyApp
             Database.GetDatabaseRegistry(out string databaseName, out string activeRace);
             if (!File.Exists(databaseName))
             {
-                DatabaseCreator dbc = new DatabaseCreator();
+                DatabaseCreator dbc = new();
                 if (System.Windows.Forms.DialogResult.OK != dbc.ShowDialog()) this.Close();
                 databaseName = dbc.DatabaseFile;
             }
@@ -79,15 +86,14 @@ namespace DerbyApp
             };
             _editRace.Racers.CollectionChanged += Racers_CollectionChanged;
             _racerTableView = new RacerTableView(_db);
-            _raceTracker = new RaceTracker(new RaceResults(), RaceHeats.Default, _db);
             _newRacer = new NewRacer();
 
             _newRacer.RacerAdded += Racer_RacerAdded;
             _racerTableView.RacerRemoved += RacerTableView_RacerRemoved;
 
-            RaceResults Race = new RaceResults(_editRace.CurrentRace, _editRace.Racers, RaceHeats.ThirteenCarsFourLanes);
+            RaceResults Race = new(_editRace.CurrentRace, _editRace.Racers, RaceHeats.Heats[_editRace.RaceFormatIndex]);
             _db.LoadResultsTable(Race.ResultsTable, _editRace.CurrentRace);
-            _raceTracker = new RaceTracker(Race, RaceHeats.ThirteenCarsFourLanes, _db);
+            _raceTracker = new RaceTracker(Race, RaceHeats.Heats[_editRace.RaceFormatIndex], _db);
 
             mainFrame.Navigate(new Default());
         }
@@ -114,7 +120,7 @@ namespace DerbyApp
 
         private void ButtonChangeDatabase_Click(object sender, RoutedEventArgs e)
         {
-            OpenFileDialog dialog = new OpenFileDialog()
+            OpenFileDialog dialog = new()
             {
                 CheckFileExists = false,
                 DefaultExt = "sqlite",
@@ -130,7 +136,7 @@ namespace DerbyApp
                 Database.StoreDatabaseRegistry(databaseName, _editRace.CurrentRace);
                 _editRace = new EditRace(_db);
                 _racerTableView = new RacerTableView(_db);
-                _raceTracker = new RaceTracker(new RaceResults(), RaceHeats.Default, _db);
+                _raceTracker = new RaceTracker(new RaceResults(), RaceHeats.Heats[0], _db);
                 _raceModified = true;
                 mainFrame.Navigate(new Default());
             }
@@ -158,8 +164,8 @@ namespace DerbyApp
                 if (_raceModified)
                 {
                     _raceModified = false;
-                    RaceResults Race = new RaceResults(_editRace.cbName.Text, _editRace.Racers, RaceHeats.ThirteenCarsFourLanes);
-                    _raceTracker = new RaceTracker(Race, RaceHeats.ThirteenCarsFourLanes, _db);
+                    RaceResults Race = new(_editRace.cbName.Text, _editRace.Racers, RaceHeats.Heats[_editRace.RaceFormatIndex]);
+                    _raceTracker = new RaceTracker(Race, RaceHeats.Heats[_editRace.RaceFormatIndex], _db);
                 }
                 mainFrame.Navigate(_raceTracker);
             }
@@ -173,10 +179,10 @@ namespace DerbyApp
 
         private void ButtonReport_Click(object sender, RoutedEventArgs e)
         {
-            List<RaceResults> races = new List<RaceResults>();
+            List<RaceResults> races = new();
             foreach (string raceName in _db.GetListOfRaces())
             {
-                RaceResults race = new RaceResults(raceName, _db.GetRacers(raceName), RaceHeats.ThirteenCarsFourLanes);
+                RaceResults race = new(raceName, _db.GetRacers(raceName).Item1, RaceHeats.Heats[0]);
                 _db.LoadResultsTable(race.ResultsTable, race.RaceName);
                 races.Add(race);
             }
@@ -185,7 +191,7 @@ namespace DerbyApp
 
         private void ButtonCollapse_Click(object sender, RoutedEventArgs e)
         {
-            DispatcherTimer t = new DispatcherTimer
+            DispatcherTimer t = new()
             {
                 Interval = TimeSpan.FromMilliseconds(10)
             };
@@ -196,7 +202,7 @@ namespace DerbyApp
 
         private void ButtonExpand_Click(object sender, RoutedEventArgs e)
         {
-            DispatcherTimer t = new DispatcherTimer
+            DispatcherTimer t = new()
             {
                 Interval = TimeSpan.FromMilliseconds(10)
             };

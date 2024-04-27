@@ -7,14 +7,15 @@ namespace DerbyApp.RaceStats
     public class RaceHeat
     {
         public ObservableCollection<Racer> CurrentRacers;
-
+        public string Name { get; }
         public readonly int HeatCount;
         public readonly int RacerCount;
         public readonly int LaneCount;
         public readonly int[][] Heats;
 
-        public RaceHeat(int heatCount, int racerCount, int laneCount, int[][] heats)
+        public RaceHeat(string name, int heatCount, int racerCount, int laneCount, int[][] heats)
         {
+            Name = name;
             HeatCount = heatCount;
             RacerCount = racerCount;
             LaneCount = laneCount;
@@ -28,6 +29,7 @@ namespace DerbyApp.RaceStats
             int num = heatNumber - 1;
 
             if (num >= HeatCount) return;
+            if (num >= Heats.Length) return;
 
             for (int i = 0; i < Heats[num].Length; i++)
             {

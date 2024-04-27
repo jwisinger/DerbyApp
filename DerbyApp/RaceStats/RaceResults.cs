@@ -26,11 +26,11 @@ namespace DerbyApp.RaceStats
             set
             {
                 _currentHeatNumber = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("CurrentHeatNumber"));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CurrentHeatNumber)));
             }
         }
 
-        public RaceResults() : this("", new ObservableCollection<Racer>(), RaceHeats.Default) { }
+        public RaceResults() : this("", new ObservableCollection<Racer>(), RaceHeats.Heats[0]) { }
 
         public RaceResults(string raceName, ObservableCollection<Racer> racers, RaceHeat raceHeat)
         {

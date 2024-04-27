@@ -1,4 +1,5 @@
-﻿using AForge.Video;
+﻿#warning FUN: Any way to improve the look of this page?
+using AForge.Video;
 using AForge.Video.DirectShow;
 using DerbyApp.RaceStats;
 using System;
@@ -23,7 +24,7 @@ namespace DerbyApp
         public VideoCaptureDevice LocalWebCam;
         public FilterInfoCollection LocalWebCamsCollection;
         private static bool _needSnapshot = false;
-        public Racer Racer = new Racer();
+        public Racer Racer = new();
         public event PropertyChangedEventHandler PropertyChanged;
         public event EventHandler RacerAdded;
 
@@ -55,10 +56,10 @@ namespace DerbyApp
             {
                 Bitmap img = (Bitmap)eventArgs.Frame.Clone();
 
-                MemoryStream ms = new MemoryStream();
+                MemoryStream ms = new();
                 img.Save(ms, ImageFormat.Bmp);
                 ms.Seek(0, SeekOrigin.Begin);
-                BitmapImage bi = new BitmapImage();
+                BitmapImage bi = new();
                 bi.BeginInit();
                 bi.StreamSource = ms;
                 bi.EndInit();
@@ -81,10 +82,12 @@ namespace DerbyApp
         private void Page_Loaded(object sender, RoutedEventArgs e)
         {
             LocalWebCamsCollection = new FilterInfoCollection(FilterCategory.VideoInputDevice);
-            LocalWebCam = new VideoCaptureDevice(LocalWebCamsCollection[0].MonikerString);
-            LocalWebCam.NewFrame += new NewFrameEventHandler(Cam_NewFrame);
-
-            LocalWebCam.Start();
+            if (LocalWebCamsCollection.Count > 0)
+            {
+                LocalWebCam = new VideoCaptureDevice(LocalWebCamsCollection[0].MonikerString);
+                LocalWebCam.NewFrame += new NewFrameEventHandler(Cam_NewFrame);
+                LocalWebCam.Start();
+            }
         }
 
         private void ButtonCamera_Click(object sender, RoutedEventArgs e)
@@ -109,9 +112,9 @@ namespace DerbyApp
 
         [DllImport("gdi32.dll", EntryPoint = "DeleteObject")]
         [return: MarshalAs(UnmanagedType.Bool)]
-        public static extern bool DeleteObject([In] IntPtr hObject);
+        private static extern bool DeleteObject([In] IntPtr hObject);
 
-        public ImageSource ImageSourceFromBitmap(Bitmap bmp)
+        public static ImageSource ImageSourceFromBitmap(Bitmap bmp)
         {
             var handle = bmp.GetHbitmap();
             try

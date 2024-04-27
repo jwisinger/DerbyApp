@@ -32,7 +32,6 @@
                 <ColumnDefinition Width="3*"/>
                 <ColumnDefinition Width="1*"/>
             </Grid.ColumnDefinitions>
-            <Label Grid.Column="0" Grid.Row="0" Content="Race Results" HorizontalAlignment="Center" Margin="0,0,0,0" VerticalAlignment="Center" FontSize="28" FontWeight="Bold"/>
             <Label Grid.Column="1" Grid.Row="0" Content="{Binding Path=CurrentHeatLabelString, Mode=TwoWay}" Name="CurrentHeatLabel" HorizontalAlignment="Center" Margin="0,0,0,0" VerticalAlignment="Center" FontSize="28" FontWeight="Bold"/>
             <Label Grid.Column="1" Grid.Row="2" Content="Leader Board" HorizontalAlignment="Center" Margin="0,0,0,0" VerticalAlignment="Center" FontSize="28" Background="{x:Null}" FontWeight="Bold"/>
             <Button Grid.Column="0" Grid.Row="0" Content="" HorizontalAlignment="Left" Margin="0,0,10,0" VerticalAlignment="Center" Height="35" Width="120">
