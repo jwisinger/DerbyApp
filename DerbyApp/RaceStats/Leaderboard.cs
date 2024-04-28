@@ -47,14 +47,12 @@ namespace DerbyApp.RaceStats
                 List<Tuple<double, string>> l = new();
                 foreach (DataRow dataRow in raceResultsTable.Rows)
                 {
-#warning TODO: Check before accessing array
                     if (dataRow["Heat " + i] == DBNull.Value)
                     {
                         continue;
                     }
                     try
                     {
-#warning TODO: Check before accessing array
                         l.Add(Tuple.Create((double)dataRow["Heat " + i], (string)dataRow["Name"]));
                     }
                     catch { }
@@ -79,7 +77,6 @@ namespace DerbyApp.RaceStats
                     int total = 0;
                     for (int i = 2; i < dataRow.ItemArray.Length; i++)
                     {
-#warning TODO: Check before accessing array
                         if (dataRow.ItemArray[i] != DBNull.Value) total += (int)dataRow.ItemArray[i];
                     }
                     r.Score = total;

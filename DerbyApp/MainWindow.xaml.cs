@@ -1,9 +1,9 @@
-﻿#warning 1: Remove all references to RaceHeats.Heats[0]
+﻿#warning 9: Test from an empty database brand new
 #warning FUN: Add an actual report page to give options for per racer, per race and maybe overall
 #warning FUN: Improve Help and add an "About" with version
 #warning FUN: Change "start race" button to just "race"?
-#warning SECOND: Default photo on?
 #warning FUN: shrink photo file size?
+#warning SECOND: Default photo on?
 
 using Microsoft.Win32;
 using System.IO;
@@ -16,6 +16,7 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using DerbyApp.Pages;
+using System.Collections.ObjectModel;
 
 namespace DerbyApp
 {
@@ -29,7 +30,6 @@ namespace DerbyApp
         private readonly NewRacer _newRacer;
         private bool _displayPhotosChecked = false;
         private Visibility _collapsedVisibility = Visibility.Visible;
-        private bool _raceModified = false;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -56,7 +56,6 @@ namespace DerbyApp
                 _racerTableView.DisplayPhotos = Visibility.Visible;
                 _editRace.DisplayPhotos = Visibility.Visible;
                 _raceTracker.DisplayPhotos = Visibility.Visible;
-                _raceTracker.CheckBox_Checked();
             }
             else
             {
@@ -84,23 +83,33 @@ namespace DerbyApp
             {
                 CurrentRace = activeRace
             };
-            _editRace.Racers.CollectionChanged += Racers_CollectionChanged;
             _racerTableView = new RacerTableView(_db);
             _newRacer = new NewRacer();
 
             _newRacer.RacerAdded += Racer_RacerAdded;
             _racerTableView.RacerRemoved += RacerTableView_RacerRemoved;
-
-            RaceResults Race = new(_editRace.CurrentRace, _editRace.Racers, RaceHeats.Heats[_editRace.RaceFormatIndex]);
-            _db.LoadResultsTable(Race.ResultsTable, _editRace.CurrentRace);
-            _raceTracker = new RaceTracker(Race, RaceHeats.Heats[_editRace.RaceFormatIndex], _db);
+            _editRace.RaceChanged += EditRace_RaceChanged;
 
             mainFrame.Navigate(new Default());
         }
 
-        private void Racers_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        private void RaceTracker_HeatChanged(object sender, EventArgs e)
         {
-            _raceModified = true;
+            _editRace.buttonAddRacer.IsEnabled = false;
+        }
+
+        private void EditRace_RaceChanged(object sender, EventArgs e)
+        {
+            RaceResults Race = new(_editRace.CurrentRace, _editRace.Racers, RaceHeats.Heats[_editRace.RaceFormatIndex]);
+            _db.LoadResultsTable(Race);
+            
+            _raceTracker = new RaceTracker(Race, RaceHeats.Heats[_editRace.RaceFormatIndex], _db)
+            {
+                DisplayPhotos = DisplayPhotosChecked ? Visibility.Visible : Visibility.Collapsed
+            };
+            if (_raceTracker.Results.CurrentHeatNumber > 1) _editRace.buttonAddRacer.IsEnabled = false;
+            else _editRace.buttonAddRacer.IsEnabled = true;
+            _raceTracker.HeatChanged += RaceTracker_HeatChanged;
         }
 
         private void RacerTableView_RacerRemoved(object sender, EventArgs e)
@@ -136,8 +145,8 @@ namespace DerbyApp
                 Database.StoreDatabaseRegistry(databaseName, _editRace.CurrentRace);
                 _editRace = new EditRace(_db);
                 _racerTableView = new RacerTableView(_db);
-                _raceTracker = new RaceTracker(new RaceResults(), RaceHeats.Heats[0], _db);
-                _raceModified = true;
+                _racerTableView.RacerRemoved += RacerTableView_RacerRemoved;
+                _editRace.RaceChanged += EditRace_RaceChanged;
                 mainFrame.Navigate(new Default());
             }
         }
@@ -161,12 +170,6 @@ namespace DerbyApp
         {
             if (_editRace.Racers.Count > 0)
             {
-                if (_raceModified)
-                {
-                    _raceModified = false;
-                    RaceResults Race = new(_editRace.cbName.Text, _editRace.Racers, RaceHeats.Heats[_editRace.RaceFormatIndex]);
-                    _raceTracker = new RaceTracker(Race, RaceHeats.Heats[_editRace.RaceFormatIndex], _db);
-                }
                 mainFrame.Navigate(_raceTracker);
             }
             else
@@ -182,8 +185,9 @@ namespace DerbyApp
             List<RaceResults> races = new();
             foreach (string raceName in _db.GetListOfRaces())
             {
-                RaceResults race = new(raceName, _db.GetRacers(raceName).Item1, RaceHeats.Heats[0]);
-                _db.LoadResultsTable(race.ResultsTable, race.RaceName);
+                (ObservableCollection<Racer> racers, int raceFormat) = _db.GetRacers(raceName);
+                RaceResults race = new(raceName, racers, RaceHeats.Heats[raceFormat]);
+                _db.LoadResultsTable(race);
                 races.Add(race);
             }
             GenerateReport.Generate(_db.EventName, _db.GetAllRacers(), races);

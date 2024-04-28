@@ -47,21 +47,21 @@ namespace DerbyApp.RacerDatabase
             command.ExecuteNonQuery();
         }
 
-        public void LoadResultsTable(DataTable resultsTable, string raceName)
+        public void LoadResultsTable(RaceResults race)
         {
             try
             {
-                if (raceName == "") return;
-                SQLiteCommand cmd = new("SELECT *  FROM [" + _racerTableName + "] INNER JOIN [" + raceName + "] ON [" + raceName + "].number = [" + _racerTableName + "].Number", SqliteConn);
+                if (race.RaceName == "") return;
+                SQLiteCommand cmd = new("SELECT *  FROM [" + _racerTableName + "] INNER JOIN [" + race.RaceName + "] ON [" + race.RaceName + "].number = [" + _racerTableName + "].Number", SqliteConn);
                 SQLiteDataAdapter sda = new(cmd);
                 DataSet ds = new();
                 sda.Fill(ds);
                 if (ds.Tables[0].Rows.Count > 0)
                 {
-                    resultsTable.Clear();
+                    race.ResultsTable.Clear();
                     foreach (DataRow row in ds.Tables[0].Rows)
                     {
-                        resultsTable.ImportRow(row);
+                         race.ResultsTable.ImportRow(row);
                     }
                 }
             }
@@ -254,8 +254,11 @@ namespace DerbyApp.RacerDatabase
         public static void StoreDatabaseRegistry(string database, string activeRace)
         {
             RegistryKey key = Registry.CurrentUser.CreateSubKey(@"SOFTWARE\DerbyApp");
-            key.SetValue("database", database);
-            key.SetValue("activeRace", activeRace);
+            if (database != null)
+            {
+                key.SetValue("database", database);
+                if (activeRace != null) key.SetValue("activeRace", activeRace);
+            }
             key.Close();
         }
 

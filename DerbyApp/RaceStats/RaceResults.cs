@@ -30,8 +30,6 @@ namespace DerbyApp.RaceStats
             }
         }
 
-        public RaceResults() : this("", new ObservableCollection<Racer>(), RaceHeats.Heats[0]) { }
-
         public RaceResults(string raceName, ObservableCollection<Racer> racers, RaceHeat raceHeat)
         {
             int racerNum = 0;

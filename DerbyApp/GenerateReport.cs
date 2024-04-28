@@ -10,6 +10,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Text;
 
 namespace DerbyApp
 {
@@ -101,10 +102,18 @@ namespace DerbyApp
                 {
                     Document = document
                 };
+                Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
                 pdfRenderer.RenderDocument();
 
                 pdfRenderer.PdfDocument.Save(Path.Combine(eventPath, r.RacerName + ".pdf"));
-                Process.Start(Path.Combine(eventPath, r.RacerName + ".pdf"));
+                var p = new Process
+                {
+                    StartInfo = new ProcessStartInfo(Path.Combine(eventPath, r.RacerName + ".pdf"))
+                    {
+                        UseShellExecute = true
+                    }
+                };
+                p.Start();
             }
         }
     }

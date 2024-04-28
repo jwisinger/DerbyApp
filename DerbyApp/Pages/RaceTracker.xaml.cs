@@ -1,17 +1,16 @@
-﻿#warning 9: There was a crash on Stella's PC when manually editing race times and pressing "enter"
-#warning 6: Avoid 15 digit decimal places when reading from track
+﻿#warning 1: Add runoff capability to break ties
+#warning 2: When a report is generated, ties are "broken" and listed in the order shown on the leader board (incorrectly)
+#warning 9: There was a crash on Stella's PC when manually editing race times and pressing "enter"
 #warning FUN: When clicking "start heat", should the PC do the countdown (and remote control the lights) ... this would mean bypassing the embedded countdown?
-#warning 3: Need to find a way to handle ties on the leaderboard (right now, the report shows the first in a tie as a higher place)
-#warning 4: Add runoff capability to break ties
-#warning 5: after ~10s automatically get data from track (on the embedded side do the same with slightly less time)
 
 using DerbyApp.RacerDatabase;
 using DerbyApp.RaceStats;
 using System;
 using System.ComponentModel;
 using System.Data;
-using System.Net;
+using System.Net.Http;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
@@ -29,6 +28,7 @@ namespace DerbyApp
         private string _currentHeatLabelString = "Current Heat (1)";
         private readonly Database _db = null;
         private readonly DispatcherTimer _startTimer;
+        private readonly DispatcherTimer _raceTimer;
 
         public RaceResults Results { get; set; }
         public RaceHeat Heat { get; set; }
@@ -75,6 +75,15 @@ namespace DerbyApp
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
+        public event EventHandler HeatChanged;
+
+        private void Datagrid_AutoGeneratingColumn(object sender, DataGridAutoGeneratingColumnEventArgs e)
+        {
+            if (e.Column is DataGridTextColumn col && e.PropertyType == typeof(double))
+            {
+                col.Binding = new Binding(e.PropertyName) { StringFormat = "N3" };
+            }
+        }
 
         private void NotifyPropertyChanged([CallerMemberName] string name = null)
         {
@@ -89,12 +98,15 @@ namespace DerbyApp
             _db = db;
             heat.UpdateHeat(Results.CurrentHeatNumber, race.Racers);
             LdrBoard = new Leaderboard(race.Racers, heat.HeatCount, heat.LaneCount);
+            gridRaceResults.AutoGeneratingColumn += Datagrid_AutoGeneratingColumn;
             gridRaceResults.DataContext = Results.ResultsTable.DefaultView;
             gridLeaderBoard.DataContext = LdrBoard.Board;
             gridCurrentHeat.DataContext = Heat.CurrentRacers;
             CurrentHeatLabel.DataContext = this;
             _startTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(5) };
+            _raceTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(12) };
             _startTimer.Tick += TimeTickStart;
+            _raceTimer.Tick += TimeTickRace;
             LdrBoard.CalculateResults(Results.ResultsTable);
         }
 
@@ -115,6 +127,7 @@ namespace DerbyApp
             style.Setters.Add(new Setter(Control.FontWeightProperty, FontWeights.Bold));
             style.Setters.Add(new Setter(Control.BackgroundProperty, new SolidColorBrush(Colors.LightGreen)));
             gridRaceResults.Columns[Results.CurrentHeatNumber + 1].HeaderStyle = style;
+
             Style style2 = new(typeof(DataGridColumnHeader))
             {
                 BasedOn = TryFindResource("baseStyle") as Style
@@ -122,6 +135,7 @@ namespace DerbyApp
             style2.Setters.Add(new Setter(Control.FontWeightProperty, FontWeights.Bold));
             style2.Setters.Add(new Setter(Control.BackgroundProperty, new SolidColorBrush(Colors.Transparent)));
             gridRaceResults.Columns[Results.CurrentHeatNumber].HeaderStyle = style2;
+            HeatChanged?.Invoke(this, null);
         }
 
         private void ButtonPreviousHeat_Click(object sender, RoutedEventArgs e)
@@ -148,6 +162,7 @@ namespace DerbyApp
             style2.Setters.Add(new Setter(Control.FontWeightProperty, FontWeights.Bold));
             style2.Setters.Add(new Setter(Control.BackgroundProperty, new SolidColorBrush(Colors.Transparent)));
             gridRaceResults.Columns[Results.CurrentHeatNumber + 2].HeaderStyle = style2;
+            HeatChanged?.Invoke(this, null);
         }
 
         private void GridRaceResults_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
@@ -182,61 +197,84 @@ namespace DerbyApp
 
         private void ButtonStart_Click(object sender, RoutedEventArgs e)
         {
-            //using System.Net.Http.HttpClient client2 = new();
-            //string page = await client2.GetStringAsync(new Uri("http://192.168.0.1/start"));
-            using WebClient client = new();
-            client.DownloadStringCompleted += Client_DownloadStringCompleted;
-            client.DownloadStringAsync(new Uri("http://192.168.0.1/start"));
             _startTimer.Start();
+            _ = StartHeat();
         }
 
-        private void Client_DownloadStringCompleted(object sender, DownloadStringCompletedEventArgs e)
+        private void ButtonGetTimes_Click(object sender, RoutedEventArgs e)
         {
-            _startTimer.Stop();
-            if(e.Error != null)
+            _startTimer.Start();
+            _ = GetTimes();
+        }
+
+        private async Task StartHeat()
+        {
+            try
             {
-                MessageBox.Show(e.Error.ToString(), "Track Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                using HttpClient client2 = new();
+                string reponse = await client2.GetStringAsync(new Uri("http://192.168.0.1/start"));
+                _startTimer.Stop();
+                _raceTimer.Start();
             }
-            else if(e.Result.Contains("Times"))
+            catch (HttpRequestException e)
             {
-                string[] times;
-                try
+                MessageBox.Show(e.Message, "Track Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private async Task GetTimes()
+        {
+            try
+            {
+                using HttpClient client2 = new();
+                string reponse = await client2.GetStringAsync(new Uri("http://192.168.0.1/read"));
+                _startTimer.Stop();
+                if (reponse.Contains("Times"))
                 {
-                    times = e.Result.Split(' ')[1].Split(',');
-                }
-                catch
-                {
-                    MessageBox.Show("Received a bad response from track.", "Track Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                    return;
-                }
-                if (times.Length < 4)
-                {
-                    MessageBox.Show("Received a bad response from track.", "Track Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                    return;
-                }
-                for (int i = 0; i < 4; i++)
-                {
-                    if (!float.TryParse(times[i], out float result))
+                    string[] times;
+                    try
+                    {
+                        times = reponse.Split(' ')[1].Split(',');
+                    }
+                    catch
                     {
                         MessageBox.Show("Received a bad response from track.", "Track Error", MessageBoxButton.OK, MessageBoxImage.Error);
                         return;
                     }
-                    try
+                    if (times.Length < 4)
                     {
-                        DataRow dr = Results.ResultsTable.Rows.Find(Heat.CurrentRacers[i].Number);
-                        if (dr != null)
-                        {
-                            dr["Heat " + Results.CurrentHeatNumber] = result;
-                            LdrBoard.CalculateResults(Results.ResultsTable);
-                            _db.UpdateResultsTable(Results.RaceName, dr);
-                        }
+                        MessageBox.Show("Received a bad response from track.", "Track Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
                     }
-                    catch { }
+                    for (int i = 0; i < 4; i++)
+                    {
+                        if (!float.TryParse(times[i], out float result))
+                        {
+                            MessageBox.Show("Received a bad response from track.", "Track Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                            return;
+                        }
+                        try
+                        {
+                            DataRow dr = Results.ResultsTable.Rows.Find(Heat.CurrentRacers[i].Number);
+                            if (dr != null)
+                            {
+                                if (result < 0.1) result = 10.0F;
+                                dr["Heat " + Results.CurrentHeatNumber] = result;
+                                LdrBoard.CalculateResults(Results.ResultsTable);
+                                _db.UpdateResultsTable(Results.RaceName, dr);
+                            }
+                        }
+                        catch { }
+                    }
+                    if (Results.CurrentHeatNumber < Results.HeatCount)
+                    {
+                        ButtonNextHeat_Click(null, null);
+                    }
                 }
-                if (Results.CurrentHeatNumber < Results.HeatCount)
-                {
-                    ButtonNextHeat_Click(sender, new RoutedEventArgs());
-                }
+            }
+            catch (HttpRequestException e)
+            {
+                MessageBox.Show(e.Message, "Track Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -246,12 +284,10 @@ namespace DerbyApp
             MessageBox.Show("Unable to communicate with track.", "Track Error", MessageBoxButton.OK, MessageBoxImage.Error);
         }
 
-        private void ButtonGetTimes_Click(object sender, RoutedEventArgs e)
+        private void TimeTickRace(object sender, EventArgs e)
         {
-            using WebClient client = new();
-            client.DownloadStringCompleted += Client_DownloadStringCompleted;
-            client.DownloadStringAsync(new Uri("http://192.168.0.1/read"));
-            _startTimer.Start();
+            _raceTimer.Stop();
+            ButtonGetTimes_Click(sender, null);
         }
     }
 }

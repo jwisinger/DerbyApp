@@ -1,8 +1,9 @@
-﻿#warning 7: If no racer is added to a new race, it gets saved to the database without a format
+﻿#warning 3: If no racer is added to a new race, it gets saved to the database without a format
 
 using DerbyApp.RacerDatabase;
 using DerbyApp.RaceStats;
 using DerbyApp.Windows;
+using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
@@ -24,6 +25,7 @@ namespace DerbyApp.Pages
         private int _heatCount = RaceHeats.Heats[RaceHeats.DefaultHeat].HeatCount;
         private int _racerCount = RaceHeats.Heats[RaceHeats.DefaultHeat].RacerCount;
         public event PropertyChangedEventHandler PropertyChanged;
+        public event EventHandler RaceChanged;
 
         public int RaceFormatIndex
         {
@@ -42,7 +44,7 @@ namespace DerbyApp.Pages
 
         public string CurrentRace
         {
-            get => cbName.Text;
+            get => (string)cbName.SelectedValue;
             set
             {
                 int order = 1;
@@ -98,7 +100,6 @@ namespace DerbyApp.Pages
 
         private void ComboBoxRaceName_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            buttonAddRacer.IsEnabled = true;
             CurrentRace = cbName.SelectedValue as string;
             try
             {
@@ -109,6 +110,7 @@ namespace DerbyApp.Pages
             {
                 buttonDeleteRace.IsEnabled = false;
             }
+            RaceChanged?.Invoke(this, null);
         }
 
         private void CbName_KeyUp(object sender, System.Windows.Input.KeyEventArgs e)
@@ -134,6 +136,7 @@ namespace DerbyApp.Pages
 
         private void ButtonAddRacer_Click(object sender, RoutedEventArgs e)
         {
+#warning 4: send up a signal here to change the racetracker (maybe warn user if race has already started)
             int order = 1;
             if (Racers.Count > _racerCount)
             {
@@ -159,6 +162,7 @@ namespace DerbyApp.Pages
 
         private void Delete_OnClick(object sender, RoutedEventArgs e)
         {
+#warning 4: send up a signal here to change the racetracker (maybe warn user if race has already started)
             int order = 1;
             try
             {
