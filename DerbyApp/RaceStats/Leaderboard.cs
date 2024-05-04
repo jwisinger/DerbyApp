@@ -40,6 +40,16 @@ namespace DerbyApp.RaceStats
             }
         }
 
+        public List<Racer> CheckForTie(int positionToCheck)
+        {
+            return Board.Where(x => x.Score == Board[positionToCheck].Score).ToList();
+        }
+
+        public void AddRunOffHeat(int heatCount)
+        {
+            RaceScoreTable.Columns.Add("Heat " + heatCount, Type.GetType("System.Int32"));
+        }
+
         public void CalculateResults(DataTable raceResultsTable)
         {
             for (int i = 1; i <= raceResultsTable.Columns.Count - 2; i++)

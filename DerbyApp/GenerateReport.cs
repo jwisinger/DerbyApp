@@ -63,24 +63,32 @@ namespace DerbyApp
 
             foreach (RaceResults result in races)
             {
-                Leaderboard ldr = new(result.Racers, result.HeatCount, result.LaneCount);
+                Leaderboard ldr = new(result.Racers, result.RaceFormat.HeatCount, result.RaceFormat.LaneCount);
                 ldr.CalculateResults(result.ResultsTable);
-                if (ldr.Board.OrderByDescending(x => x.Score).ToList().FindIndex(x => x.Number == r.Number) > -1)
+                List<Racer> raceResults = ldr.Board.OrderByDescending(x => x.Score).ToList();
+                int racerPosition = raceResults.FindIndex(x => x.Number == r.Number);
+                if (racerPosition > -1)
                 {
+                    racerPosition = raceResults.FindIndex(x => x.Score == raceResults[racerPosition].Score);
                     paragraph = section.AddParagraph();
                     paragraph.Format.Borders.Bottom = new Border() { Width = "1pt", Color = Colors.DarkGray };
                     paragraph.AddFormattedText("\r\nRace Name: " + result.RaceName + "\r\n", "Heading3");
                     try
                     {
-                        paragraph.AddFormattedText("Overall Race Finish: " + (1 + ldr.Board.OrderByDescending(x => x.Score).ToList().FindIndex(x => x.Number == r.Number)) + "\r\n", "Normal");
+                        bool tie = false;
+                        if (raceResults.Where(x => x.Score == raceResults[racerPosition].Score).Count() > 1)
+                        {
+                            tie = true;
+                        }
+                        paragraph.AddFormattedText("Overall Race Finish: " + (1 + racerPosition) + (tie?" (Tie)":"") + "\r\n", "Normal");
                         DataRow resultRow = result.ResultsTable.Select("Number = " + r.Number)[0];
                         DataRow scoreRow = ldr.RaceScoreTable.Select("Number = " + r.Number)[0];
-                        for (int i = 0; i < result.HeatCount; i++)
+                        for (int i = 0; i < result.RaceFormat.HeatCount; i++)
                         {
                             if (resultRow[i + 2] != DBNull.Value)
                             {
 
-                                paragraph.AddFormattedText("Heat " + (i + 1) + " Time: " + resultRow[i + 2] + " seconds (" + (1 + result.LaneCount - (int)scoreRow[i + 2]) + ")\r\n", "Normal");
+                                paragraph.AddFormattedText("Heat " + (i + 1) + " Time: " + ((double)resultRow[i + 2]).ToString("0.000") + " seconds (" + (1 + result.RaceFormat.LaneCount - (int)scoreRow[i + 2]) + ")\r\n", "Normal");
                             }
                         }
                     }
@@ -98,7 +106,7 @@ namespace DerbyApp
             foreach (Racer r in racers)
             {
                 Document document = CreateDocument(r, races);
-                PdfDocumentRenderer pdfRenderer = new(false)
+                 PdfDocumentRenderer pdfRenderer = new()
                 {
                     Document = document
                 };

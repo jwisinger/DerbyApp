@@ -1,9 +1,6 @@
-﻿#warning 9: Test from an empty database brand new
-#warning FUN: Add an actual report page to give options for per racer, per race and maybe overall
+﻿#warning FUN: Add an actual report page to give options for per racer, per race and maybe overall
 #warning FUN: Improve Help and add an "About" with version
 #warning FUN: Change "start race" button to just "race"?
-#warning FUN: shrink photo file size?
-#warning SECOND: Default photo on?
 
 using Microsoft.Win32;
 using System.IO;
@@ -17,6 +14,7 @@ using System.Linq;
 using System.Collections.Generic;
 using DerbyApp.Pages;
 using System.Collections.ObjectModel;
+using DerbyApp.Helpers;
 
 namespace DerbyApp
 {
@@ -28,7 +26,7 @@ namespace DerbyApp
         private RacerTableView _racerTableView;
         private RaceTracker _raceTracker;
         private readonly NewRacer _newRacer;
-        private bool _displayPhotosChecked = false;
+        private bool _displayPhotosChecked = true;
         private Visibility _collapsedVisibility = Visibility.Visible;
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -81,7 +79,7 @@ namespace DerbyApp
             _databaseName = databaseName;
             _editRace = new EditRace(_db)
             {
-                CurrentRace = activeRace
+                CurrentRaceName = activeRace
             };
             _racerTableView = new RacerTableView(_db);
             _newRacer = new NewRacer();
@@ -89,6 +87,7 @@ namespace DerbyApp
             _newRacer.RacerAdded += Racer_RacerAdded;
             _racerTableView.RacerRemoved += RacerTableView_RacerRemoved;
             _editRace.RaceChanged += EditRace_RaceChanged;
+            _editRace.RaceChanging += EditRace_RaceChanging;
 
             mainFrame.Navigate(new Default());
         }
@@ -98,18 +97,39 @@ namespace DerbyApp
             _editRace.buttonAddRacer.IsEnabled = false;
         }
 
-        private void EditRace_RaceChanged(object sender, EventArgs e)
+        private void EditRace_RaceChanging(object sender, ResponseEventArgs e)
         {
-            RaceResults Race = new(_editRace.CurrentRace, _editRace.Racers, RaceHeats.Heats[_editRace.RaceFormatIndex]);
-            _db.LoadResultsTable(Race);
-            
-            _raceTracker = new RaceTracker(Race, RaceHeats.Heats[_editRace.RaceFormatIndex], _db)
+            e.Continue = false;
+            if (_raceTracker.Results.InProgress)
+            {
+                if (MessageBoxResult.OK == MessageBox.Show(
+                    "Adding or removing a racer will reset the race in progress and erase all results.",
+                    "Race Results Will Be Erased", MessageBoxButton.OKCancel, MessageBoxImage.Warning))
+                {
+                    e.Continue = true;
+                }
+            }
+            else
+            {
+                e.Continue = true;
+            }
+        }
+
+        private void EditRace_RaceChanged(object sender, bool e)
+        {
+            RaceResults results = new(_editRace.CurrentRaceName, _editRace.Racers, RaceFormats.Formats[_editRace.RaceFormatIndex].Clone());
+            int heatCount = _db.GetHeatCount(results.RaceName);
+            while (results.RaceFormat.HeatCount < heatCount) results.AddRunOffHeat(null);
+            _db.LoadResultsTable(results);
+
+            _raceTracker = new RaceTracker(results, _db)
             {
                 DisplayPhotos = DisplayPhotosChecked ? Visibility.Visible : Visibility.Collapsed
             };
             if (_raceTracker.Results.CurrentHeatNumber > 1) _editRace.buttonAddRacer.IsEnabled = false;
             else _editRace.buttonAddRacer.IsEnabled = true;
             _raceTracker.HeatChanged += RaceTracker_HeatChanged;
+            if (!e) _raceTracker.Results.InProgress = false;
         }
 
         private void RacerTableView_RacerRemoved(object sender, EventArgs e)
@@ -142,7 +162,7 @@ namespace DerbyApp
                 string databaseName = dialog.FileName;
                 this.Title = "Current Event = " + Path.GetFileNameWithoutExtension(databaseName);
                 _db = new Database(databaseName);
-                Database.StoreDatabaseRegistry(databaseName, _editRace.CurrentRace);
+                Database.StoreDatabaseRegistry(databaseName, _editRace.CurrentRaceName);
                 _editRace = new EditRace(_db);
                 _racerTableView = new RacerTableView(_db);
                 _racerTableView.RacerRemoved += RacerTableView_RacerRemoved;
@@ -175,9 +195,9 @@ namespace DerbyApp
             else
             {
                 mainFrame.Navigate(new Default());
-                MessageBox.Show("Your currently selected race " + _editRace.CurrentRace + " has no racers in it.");
+                MessageBox.Show("Your currently selected race " + _editRace.CurrentRaceName + " has no racers in it.");
             }
-            Database.StoreDatabaseRegistry(_databaseName, _editRace.CurrentRace);
+            Database.StoreDatabaseRegistry(_databaseName, _editRace.CurrentRaceName);
         }
 
         private void ButtonReport_Click(object sender, RoutedEventArgs e)
@@ -185,10 +205,12 @@ namespace DerbyApp
             List<RaceResults> races = new();
             foreach (string raceName in _db.GetListOfRaces())
             {
-                (ObservableCollection<Racer> racers, int raceFormat) = _db.GetRacers(raceName);
-                RaceResults race = new(raceName, racers, RaceHeats.Heats[raceFormat]);
-                _db.LoadResultsTable(race);
-                races.Add(race);
+                (ObservableCollection<Racer> racers, int raceFormatIndex) = _db.GetRacers(raceName);
+                RaceResults results = new(raceName, racers, RaceFormats.Formats[raceFormatIndex].Clone());
+                int heatCount = _db.GetHeatCount(results.RaceName);
+                while (results.RaceFormat.HeatCount < heatCount) results.AddRunOffHeat(null);
+                _db.LoadResultsTable(results);
+                races.Add(results);
             }
             GenerateReport.Generate(_db.EventName, _db.GetAllRacers(), races);
         }
@@ -237,12 +259,6 @@ namespace DerbyApp
                 (sender as DispatcherTimer).Stop();
                 CollapseArrow.Visibility = Visibility.Visible;
             }
-        }
-
-        private void MainWindowName_Closing(object sender, CancelEventArgs e)
-        {
-            _newRacer.VideoThread?.Abort();
-            _newRacer.LocalWebCam?.Stop();
         }
 
         private void MenuItem_Click(object sender, RoutedEventArgs e)

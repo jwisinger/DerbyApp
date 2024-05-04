@@ -1,0 +1,78 @@
+﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
+
+namespace DerbyApp.RaceStats
+{
+    public class RaceFormat
+    {
+        public ObservableCollection<Racer> CurrentRacers;
+        public string Name { get; }
+        public int HeatCount;
+        public readonly int RacerCount;
+        public readonly int LaneCount;
+        public int[][] Heats;
+
+        public RaceFormat(string name, int heatCount, int racerCount, int laneCount, int[][] heats)
+        {
+            Name = name;
+            HeatCount = heatCount;
+            RacerCount = racerCount;
+            LaneCount = laneCount;
+            Heats = heats;
+            CurrentRacers = new ObservableCollection<Racer>();
+        }
+
+        public void UpdateDisplayedHeat(int heatNumber, ObservableCollection<Racer> racers)
+        {
+            CurrentRacers.Clear();
+            int num = heatNumber - 1;
+
+            if (num >= HeatCount) return;
+            if (num >= Heats.Length) return;
+
+            for (int i = 0; i < Heats[num].Length; i++)
+            {
+                Racer racer = racers.FirstOrDefault(r => r.RaceOrder == Heats[num][i]);
+                if (racer != null) CurrentRacers.Add(racer);
+                else CurrentRacers.Add(new Racer());
+            }
+        }
+
+        public RaceFormat Clone()
+        {
+            int[][] heats = (int[][])Heats.Clone();
+            return new RaceFormat(Name, HeatCount, RacerCount, LaneCount, heats);
+        }
+
+        public void AddRunOffHeat(List<Racer> racers)
+        {
+            HeatCount++;
+            try
+            {
+                int[][] newHeats = new int[HeatCount][];
+                for (int i = 0; i < HeatCount - 1; i++)
+                {
+                    newHeats[i] = new int[LaneCount];
+                    for (int j = 0; j < LaneCount; j++)
+                    {
+                        newHeats[i][j] = Heats[i][j];
+                    }
+                }
+                newHeats[HeatCount - 1] = new int[LaneCount];
+                for (int i = 0; i < LaneCount; i++) newHeats[HeatCount - 1][i] = -1;
+                int k = 0;
+                if (racers != null)
+                {
+                    foreach (Racer r in racers)
+                    {
+                        newHeats[HeatCount - 1][k++] = (int)r.RaceOrder;
+                        if (k > LaneCount) break;
+                    }
+                }
+                Heats = newHeats;
+            }
+            catch { }
+        }
+    }
+}

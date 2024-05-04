@@ -1,9 +1,9 @@
-﻿#warning 3: If no racer is added to a new race, it gets saved to the database without a format
-
+﻿using DerbyApp.Helpers;
 using DerbyApp.RacerDatabase;
 using DerbyApp.RaceStats;
 using DerbyApp.Windows;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
@@ -21,11 +21,12 @@ namespace DerbyApp.Pages
         public ObservableCollection<Racer> Racers = new();
         public ObservableCollection<Racer> AllRacers = new();
         public ObservableCollection<Racer> AvailableRacers = new();
-        private Visibility _displayPhotos = Visibility.Collapsed;
-        private int _heatCount = RaceHeats.Heats[RaceHeats.DefaultHeat].HeatCount;
-        private int _racerCount = RaceHeats.Heats[RaceHeats.DefaultHeat].RacerCount;
+        private Visibility _displayPhotos = Visibility.Visible;
         public event PropertyChangedEventHandler PropertyChanged;
-        public event EventHandler RaceChanged;
+        public event EventHandler<bool> RaceChanged;
+        public event EventHandler<ResponseEventArgs> RaceChanging;
+
+        public string RaceFormatNameString { get; set; }
 
         public int RaceFormatIndex
         {
@@ -33,30 +34,21 @@ namespace DerbyApp.Pages
             set
             {
                 _raceFormatIndex = value;
-                RaceFormat = RaceHeats.Heats[_raceFormatIndex].Name;
-                _heatCount = RaceHeats.Heats[_raceFormatIndex].HeatCount;
-                _racerCount = RaceHeats.Heats[_raceFormatIndex].RacerCount;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(RaceFormat)));
+                RaceFormatNameString = RaceFormats.Formats[_raceFormatIndex].Name;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(RaceFormatNameString)));
             }
         }
 
-        public string RaceFormat { get; set; }
-
-        public string CurrentRace
+        public string CurrentRaceName
         {
             get => (string)cbName.SelectedValue;
             set
             {
-                int order = 1;
-                int raceFormat;
                 cbName.SelectedValue = value;
-                (Racers, raceFormat) = _db.GetRacers((string)cbName.SelectedValue, Racers);
-                if (raceFormat >= 0)
-                {
-                    _heatCount = RaceHeats.Heats[raceFormat].HeatCount;
-                    _racerCount = RaceHeats.Heats[raceFormat].RacerCount;
-                    RaceFormatIndex = raceFormat;
-                }
+
+                (Racers, int raceFormat) = _db.GetRacers((string)cbName.SelectedValue, Racers);
+                if (raceFormat >= 0) RaceFormatIndex = raceFormat;
+                int order = 1;
                 foreach (Racer r in Racers) r.RaceOrder = order++;
             }
         }
@@ -100,17 +92,18 @@ namespace DerbyApp.Pages
 
         private void ComboBoxRaceName_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            CurrentRace = cbName.SelectedValue as string;
+            CurrentRaceName = cbName.SelectedValue as string;
             try
             {
-                if ((cbName.SelectedValue as string).Length > 0) buttonDeleteRace.IsEnabled = true;
+                if (CurrentRaceName == null) buttonDeleteRace.IsEnabled = false;
+                else if (CurrentRaceName.Length > 0) buttonDeleteRace.IsEnabled = true;
                 else buttonDeleteRace.IsEnabled = false;
             }
             catch
             {
                 buttonDeleteRace.IsEnabled = false;
             }
-            RaceChanged?.Invoke(this, null);
+            RaceChanged?.Invoke(this, true);
         }
 
         private void CbName_KeyUp(object sender, System.Windows.Input.KeyEventArgs e)
@@ -136,41 +129,53 @@ namespace DerbyApp.Pages
 
         private void ButtonAddRacer_Click(object sender, RoutedEventArgs e)
         {
-#warning 4: send up a signal here to change the racetracker (maybe warn user if race has already started)
-            int order = 1;
-            if (Racers.Count > _racerCount)
+            ResponseEventArgs response = new();
+            RaceChanging?.Invoke(this, response);
+            if (response.Continue)
             {
-                MessageBox.Show("Max number of racers already added.", "Max Racers Exceeded", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
-
-            try
-            {
-                AddRacer addRacerWindow = new(AllRacers, _racerCount - Racers.Count);
-                addRacerWindow.ShowDialog();
-
-                // Check if added racer already in list
-                foreach (Racer racer in addRacerWindow.SelectedRacers)
+                int order = 1;
+                if (Racers.Count > RaceFormats.Formats[RaceFormatIndex].RacerCount)
                 {
-                    if (!Racers.Contains(racer)) Racers.Add(racer);
+                    MessageBox.Show("Max number of racers already added.", "Max Racers Exceeded", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
                 }
-                foreach (Racer r in Racers) r.RaceOrder = order++;
-                _db.ModifyResultsTable(Racers, cbName.Text, _heatCount, RaceFormatIndex);
+
+                try
+                {
+                    AddRacer addRacerWindow = new(AllRacers, RaceFormats.Formats[RaceFormatIndex].RacerCount - Racers.Count);
+                    addRacerWindow.ShowDialog();
+
+                    // Check if added racer already in list
+                    foreach (Racer racer in addRacerWindow.SelectedRacers)
+                    {
+                        IEnumerable<Racer> matches = Racers.Where(x => x.Number == racer.Number);
+                        if (!matches.Any()) Racers.Add(racer);
+                        else MessageBox.Show("Racer " + racer.RacerName + " is already in the list.", "Duplicate Racer", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    }
+                    foreach (Racer r in Racers) r.RaceOrder = order++;
+                    _db.ModifyResultsTable(Racers, cbName.Text, RaceFormats.Formats[RaceFormatIndex].HeatCount, RaceFormatIndex);
+                }
+                catch { }
+                RaceChanged?.Invoke(this, false);
             }
-            catch { }
         }
 
         private void Delete_OnClick(object sender, RoutedEventArgs e)
         {
-#warning 4: send up a signal here to change the racetracker (maybe warn user if race has already started)
-            int order = 1;
-            try
+            ResponseEventArgs response = new();
+            RaceChanging?.Invoke(this, response);
+            if (response.Continue)
             {
-                Racers.RemoveAt(dataGridRacers.SelectedIndex);
-                foreach (Racer r in Racers) r.RaceOrder = order++;
-                _db.ModifyResultsTable(Racers, cbName.Text, _heatCount, 0);
+                int order = 1;
+                try
+                {
+                    Racers.RemoveAt(dataGridRacers.SelectedIndex);
+                    foreach (Racer r in Racers) r.RaceOrder = order++;
+                    _db.ModifyResultsTable(Racers, cbName.Text, RaceFormats.Formats[RaceFormatIndex].HeatCount, 0);
+                }
+                catch { }
+                RaceChanged?.Invoke(this, false);
             }
-            catch { }
         }
 
         private void CbLevels_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -188,7 +193,7 @@ namespace DerbyApp.Pages
                     Races.Add(nr.RaceName);
                     cbName.SelectedItem = nr.RaceName;
                     RaceFormatIndex = nr.RaceFormatIndex;
-                    RaceFormat = RaceHeats.Heats[nr.RaceFormatIndex].Name;
+                    RaceFormatNameString = RaceFormats.Formats[nr.RaceFormatIndex].Name;
                     Racers.Clear();
                 }
                 else

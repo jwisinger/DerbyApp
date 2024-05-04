@@ -13,7 +13,7 @@ namespace DerbyApp
         public ObservableCollection<Racer> Racers = new();
         private readonly Database _db;
         private bool _editHandle = true;
-        private Visibility _displayPhotos = Visibility.Collapsed;
+        private Visibility _displayPhotos = Visibility.Visible;
         public event PropertyChangedEventHandler PropertyChanged;
         public event EventHandler RacerRemoved;
 

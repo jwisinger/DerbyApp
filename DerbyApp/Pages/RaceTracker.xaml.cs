@@ -1,11 +1,10 @@
-﻿#warning 1: Add runoff capability to break ties
-#warning 2: When a report is generated, ties are "broken" and listed in the order shown on the leader board (incorrectly)
-#warning 9: There was a crash on Stella's PC when manually editing race times and pressing "enter"
+﻿#warning 2: Need to add the ability to add a runoff heat in case get times isn't working right
 #warning FUN: When clicking "start heat", should the PC do the countdown (and remote control the lights) ... this would mean bypassing the embedded countdown?
 
 using DerbyApp.RacerDatabase;
 using DerbyApp.RaceStats;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Net.Http;
@@ -31,7 +30,6 @@ namespace DerbyApp
         private readonly DispatcherTimer _raceTimer;
 
         public RaceResults Results { get; set; }
-        public RaceHeat Heat { get; set; }
         public Leaderboard LdrBoard { get; set; }
 
         public Visibility DisplayPhotos
@@ -90,32 +88,37 @@ namespace DerbyApp
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
 
-        public RaceTracker(RaceResults race, RaceHeat heat, Database db)
+        private void ResultsColumnAdded(object sender, PropertyChangedEventArgs e)
+        {
+            gridRaceResults.Columns.Add(new DataGridTextColumn() { Header = e.PropertyName, Binding=new Binding(e.PropertyName) { StringFormat = "N3" } });
+        }
+
+        public RaceTracker(RaceResults results, Database db)
         {
             InitializeComponent();
-            Results = race;
-            Heat = heat;
+            Results = results;
             _db = db;
-            heat.UpdateHeat(Results.CurrentHeatNumber, race.Racers);
-            LdrBoard = new Leaderboard(race.Racers, heat.HeatCount, heat.LaneCount);
+            Results.RaceFormat.UpdateDisplayedHeat(Results.CurrentHeatNumber, results.Racers);
+            LdrBoard = new Leaderboard(results.Racers, results.RaceFormat.HeatCount, results.RaceFormat.LaneCount);
             gridRaceResults.AutoGeneratingColumn += Datagrid_AutoGeneratingColumn;
             gridRaceResults.DataContext = Results.ResultsTable.DefaultView;
             gridLeaderBoard.DataContext = LdrBoard.Board;
-            gridCurrentHeat.DataContext = Heat.CurrentRacers;
+            gridCurrentHeat.DataContext = Results.RaceFormat.CurrentRacers;
             CurrentHeatLabel.DataContext = this;
             _startTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(5) };
             _raceTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(12) };
             _startTimer.Tick += TimeTickStart;
             _raceTimer.Tick += TimeTickRace;
             LdrBoard.CalculateResults(Results.ResultsTable);
+            Results.ColumnAdded += ResultsColumnAdded;
         }
 
         private void ButtonNextHeat_Click(object sender, RoutedEventArgs e)
         {
             Results.CurrentHeatNumber++;
             CurrentHeatLabelString = "Current Heat (" + Results.CurrentHeatNumber + ")";
-            Heat.UpdateHeat(Results.CurrentHeatNumber, Results.Racers);
-            if (Results.CurrentHeatNumber >= Heat.HeatCount) NextHeatEnabled = false;
+            Results.RaceFormat.UpdateDisplayedHeat(Results.CurrentHeatNumber, Results.Racers);
+            if (Results.CurrentHeatNumber >= Results.RaceFormat.HeatCount) NextHeatEnabled = false;
             else NextHeatEnabled = true;
             if (Results.CurrentHeatNumber <= 1) PreviousHeatEnabled = false;
             else PreviousHeatEnabled = true;
@@ -142,8 +145,8 @@ namespace DerbyApp
         {
             Results.CurrentHeatNumber--;
             CurrentHeatLabelString = "Current Heat (" + Results.CurrentHeatNumber + ")";
-            Heat.UpdateHeat(Results.CurrentHeatNumber, Results.Racers);
-            if (Results.CurrentHeatNumber >= Heat.HeatCount) NextHeatEnabled = false;
+            Results.RaceFormat.UpdateDisplayedHeat(Results.CurrentHeatNumber, Results.Racers);
+            if (Results.CurrentHeatNumber >= Results.RaceFormat.HeatCount) NextHeatEnabled = false;
             else NextHeatEnabled = true;
             if (Results.CurrentHeatNumber <= 1) PreviousHeatEnabled = false;
             else PreviousHeatEnabled = true;
@@ -255,7 +258,7 @@ namespace DerbyApp
                         }
                         try
                         {
-                            DataRow dr = Results.ResultsTable.Rows.Find(Heat.CurrentRacers[i].Number);
+                            DataRow dr = Results.ResultsTable.Rows.Find(Results.RaceFormat.CurrentRacers[i].Number);
                             if (dr != null)
                             {
                                 if (result < 0.1) result = 10.0F;
@@ -266,9 +269,29 @@ namespace DerbyApp
                         }
                         catch { }
                     }
-                    if (Results.CurrentHeatNumber < Results.HeatCount)
+                    if (Results.CurrentHeatNumber < Results.RaceFormat.HeatCount)
                     {
                         ButtonNextHeat_Click(null, null);
+                    }
+                    else
+                    {
+                        int i = 3; // Start looking for tie in 3rd place
+                        while (i > 0)
+                        {
+                            List<Racer> tiedRacers = LdrBoard.CheckForTie(i);
+                            if (tiedRacers.Count > 1)
+                            {
+                                Results.AddRunOffHeat(tiedRacers);
+                                LdrBoard.AddRunOffHeat(Results.RaceFormat.HeatCount);
+                                _db.AddRunOffHeat(Results.RaceName, Results.RaceFormat.HeatCount);
+                                ButtonNextHeat_Click(null, null);
+                                break;
+                            }
+                            else
+                            {
+                                i--;
+                            }
+                        }
                     }
                 }
             }

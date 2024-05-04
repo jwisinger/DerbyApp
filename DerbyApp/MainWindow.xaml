@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:DerbyApp"
         mc:Ignorable="d"
-        Title="MainWindow" Height="500" Width="859" Name="MainWindowName" Background="AliceBlue" Closing="MainWindowName_Closing">
+        Title="MainWindow" Height="500" Width="859" Name="MainWindowName" Background="AliceBlue">
     <Window.Resources>
         <Style TargetType="{x:Type CheckBox}" x:Key="cameraCheckboxStyle">
             <Setter Property="Template">

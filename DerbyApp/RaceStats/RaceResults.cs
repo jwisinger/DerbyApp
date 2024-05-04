@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Data;
@@ -12,10 +13,11 @@ namespace DerbyApp.RaceStats
         public string RaceName;
         public ObservableCollection<Racer> Racers;
         public DataTable ResultsTable;
-        public int HeatCount = 0;
-        public int LaneCount = 0;
+        public RaceFormat RaceFormat;
+        public bool InProgress = false;
 
         public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler ColumnAdded;
 
         public int CurrentHeatNumber
         {
@@ -30,20 +32,19 @@ namespace DerbyApp.RaceStats
             }
         }
 
-        public RaceResults(string raceName, ObservableCollection<Racer> racers, RaceHeat raceHeat)
+        public RaceResults(string raceName, ObservableCollection<Racer> racers, RaceFormat raceFormat)
         {
             int racerNum = 0;
 
             RaceName = raceName;
             Racers = racers;
-            HeatCount = raceHeat.HeatCount;
-            LaneCount = raceHeat.LaneCount;
+            RaceFormat = raceFormat;
 
             ResultsTable = new DataTable();
             ResultsTable.Columns.Add("Number", Type.GetType("System.Int32"));
             ResultsTable.PrimaryKey = new DataColumn[] { ResultsTable.Columns["Number"] };
             ResultsTable.Columns.Add("Name", Type.GetType("System.String"));
-            for (int i = 1; i <= HeatCount; i++)
+            for (int i = 1; i <= RaceFormat.HeatCount; i++)
             {
                 ResultsTable.Columns.Add("Heat " + i, Type.GetType("System.Double"));
             }
@@ -63,6 +64,14 @@ namespace DerbyApp.RaceStats
             if (!double.TryParse(newString, out _)) return;
 
             ResultsTable.Rows[row][column] = newString;
+            InProgress = true;
+        }
+
+        public void AddRunOffHeat(List<Racer> racers)
+        {
+            RaceFormat.AddRunOffHeat(racers);
+            ResultsTable.Columns.Add("Heat " + RaceFormat.HeatCount, Type.GetType("System.Double"));
+            ColumnAdded?.Invoke(this, new PropertyChangedEventArgs("Heat " + RaceFormat.HeatCount));
         }
     }
 }

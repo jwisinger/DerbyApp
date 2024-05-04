@@ -1,32 +1,26 @@
 ﻿#warning FUN: Any way to improve the look of this page?
-using AForge.Video;
-using AForge.Video.DirectShow;
 using DerbyApp.RaceStats;
 using System;
-using System.ComponentModel;
 using System.Drawing;
-using System.Drawing.Imaging;
-using System.IO;
 using System.Runtime.InteropServices;
-using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
+using Emgu.CV;
+using System.Threading;
 
 namespace DerbyApp
 {
-    public partial class NewRacer : Page, INotifyPropertyChanged
+    public partial class NewRacer : Page
     {
-        public DispatcherOperation VideoThread;
-        public VideoCaptureDevice LocalWebCam;
-        public FilterInfoCollection LocalWebCamsCollection;
         private static bool _needSnapshot = false;
         public Racer Racer = new();
-        public event PropertyChangedEventHandler PropertyChanged;
         public event EventHandler RacerAdded;
+        public Mat CurrentFrame {get; set;}
+        private VideoCapture _videoCapture = null;
 
         public NewRacer()
         {
@@ -36,6 +30,14 @@ namespace DerbyApp
             tbWeight.DataContext = Racer;
             tbEmail.DataContext = Racer;
             cbLevel.DataContext = Racer;
+            frameVideo.DataContext = this;
+            new Thread(() =>
+            {
+                _videoCapture = new VideoCapture(0, VideoCapture.API.DShow);
+                CurrentFrame = new Mat();
+                _videoCapture.ImageGrabbed += VideoCapture_NewFrame;
+                _videoCapture.Start();
+            }).Start();
         }
 
         public void UpdateCaptureSnapshotManifast(Bitmap image)
@@ -44,50 +46,23 @@ namespace DerbyApp
             {
                 _needSnapshot = false;
                 frameCapture.Source = ImageSourceFromBitmap(image);
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("CapturedImage"));
                 Racer.Photo = (System.Drawing.Image)image.Clone();
             }
             catch { }
         }
 
-        void Cam_NewFrame(object sender, NewFrameEventArgs eventArgs)
+        private void VideoCapture_NewFrame(object sender, EventArgs e)
         {
-            try
+            _videoCapture.Retrieve(CurrentFrame);
+            Application.Current.Dispatcher.BeginInvoke(new Action(() =>
             {
-                Bitmap img = (Bitmap)eventArgs.Frame.Clone();
-
-                MemoryStream ms = new();
-                img.Save(ms, ImageFormat.Bmp);
-                ms.Seek(0, SeekOrigin.Begin);
-                BitmapImage bi = new();
-                bi.BeginInit();
-                bi.StreamSource = ms;
-                bi.EndInit();
-                bi.Freeze();
-                VideoThread = Dispatcher.BeginInvoke(new ThreadStart(delegate
-                {
-                    frameVideo.Source = bi;
-                }));
-
+                Bitmap bMap = CurrentFrame.ToImage<Emgu.CV.Structure.Bgr, byte>().ToBitmap();
+                frameVideo.Source = ImageSourceFromBitmap(bMap);
                 if (_needSnapshot)
                 {
-                    Dispatcher.Invoke(new Action(() => { UpdateCaptureSnapshotManifast(img); }));
+                    Dispatcher.Invoke(new Action(() => { UpdateCaptureSnapshotManifast(bMap); }));
                 }
-            }
-            catch
-            {
-            }
-        }
-
-        private void Page_Loaded(object sender, RoutedEventArgs e)
-        {
-            LocalWebCamsCollection = new FilterInfoCollection(FilterCategory.VideoInputDevice);
-            if (LocalWebCamsCollection.Count > 0)
-            {
-                LocalWebCam = new VideoCaptureDevice(LocalWebCamsCollection[0].MonikerString);
-                LocalWebCam.NewFrame += new NewFrameEventHandler(Cam_NewFrame);
-                LocalWebCam.Start();
-            }
+            }));
         }
 
         private void ButtonCamera_Click(object sender, RoutedEventArgs e)
@@ -131,12 +106,6 @@ namespace DerbyApp
             Racer.Weight = 0;
             Racer.Email = "";
             Racer.Number = 0;
-        }
-
-        private void Page_Unloaded(object sender, RoutedEventArgs e)
-        {
-            VideoThread?.Abort();
-            LocalWebCam?.Stop();
         }
     }
 }

@@ -33,7 +33,7 @@
             <Button Name="buttonDeleteRace" Content="Delete Race" Grid.Row="1" Width="110" Height="24" HorizontalAlignment="Left" Margin="230,6,0,0" IsEnabled="False" Click="ButtonDeleteRace_Click"/>
 
             <Label Grid.Row="0" Content="Race Format" HorizontalAlignment="Left" Margin="360,2,0,2" VerticalAlignment="Center"/>
-            <TextBox IsReadOnly="True" Name="tbFormat" Grid.Row="0" Text="{Binding RaceFormat, Mode=TwoWay}" Height="24" HorizontalAlignment="Left" Margin="440,6,0,0" Width="240" KeyUp="CbName_KeyUp"/>
+            <TextBox IsReadOnly="True" Name="tbFormat" Grid.Row="0" Text="{Binding RaceFormatNameString, Mode=TwoWay}" Height="24" HorizontalAlignment="Left" Margin="440,6,0,0" Width="240" KeyUp="CbName_KeyUp"/>
             <Label Grid.Row="1" Content="Racer Levels" HorizontalAlignment="Left" Margin="360,2,0,2" VerticalAlignment="Center"/>
             <ComboBox Name="cbLevels" Grid.Row="1" IsEditable="False" HorizontalAlignment="Left" Height="24" Margin="440,6,0,0" Width="140" SelectionChanged="CbLevels_SelectionChanged">
                 <ComboBox.ItemTemplate>

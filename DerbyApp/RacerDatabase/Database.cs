@@ -6,6 +6,11 @@ using System.Collections.ObjectModel;
 using Microsoft.Win32;
 using DerbyApp.RaceStats;
 using DerbyApp.Helpers;
+using System.Linq;
+using Emgu.CV.Face;
+using MigraDoc.Rendering;
+using System.Data.Entity;
+using System.Drawing.Imaging;
 
 namespace DerbyApp.RacerDatabase
 {
@@ -47,21 +52,22 @@ namespace DerbyApp.RacerDatabase
             command.ExecuteNonQuery();
         }
 
-        public void LoadResultsTable(RaceResults race)
+        public void LoadResultsTable(RaceResults results)
         {
             try
             {
-                if (race.RaceName == "") return;
-                SQLiteCommand cmd = new("SELECT *  FROM [" + _racerTableName + "] INNER JOIN [" + race.RaceName + "] ON [" + race.RaceName + "].number = [" + _racerTableName + "].Number", SqliteConn);
+                if (results.RaceName == "") return;
+                SQLiteCommand cmd = new("SELECT *  FROM [" + _racerTableName + "] INNER JOIN [" + results.RaceName + "] ON [" + results.RaceName + "].number = [" + _racerTableName + "].Number", SqliteConn);
                 SQLiteDataAdapter sda = new(cmd);
                 DataSet ds = new();
                 sda.Fill(ds);
                 if (ds.Tables[0].Rows.Count > 0)
                 {
-                    race.ResultsTable.Clear();
+                    results.InProgress = true;
+                    results.ResultsTable.Clear();
                     foreach (DataRow row in ds.Tables[0].Rows)
                     {
-                         race.ResultsTable.ImportRow(row);
+                        results.ResultsTable.ImportRow(row);
                     }
                 }
             }
@@ -121,6 +127,14 @@ namespace DerbyApp.RacerDatabase
             }
         }
 
+        public void AddRunOffHeat(string raceName, int heatCount)
+        {
+            string sql = "ALTER TABLE " + raceName + " ADD [Heat " + heatCount + "] DOUBLE";
+            SQLiteCommand command = new(sql, SqliteConn);
+            try { command.ExecuteNonQuery(); }
+            catch { }
+        }
+
         public void UpdateResultsTable(string raceName, DataRow row)
         {
             string sql = "UPDATE [" + raceName + "] SET ";
@@ -173,7 +187,7 @@ namespace DerbyApp.RacerDatabase
         {
             if (Racers == null) Racers = new ObservableCollection<Racer>();
             else Racers.Clear();
-            int raceFormat = -1;
+            int raceFormatIndex = -1;
             if (raceName != "")
             {
                 string sql = "SELECT *  FROM [" + _racerTableName + "] INNER JOIN [" + raceName + "] ON [" + raceName + "].number = [" + _racerTableName + "].Number ORDER BY [" + raceName + "].RacePosition";
@@ -196,7 +210,7 @@ namespace DerbyApp.RacerDatabase
                                                  (string)dataRow[4],
                                                  (string)dataRow[5],
                                                  ImageHandler.ByteArrayToImage((byte[])dataRow[6])));
-                                raceFormat = (int)((Int64)dataRow[9]);
+                                raceFormatIndex = (int)((Int64)dataRow[9]);
                             }
                             catch { }
                         }
@@ -205,7 +219,32 @@ namespace DerbyApp.RacerDatabase
                 catch { /* invalid race name stored in registry */ }
             }
 
-            return (Racers, raceFormat);
+            return (Racers, raceFormatIndex);
+        }
+
+        public int GetHeatCount(string raceName)
+        {
+            int retVal = -1;
+            if (raceName != "")
+            {
+                string sql = "SELECT * FROM [" + raceName + "] LIMIT 1";
+                SQLiteCommand cmd = new(sql, SqliteConn);
+                SQLiteDataAdapter sda = new(cmd);
+                DataSet ds = new();
+                try
+                {
+                    sda.Fill(ds);
+                    if (ds.Tables[0].Rows.Count > 0)
+                    {
+                        string[] columnNames = (from dc in ds.Tables[0].Columns.Cast<DataColumn>()
+                                                select dc.ColumnName).ToArray();
+                        retVal = columnNames.Where(x => x.Contains("Heat")).Count();
+                    }
+                }
+                catch { }
+            }
+
+            return retVal;
         }
 
         public ObservableCollection<string> GetListOfRaces()
@@ -231,7 +270,10 @@ namespace DerbyApp.RacerDatabase
                 sql = "REPLACE INTO [" + _racerTableName + "] ([Number], [Name], [Weight(oz)], [Troop], [Level], [Email], [Image]) VALUES (@Number, @Name, @Weight, @Troop, @Level, @Email, @Image)";
             }
             SQLiteCommand command = new(sql, SqliteConn);
-            byte[] photo = ImageHandler.ImageToByteArray(racer.Photo);
+            MemoryStream ms = new();
+            racer.Photo.Save(ms, ImageFormat.Jpeg);
+            ms.Position = 0;
+            byte[] photo = ms.ToArray();
 
             command.Parameters.Add("@Number", DbType.Int64).Value = racer.Number;
             command.Parameters.Add("@Name", DbType.String).Value = racer.RacerName;

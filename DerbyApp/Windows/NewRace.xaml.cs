@@ -14,7 +14,7 @@ namespace DerbyApp.Windows
         public NewRace()
         {
             InitializeComponent();
-            cbFormat.ItemsSource = RaceHeats.Heats;
+            cbFormat.ItemsSource = RaceFormats.Formats;
             cbFormat.SelectedIndex = 0;
             tbRaceName.DataContext = this;
         }
