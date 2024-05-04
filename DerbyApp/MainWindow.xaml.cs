@@ -1,6 +1,6 @@
-﻿#warning FUN: Add an actual report page to give options for per racer, per race and maybe overall
-#warning FUN: Improve Help and add an "About" with version
-#warning FUN: Change "start race" button to just "race"?
+﻿#warning REPORT: Add an actual report page to give options for per racer, per race and maybe overall
+#warning HELP: Improve Help and add an "About" with version
+#warning APPEARANCE: Change "start race" button to just "race"?
 
 using Microsoft.Win32;
 using System.IO;
@@ -261,9 +261,16 @@ namespace DerbyApp
             }
         }
 
-        private void MenuItem_Click(object sender, RoutedEventArgs e)
+        private void HelpItem_Click(object sender, RoutedEventArgs e)
         {
             mainFrame.Navigate(new Help());
+        }
+
+        private void AboutItem_Click(object sender, RoutedEventArgs e)
+        {
+            MessageBox.Show("",
+                "Version: " + System.Reflection.Assembly.GetEntryAssembly().GetName().Version.ToString(),
+                MessageBoxButton.OK, MessageBoxImage.None);
         }
     }
 }

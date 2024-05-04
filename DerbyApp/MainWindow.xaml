@@ -12,7 +12,7 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type CheckBox}">
                         <StackPanel Orientation="Horizontal">
-                            <Image x:Name="checkboxImage" Source="/Images/No Camera.png"  Width="64"/>
+                            <Image x:Name="checkboxImage" Source="/Images/No Camera.png" Width="64"/>
                             <ContentPresenter/>
                         </StackPanel>
                         <ControlTemplate.Triggers>
@@ -49,7 +49,8 @@
         </Grid.ColumnDefinitions>
         <DockPanel>
             <Menu DockPanel.Dock="Top" HorizontalAlignment="Left">
-                <MenuItem Header="_Help" Click="MenuItem_Click"/>
+                <MenuItem Header="_Help" Click="HelpItem_Click"/>
+                <MenuItem Header="_About" Click="AboutItem_Click"/>
             </Menu>
             <StackPanel></StackPanel>
         </DockPanel>
@@ -126,7 +127,7 @@
                 </Style>
             </Image.Style>
         </Image>
-        <Image Margin="0,0,0,10" Name="ExpandArrow" VerticalAlignment="Bottom" Visibility="Hidden" MouseLeftButtonDown="ButtonExpand_Click" HorizontalAlignment="Left" Width="32" >
+        <Image Margin="0,0,0,10" Name="ExpandArrow" VerticalAlignment="Bottom" Visibility="Hidden" MouseLeftButtonDown="ButtonExpand_Click" HorizontalAlignment="Left" RenderOptions.BitmapScalingMode="Fant" Width="32" >
             <Image.Style>
                 <Style TargetType="{x:Type Image}">
                     <Setter Property="Source" Value="/Images/Right.png"/>
@@ -138,7 +139,7 @@
                 </Style>
             </Image.Style>
         </Image>
-        <Image Margin="0,0,0,10" Name="CollapseArrow" VerticalAlignment="Bottom" MouseLeftButtonDown="ButtonCollapse_Click" HorizontalAlignment="Right" Width="32" >
+        <Image Margin="0,0,10,10" Name="CollapseArrow" VerticalAlignment="Bottom" MouseLeftButtonDown="ButtonCollapse_Click" HorizontalAlignment="Right" RenderOptions.BitmapScalingMode="Fant" Width="32" >
             <Image.Style>
                 <Style TargetType="{x:Type Image}">
                     <Setter Property="Source" Value="/Images/Left.png"/>

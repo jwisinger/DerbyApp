@@ -1,5 +1,4 @@
-﻿#warning 2: Need to add the ability to add a runoff heat in case get times isn't working right
-#warning FUN: When clicking "start heat", should the PC do the countdown (and remote control the lights) ... this would mean bypassing the embedded countdown?
+﻿#warning FUN: When clicking "start heat", should the PC do the countdown (and remote control the lights) ... this would mean bypassing the embedded countdown?
 
 using DerbyApp.RacerDatabase;
 using DerbyApp.RaceStats;
@@ -24,10 +23,14 @@ namespace DerbyApp
         private Visibility _displayPhotos = Visibility.Collapsed;
         private bool _previousHeatEnabled = false;
         private bool _nextHeatEnabled = true;
+        private Visibility _buttonVisibility = Visibility.Visible;
         private string _currentHeatLabelString = "Current Heat (1)";
         private readonly Database _db = null;
         private readonly DispatcherTimer _startTimer;
         private readonly DispatcherTimer _raceTimer;
+        private string _raceCountDownString = "";
+        private int _raceCountDownTime = 0;
+        private const int MaxRaceTime = 12;
 
         public RaceResults Results { get; set; }
         public Leaderboard LdrBoard { get; set; }
@@ -56,6 +59,27 @@ namespace DerbyApp
             set
             {
                 _nextHeatEnabled = value;
+                NotifyPropertyChanged();
+            }
+        }
+        public Visibility ButtonVisibility
+        {
+            get => _buttonVisibility;
+            set
+            {
+                _buttonVisibility = value;
+                NotifyPropertyChanged();
+            }
+        }
+        public string RaceCountDownString
+        {
+            get
+            {
+                return _raceCountDownString;
+            }
+            set
+            {
+                _raceCountDownString = value;
                 NotifyPropertyChanged();
             }
         }
@@ -106,7 +130,7 @@ namespace DerbyApp
             gridCurrentHeat.DataContext = Results.RaceFormat.CurrentRacers;
             CurrentHeatLabel.DataContext = this;
             _startTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(5) };
-            _raceTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(12) };
+            _raceTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
             _startTimer.Tick += TimeTickStart;
             _raceTimer.Tick += TimeTickRace;
             LdrBoard.CalculateResults(Results.ResultsTable);
@@ -201,13 +225,23 @@ namespace DerbyApp
         private void ButtonStart_Click(object sender, RoutedEventArgs e)
         {
             _startTimer.Start();
+            ButtonVisibility = Visibility.Collapsed;
+            RaceCountDownString = "On Your Marks!";
             _ = StartHeat();
         }
 
         private void ButtonGetTimes_Click(object sender, RoutedEventArgs e)
         {
             _startTimer.Start();
+            ButtonVisibility = Visibility.Collapsed;
             _ = GetTimes();
+        }
+
+        private void ButtonAddRunoff_Click(object sender, RoutedEventArgs e)
+        {
+            Results.AddRunOffHeat(null);
+            LdrBoard.AddRunOffHeat(Results.RaceFormat.HeatCount);
+            _db.AddRunOffHeat(Results.RaceName, Results.RaceFormat.HeatCount);
         }
 
         private async Task StartHeat()
@@ -217,6 +251,7 @@ namespace DerbyApp
                 using HttpClient client2 = new();
                 string reponse = await client2.GetStringAsync(new Uri("http://192.168.0.1/start"));
                 _startTimer.Stop();
+                _raceCountDownTime = 12;
                 _raceTimer.Start();
             }
             catch (HttpRequestException e)
@@ -299,6 +334,8 @@ namespace DerbyApp
             {
                 MessageBox.Show(e.Message, "Track Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+            RaceCountDownString = "";
+            ButtonVisibility = Visibility.Visible;
         }
 
         private void TimeTickStart(object sender, EventArgs e)
@@ -309,8 +346,24 @@ namespace DerbyApp
 
         private void TimeTickRace(object sender, EventArgs e)
         {
-            _raceTimer.Stop();
-            ButtonGetTimes_Click(sender, null);
+            switch(_raceCountDownTime)
+            {
+                case MaxRaceTime:
+                    RaceCountDownString = "Get set!!";
+                    break;
+                case MaxRaceTime - 1:
+                    RaceCountDownString = "Go!!!";
+                    break;
+                case 0:
+                    RaceCountDownString = "";
+                    _raceTimer.Stop();
+                    ButtonGetTimes_Click(sender, null);
+                    break;
+                default:
+                    RaceCountDownString = _raceCountDownTime.ToString() + " seconds remaining.";
+                    break;
+            }
+            _raceCountDownTime--;
         }
     }
 }

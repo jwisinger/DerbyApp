@@ -18,6 +18,7 @@ namespace DerbyApp.RaceStats
         private string _email = "";
         private int _score = 0;
         private int _raceOrder = 0;
+        private char _lane = ' ';
         private ImageSource _photosource = GetImageSource(new Bitmap(640, 480));
         private Image _photo = new Bitmap(640, 480);
 
@@ -93,6 +94,15 @@ namespace DerbyApp.RaceStats
             {
                 _raceOrder = value;
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(RaceOrder)));
+            }
+        }
+        public char Lane
+        {
+            get => _lane;
+            set
+            {
+                _lane = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Lane)));
             }
         }
 

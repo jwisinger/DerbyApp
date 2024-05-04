@@ -198,15 +198,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:DerbyApp"
-        "ProductCode" = "8:{86C2C3DB-0C3D-4DC9-B00A-991DA1206635}"
-        "PackageCode" = "8:{27A2DE3E-C4BE-4CF7-A150-C0B0EBB4D76D}"
+        "ProductCode" = "8:{51B892DC-0897-4323-93F8-8E6BF1482E6A}"
+        "PackageCode" = "8:{FCFF6FD5-C061-4D55-A18A-C46875421ADE}"
         "UpgradeCode" = "8:{CB435258-E6B3-4868-A452-4D503AE0E293}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:TRUE"
-        "ProductVersion" = "8:1.0.0"
+        "ProductVersion" = "8:1.1.0"
         "Manufacturer" = "8:Derby"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"
@@ -734,7 +734,7 @@
         {
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_5180C0B1336D41C798E286B960671021"
             {
-            "SourcePath" = "8:"
+            "SourcePath" = "8:..\\DerbyApp\\obj\\Debug\\net6.0-windows\\apphost.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_83410229E6314098BE3423BF1E4B1601"
@@ -762,7 +762,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_58E1FE0B5E5745598F8086E7B30D22C5"
             {
-            "SourcePath" = "8:..\\DerbyApp\\obj\\Release\\net481\\DerbyApp.exe"
+            "SourcePath" = "8:..\\DerbyApp\\obj\\Debug\\net6.0-windows\\DerbyApp.dll"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_83410229E6314098BE3423BF1E4B1601"

@@ -11,6 +11,8 @@
 	<CopySQLiteInteropFiles>false</CopySQLiteInteropFiles>
 	<CleanSQLiteInteropFiles>false</CleanSQLiteInteropFiles>
 	<CollectSQLiteInteropFiles>false</CollectSQLiteInteropFiles>
+	<AssemblyVersion>1.1</AssemblyVersion>
+	<FileVersion>1.1</FileVersion>
   </PropertyGroup>
 	
   <ItemGroup>
@@ -25,6 +27,7 @@
     <None Remove="Images\No Camera.png" />
     <None Remove="Images\No Camera2.png" />
     <None Remove="Images\racecar.ico" />
+    <None Remove="Images\Racer.png" />
     <None Remove="Images\Right.png" />
     <None Remove="Images\Right2.png" />
     <None Remove="Images\SelectEvent.png" />
@@ -63,6 +66,7 @@
     <Resource Include="Images\No Camera.png" />
     <Resource Include="Images\No Camera2.png" />
     <Content Include="racecar.ico" />
+    <Resource Include="Images\Racer.png" />
     <Resource Include="Images\Right2.png" />
     <Resource Include="Images\Right.png" />
     <Resource Include="Images\SelectEvent.png" />

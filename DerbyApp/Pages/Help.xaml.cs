@@ -23,7 +23,7 @@ namespace DerbyApp.Pages
             HelpBox.Inlines.Add(new Run("1) ") { FontWeight = FontWeights.Bold, FontSize = 14 });
             HelpBox.Inlines.Add(new Run("Select an event.  There is generally one event per race day.  An event was selected at startup of the software, but ensure it is the correct event (the event title is listed in the bar at the top of the application).\r\n") { FontSize = 14 });
             HelpBox.Inlines.Add(new Run("2) ") { FontWeight = FontWeights.Bold, FontSize = 14 });
-            HelpBox.Inlines.Add(new Run("During registration for your event, Add Racers into the system as the register and check in their cars.  The photo is optional, and can either be of the person or of the car.\r\n") { FontSize = 14 });
+            HelpBox.Inlines.Add(new Run("During registration for your event, Add Racers into the system as they register and check in their cars.  The photo is optional, and can either be of the person or of the car.\r\n") { FontSize = 14 });
             HelpBox.Inlines.Add(new Run("3) ") { FontWeight = FontWeights.Bold, FontSize = 14 });
             HelpBox.Inlines.Add(new Run("You can View Racers in the system and edit or delete as necessary if any mistakes were made when entering them.\r\n") { FontSize = 14 });
             HelpBox.Inlines.Add(new Run("4) ") { FontWeight = FontWeights.Bold, FontSize = 14 });

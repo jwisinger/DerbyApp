@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using MigraDoc.DocumentObjectModel;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 
@@ -34,8 +35,16 @@ namespace DerbyApp.RaceStats
             for (int i = 0; i < Heats[num].Length; i++)
             {
                 Racer racer = racers.FirstOrDefault(r => r.RaceOrder == Heats[num][i]);
-                if (racer != null) CurrentRacers.Add(racer);
-                else CurrentRacers.Add(new Racer());
+                racer ??= new();
+                racer.Lane = i switch
+                {
+                    0 => 'G',
+                    1 => 'I',
+                    2 => 'R',
+                    3 => 'L',
+                    _ => ' ',
+                };
+                CurrentRacers.Add(racer);
             }
         }
 

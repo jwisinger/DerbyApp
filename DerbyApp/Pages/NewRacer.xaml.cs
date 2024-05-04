@@ -1,5 +1,4 @@
-﻿#warning FUN: Any way to improve the look of this page?
-using DerbyApp.RaceStats;
+﻿using DerbyApp.RaceStats;
 using System;
 using System.Drawing;
 using System.Runtime.InteropServices;

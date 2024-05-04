@@ -129,7 +129,7 @@ namespace DerbyApp.RacerDatabase
 
         public void AddRunOffHeat(string raceName, int heatCount)
         {
-            string sql = "ALTER TABLE " + raceName + " ADD [Heat " + heatCount + "] DOUBLE";
+            string sql = "ALTER TABLE [" + raceName + "] ADD [Heat " + heatCount + "] DOUBLE";
             SQLiteCommand command = new(sql, SqliteConn);
             try { command.ExecuteNonQuery(); }
             catch { }
