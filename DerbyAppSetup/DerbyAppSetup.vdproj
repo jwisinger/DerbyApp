@@ -199,7 +199,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:DerbyApp"
         "ProductCode" = "8:{51B892DC-0897-4323-93F8-8E6BF1482E6A}"
-        "PackageCode" = "8:{FCFF6FD5-C061-4D55-A18A-C46875421ADE}"
+        "PackageCode" = "8:{12BE3035-F11A-42EE-A34A-750EB3863796}"
         "UpgradeCode" = "8:{CB435258-E6B3-4868-A452-4D503AE0E293}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
@@ -327,7 +327,7 @@
             "ShowCmd" = "3:1"
             "IconIndex" = "3:0"
             "Transitive" = "11:FALSE"
-            "Target" = "8:_58E1FE0B5E5745598F8086E7B30D22C5"
+            "Target" = "8:_5180C0B1336D41C798E286B960671021"
             "Folder" = "8:_8E597EAC03BE4CCB99499194B7E30A9C"
             "WorkingFolder" = "8:_83410229E6314098BE3423BF1E4B1601"
             "Icon" = "8:_E59258712CA24F3088F5E60178D09C77"
@@ -734,7 +734,7 @@
         {
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_5180C0B1336D41C798E286B960671021"
             {
-            "SourcePath" = "8:..\\DerbyApp\\obj\\Debug\\net6.0-windows\\apphost.exe"
+            "SourcePath" = "8:..\\DerbyApp\\obj\\Release\\net6.0-windows\\apphost.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_83410229E6314098BE3423BF1E4B1601"
@@ -762,7 +762,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_58E1FE0B5E5745598F8086E7B30D22C5"
             {
-            "SourcePath" = "8:..\\DerbyApp\\obj\\Debug\\net6.0-windows\\DerbyApp.dll"
+            "SourcePath" = "8:..\\DerbyApp\\obj\\Release\\net6.0-windows\\DerbyApp.dll"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_83410229E6314098BE3423BF1E4B1601"

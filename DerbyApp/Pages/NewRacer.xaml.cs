@@ -53,15 +53,19 @@ namespace DerbyApp
         private void VideoCapture_NewFrame(object sender, EventArgs e)
         {
             _videoCapture.Retrieve(CurrentFrame);
-            Application.Current.Dispatcher.BeginInvoke(new Action(() =>
+            try
             {
-                Bitmap bMap = CurrentFrame.ToImage<Emgu.CV.Structure.Bgr, byte>().ToBitmap();
-                frameVideo.Source = ImageSourceFromBitmap(bMap);
-                if (_needSnapshot)
+                Application.Current.Dispatcher.BeginInvoke(new Action(() =>
                 {
-                    Dispatcher.Invoke(new Action(() => { UpdateCaptureSnapshotManifast(bMap); }));
-                }
-            }));
+                    Bitmap bMap = CurrentFrame.ToImage<Emgu.CV.Structure.Bgr, byte>().ToBitmap();
+                    frameVideo.Source = ImageSourceFromBitmap(bMap);
+                    if (_needSnapshot)
+                    {
+                        Dispatcher.Invoke(new Action(() => { UpdateCaptureSnapshotManifast(bMap); }));
+                    }
+                }));
+            }
+            catch { }
         }
 
         private void ButtonCamera_Click(object sender, RoutedEventArgs e)

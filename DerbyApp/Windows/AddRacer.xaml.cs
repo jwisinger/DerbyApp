@@ -12,7 +12,7 @@ namespace DerbyApp.Windows
     {
         private readonly int _maxRacers;
         public List<Racer> SelectedRacers = new();
-        public AddRacer(ObservableCollection<Racer> racer, int maxRacers)
+        public AddRacer(IEnumerable<Racer> racer, int maxRacers)
         {
             InitializeComponent();
             lb_Racers.DataContext = racer;

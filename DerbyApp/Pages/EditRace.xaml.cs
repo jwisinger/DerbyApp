@@ -85,7 +85,10 @@ namespace DerbyApp.Pages
                 if (item.IsSelected)
                 {
                     var racers = AllRacers.Where(x => x.Level == item.Level);
-                    foreach (Racer r in racers) AvailableRacers.Add(r);
+                    foreach (Racer r in racers)
+                    {
+                        if (!Racers.Where(x => x.Number == r.Number).Any()) AvailableRacers.Add(r);
+                    }
                 }
             }
         }
@@ -116,15 +119,7 @@ namespace DerbyApp.Pages
 
         private void CheckBox_Click(object sender, RoutedEventArgs e)
         {
-            AvailableRacers.Clear();
-            foreach (var item in GirlScoutLevels.ScoutLevels)
-            {
-                if (item.IsSelected)
-                {
-                    var racers = AllRacers.Where(x => x.Level == item.Level);
-                    foreach (Racer r in racers) AvailableRacers.Add(r);
-                }
-            }
+            UpdateRacerList();
         }
 
         private void ButtonAddRacer_Click(object sender, RoutedEventArgs e)
@@ -142,7 +137,7 @@ namespace DerbyApp.Pages
 
                 try
                 {
-                    AddRacer addRacerWindow = new(AllRacers, RaceFormats.Formats[RaceFormatIndex].RacerCount - Racers.Count);
+                    AddRacer addRacerWindow = new(AvailableRacers, RaceFormats.Formats[RaceFormatIndex].RacerCount - Racers.Count);
                     addRacerWindow.ShowDialog();
 
                     // Check if added racer already in list
@@ -154,6 +149,7 @@ namespace DerbyApp.Pages
                     }
                     foreach (Racer r in Racers) r.RaceOrder = order++;
                     _db.ModifyResultsTable(Racers, cbName.Text, RaceFormats.Formats[RaceFormatIndex].HeatCount, RaceFormatIndex);
+                    UpdateRacerList();
                 }
                 catch { }
                 RaceChanged?.Invoke(this, false);
@@ -174,13 +170,9 @@ namespace DerbyApp.Pages
                     _db.ModifyResultsTable(Racers, cbName.Text, RaceFormats.Formats[RaceFormatIndex].HeatCount, 0);
                 }
                 catch { }
+                UpdateRacerList();
                 RaceChanged?.Invoke(this, false);
             }
-        }
-
-        private void CbLevels_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            cbLevels.Text = "A";
         }
 
         private void ButtonNewRace_Click(object sender, RoutedEventArgs e)
