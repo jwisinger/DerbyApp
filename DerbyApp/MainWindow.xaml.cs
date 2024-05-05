@@ -1,5 +1,5 @@
 ﻿#warning REPORT: Add an actual report page to give options for per racer, per race and maybe overall
-#warning HELP: Improve Help and add an "About" with version
+#warning HELP: Improve Help?
 #warning APPEARANCE: Change "start race" button to just "race"?
 
 using Microsoft.Win32;
