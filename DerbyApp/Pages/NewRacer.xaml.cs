@@ -30,13 +30,21 @@ namespace DerbyApp
             tbEmail.DataContext = Racer;
             cbLevel.DataContext = Racer;
             frameVideo.DataContext = this;
-            new Thread(() =>
-            {
-                _videoCapture = new VideoCapture(0, VideoCapture.API.DShow);
-                CurrentFrame = new Mat();
-                _videoCapture.ImageGrabbed += VideoCapture_NewFrame;
-                _videoCapture.Start();
-            }).Start();
+            GetCamera();
+        }
+
+        public void GetCamera()
+        {
+            _videoCapture = new VideoCapture(0, VideoCapture.API.DShow);
+            CurrentFrame = new Mat();
+            _videoCapture.ImageGrabbed += VideoCapture_NewFrame;
+            _videoCapture.Start();
+        }
+
+        public void ReleaseCamera()
+        {
+            _videoCapture.Stop();
+            _videoCapture.Dispose();
         }
 
         public void UpdateCaptureSnapshotManifast(Bitmap image)

@@ -88,28 +88,53 @@
                     </DataGridTemplateColumn>
                 </DataGrid.Columns>
             </DataGrid>
-            <DataGrid AutoGenerateColumns="False" RowHeight="{Binding Path=Value, ElementName=_zoom}" BorderThickness="5,5,5,5" FontSize="20" Grid.Column="1" Background="Transparent" RowBackground="Transparent" Grid.Row="3" Margin="0,0,0,0" Name="gridLeaderBoard" ItemsSource="{Binding Path=.}">
-                <DataGrid.Resources>
-                    <helpers:BindingProxy x:Key="proxy" Data="{Binding ElementName=raceTrackerWindow}" />
-                </DataGrid.Resources>
-                <DataGrid.ColumnHeaderStyle>
-                    <Style TargetType="{x:Type DataGridColumnHeader}">
-                        <Setter Property="FontWeight" Value="Bold"/>
-                    </Style>
-                </DataGrid.ColumnHeaderStyle>
-                <DataGrid.Columns>
-                    <DataGridTextColumn Header="Number" Width="90" Binding="{Binding Number}"></DataGridTextColumn>
-                    <DataGridTextColumn Header="Name" Width="150" Binding="{Binding RacerName}"></DataGridTextColumn>
-                    <DataGridTextColumn Header="Score" Width="70" Binding="{Binding Score}"></DataGridTextColumn>
-                    <DataGridTemplateColumn Header="Photo" Width="64" IsReadOnly="True" Visibility="{Binding Data.DisplayPhotos, Source={StaticResource proxy}, UpdateSourceTrigger=PropertyChanged}">
-                        <DataGridTemplateColumn.CellTemplate>
-                            <DataTemplate>
-                                <Image RenderOptions.BitmapScalingMode="Fant" Stretch="Uniform" MinWidth="64" MinHeight="48" Source="{Binding PhotoSource}"/>
-                            </DataTemplate>
-                        </DataGridTemplateColumn.CellTemplate>
-                    </DataGridTemplateColumn>
-                </DataGrid.Columns>
-            </DataGrid>
+            <Grid Grid.Column="1" Grid.Row="3" Name="LeaderInstantReplayGrid">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="1*"/>
+                    <RowDefinition Height="0"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1*"/>
+                </Grid.ColumnDefinitions>
+                <DataGrid AutoGenerateColumns="False" RowHeight="{Binding Path=Value, ElementName=_zoom}" BorderThickness="5,5,5,5" FontSize="20" Grid.Column="0" Background="Transparent" RowBackground="Transparent" Grid.Row="0" Margin="0,0,0,0" Name="gridLeaderBoard" ItemsSource="{Binding Path=.}">
+                    <DataGrid.Resources>
+                        <helpers:BindingProxy x:Key="proxy" Data="{Binding ElementName=raceTrackerWindow}" />
+                    </DataGrid.Resources>
+                    <DataGrid.ColumnHeaderStyle>
+                        <Style TargetType="{x:Type DataGridColumnHeader}">
+                            <Setter Property="FontWeight" Value="Bold"/>
+                        </Style>
+                    </DataGrid.ColumnHeaderStyle>
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Number" Width="90" Binding="{Binding Number}"></DataGridTextColumn>
+                        <DataGridTextColumn Header="Name" Width="150" Binding="{Binding RacerName}"></DataGridTextColumn>
+                        <DataGridTextColumn Header="Score" Width="70" Binding="{Binding Score}"></DataGridTextColumn>
+                        <DataGridTemplateColumn Header="Photo" Width="64" IsReadOnly="True" Visibility="{Binding Data.DisplayPhotos, Source={StaticResource proxy}, UpdateSourceTrigger=PropertyChanged}">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Image RenderOptions.BitmapScalingMode="Fant" Stretch="Uniform" MinWidth="64" MinHeight="48" Source="{Binding PhotoSource}"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+                <Grid Grid.Row="1" Name="InstantReplayForm">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="1*"/>
+                        <RowDefinition Height="40"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1*"/>
+                    </Grid.ColumnDefinitions>
+                    <Label Grid.Row="1" FontSize="12" BorderThickness="2" Margin="150,5,150,5"  BorderBrush="Black" HorizontalContentAlignment="Center" HorizontalAlignment="Stretch" Background="LightGray" Content="              Recording...              "/>
+                    <Button Name="CancelReplayButtonShadow" Grid.Row="1" Margin="100,5,100,5">
+                        <Button.Effect>
+                            <DropShadowEffect/>
+                        </Button.Effect>
+                    </Button>
+                    <Button Name="CancelReplayButton" Grid.Row="1" Content="Cancel Replay" FontSize="16" Margin="100,5,100,5" Click="ButtonCancelReplay_Click"/>
+                </Grid>
+            </Grid>
             <Button Grid.Column="1" Grid.Row="4" Content="" Visibility="{Binding ElementName=raceTrackerWindow, Path=ButtonVisibility, Mode=TwoWay}" HorizontalAlignment="Right" Margin="0,0,170,0" VerticalAlignment="Center" Height="35" Width="150" FontSize="18">
                 <Button.Effect>
                     <DropShadowEffect/>

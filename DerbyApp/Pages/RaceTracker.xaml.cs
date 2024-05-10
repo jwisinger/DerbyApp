@@ -1,11 +1,13 @@
 ﻿#warning FUN: When clicking "start heat", should the PC do the countdown (and remote control the lights) ... this would mean bypassing the embedded countdown?
 
+using DerbyApp.Helpers;
 using DerbyApp.RacerDatabase;
 using DerbyApp.RaceStats;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.IO;
 using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
@@ -13,6 +15,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Data;
+using System.Windows.Forms;
 using System.Windows.Media;
 using System.Windows.Threading;
 
@@ -31,6 +34,8 @@ namespace DerbyApp
         private string _raceCountDownString = "";
         private int _raceCountDownTime = 0;
         private const int MaxRaceTime = 12;
+        private readonly Replay _replay;
+        private readonly string _databaseName;
 
         public RaceResults Results { get; set; }
         public Leaderboard LdrBoard { get; set; }
@@ -99,11 +104,27 @@ namespace DerbyApp
         public event PropertyChangedEventHandler PropertyChanged;
         public event EventHandler HeatChanged;
 
+        private void ShowReplay(bool state)
+        {
+            if (state)
+            {
+                LeaderInstantReplayGrid.RowDefinitions.Clear();
+                LeaderInstantReplayGrid.RowDefinitions.Add(new RowDefinition() { Height = (GridLength)(new GridLengthConverter()).ConvertFrom("0") });
+                LeaderInstantReplayGrid.RowDefinitions.Add(new RowDefinition() { Height = (GridLength)(new GridLengthConverter()).ConvertFrom("*") });
+            }
+            else
+            {
+                LeaderInstantReplayGrid.RowDefinitions.Clear();
+                LeaderInstantReplayGrid.RowDefinitions.Add(new RowDefinition() { Height = (GridLength)(new GridLengthConverter()).ConvertFrom("*") });
+                LeaderInstantReplayGrid.RowDefinitions.Add(new RowDefinition() { Height = (GridLength)(new GridLengthConverter()).ConvertFrom("0") });
+            }
+        }
+
         private void Datagrid_AutoGeneratingColumn(object sender, DataGridAutoGeneratingColumnEventArgs e)
         {
             if (e.Column is DataGridTextColumn col && e.PropertyType == typeof(double))
             {
-                col.Binding = new Binding(e.PropertyName) { StringFormat = "N3" };
+                col.Binding = new System.Windows.Data.Binding(e.PropertyName) { StringFormat = "N3" };
             }
         }
 
@@ -114,10 +135,10 @@ namespace DerbyApp
 
         private void ResultsColumnAdded(object sender, PropertyChangedEventArgs e)
         {
-            gridRaceResults.Columns.Add(new DataGridTextColumn() { Header = e.PropertyName, Binding=new Binding(e.PropertyName) { StringFormat = "N3" } });
+            gridRaceResults.Columns.Add(new DataGridTextColumn() { Header = e.PropertyName, Binding=new System.Windows.Data.Binding(e.PropertyName) { StringFormat = "N3" } });
         }
 
-        public RaceTracker(RaceResults results, Database db)
+        public RaceTracker(RaceResults results, Database db, string databaseName)
         {
             InitializeComponent();
             Results = results;
@@ -135,6 +156,20 @@ namespace DerbyApp
             _raceTimer.Tick += TimeTickRace;
             LdrBoard.CalculateResults(Results.ResultsTable);
             Results.ColumnAdded += ResultsColumnAdded;
+            _databaseName = databaseName;
+
+            System.Windows.Forms.Integration.WindowsFormsHost host = new();
+            Emgu.CV.UI.ImageBox ib = new();
+            host.Child = ib;
+            InstantReplayForm.Children.Add(host);
+            _replay = new Replay(ib);
+            _replay.ReplayEnded += ReplayEnded;
+        }
+
+        public void ReplayEnded(object sender, EventArgs e)
+        {
+            ButtonVisibility = Visibility.Visible;
+            System.Windows.Application.Current.Dispatcher.Invoke(()=>ShowReplay(false));
         }
 
         private void ButtonNextHeat_Click(object sender, RoutedEventArgs e)
@@ -151,16 +186,16 @@ namespace DerbyApp
             {
                 BasedOn = TryFindResource("baseStyle") as Style
             };
-            style.Setters.Add(new Setter(Control.FontWeightProperty, FontWeights.Bold));
-            style.Setters.Add(new Setter(Control.BackgroundProperty, new SolidColorBrush(Colors.LightGreen)));
+            style.Setters.Add(new Setter(System.Windows.Controls.Control.FontWeightProperty, FontWeights.Bold));
+            style.Setters.Add(new Setter(System.Windows.Controls.Control.BackgroundProperty, new SolidColorBrush(Colors.LightGreen)));
             gridRaceResults.Columns[Results.CurrentHeatNumber + 1].HeaderStyle = style;
 
             Style style2 = new(typeof(DataGridColumnHeader))
             {
                 BasedOn = TryFindResource("baseStyle") as Style
             };
-            style2.Setters.Add(new Setter(Control.FontWeightProperty, FontWeights.Bold));
-            style2.Setters.Add(new Setter(Control.BackgroundProperty, new SolidColorBrush(Colors.Transparent)));
+            style2.Setters.Add(new Setter(System.Windows.Controls.Control.FontWeightProperty, FontWeights.Bold));
+            style2.Setters.Add(new Setter(System.Windows.Controls.Control.BackgroundProperty, new SolidColorBrush(Colors.Transparent)));
             gridRaceResults.Columns[Results.CurrentHeatNumber].HeaderStyle = style2;
             HeatChanged?.Invoke(this, null);
         }
@@ -179,22 +214,22 @@ namespace DerbyApp
             {
                 BasedOn = TryFindResource("baseStyle") as Style
             };
-            style.Setters.Add(new Setter(Control.FontWeightProperty, FontWeights.Bold));
-            style.Setters.Add(new Setter(Control.BackgroundProperty, new SolidColorBrush(Colors.LightGreen)));
+            style.Setters.Add(new Setter(System.Windows.Controls.Control.FontWeightProperty, FontWeights.Bold));
+            style.Setters.Add(new Setter(System.Windows.Controls.Control.BackgroundProperty, new SolidColorBrush(Colors.LightGreen)));
             gridRaceResults.Columns[Results.CurrentHeatNumber + 1].HeaderStyle = style;
             Style style2 = new(typeof(DataGridColumnHeader))
             {
                 BasedOn = TryFindResource("baseStyle") as Style
             };
-            style2.Setters.Add(new Setter(Control.FontWeightProperty, FontWeights.Bold));
-            style2.Setters.Add(new Setter(Control.BackgroundProperty, new SolidColorBrush(Colors.Transparent)));
+            style2.Setters.Add(new Setter(System.Windows.Controls.Control.FontWeightProperty, FontWeights.Bold));
+            style2.Setters.Add(new Setter(System.Windows.Controls.Control.BackgroundProperty, new SolidColorBrush(Colors.Transparent)));
             gridRaceResults.Columns[Results.CurrentHeatNumber + 2].HeaderStyle = style2;
             HeatChanged?.Invoke(this, null);
         }
 
         private void GridRaceResults_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
         {
-            Results.UpdateResults((e.EditingElement as TextBox).Text, e.Column.DisplayIndex, e.Row.GetIndex());
+            Results.UpdateResults((e.EditingElement as System.Windows.Controls.TextBox).Text, e.Column.DisplayIndex, e.Row.GetIndex());
             LdrBoard.CalculateResults(Results.ResultsTable);
             _db.UpdateResultsTable(Results.RaceName, Results.ResultsTable.Rows[e.Row.GetIndex()]);
         }
@@ -212,8 +247,8 @@ namespace DerbyApp
             {
                 BasedOn = TryFindResource("baseStyle") as Style
             };
-            style.Setters.Add(new Setter(Control.FontWeightProperty, FontWeights.Bold));
-            style.Setters.Add(new Setter(Control.BackgroundProperty, new SolidColorBrush(Colors.LightGreen)));
+            style.Setters.Add(new Setter(System.Windows.Controls.Control.FontWeightProperty, FontWeights.Bold));
+            style.Setters.Add(new Setter(System.Windows.Controls.Control.BackgroundProperty, new SolidColorBrush(Colors.LightGreen)));
             gridRaceResults.Columns[Results.CurrentHeatNumber + 1].HeaderStyle = style;
         }
 
@@ -226,6 +261,8 @@ namespace DerbyApp
         {
             _startTimer.Start();
             ButtonVisibility = Visibility.Collapsed;
+            CancelReplayButton.Visibility = Visibility.Collapsed;
+            CancelReplayButtonShadow.Visibility = Visibility.Collapsed;
             RaceCountDownString = "On Your Marks!";
             _ = StartHeat();
         }
@@ -244,6 +281,11 @@ namespace DerbyApp
             _db.AddRunOffHeat(Results.RaceName, Results.RaceFormat.HeatCount);
         }
 
+        private void ButtonCancelReplay_Click(object sender, RoutedEventArgs e)
+        {
+            _replay.Cancel();
+        }
+
         private async Task StartHeat()
         {
             try
@@ -253,10 +295,11 @@ namespace DerbyApp
                 _startTimer.Stop();
                 _raceCountDownTime = 12;
                 _raceTimer.Start();
+                ShowReplay(true);
             }
             catch (HttpRequestException e)
             {
-                MessageBox.Show(e.Message, "Track Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                System.Windows.MessageBox.Show(e.Message, "Track Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -276,19 +319,19 @@ namespace DerbyApp
                     }
                     catch
                     {
-                        MessageBox.Show("Received a bad response from track.", "Track Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        System.Windows.MessageBox.Show("Received a bad response from track.", "Track Error", MessageBoxButton.OK, MessageBoxImage.Error);
                         return;
                     }
                     if (times.Length < 4)
                     {
-                        MessageBox.Show("Received a bad response from track.", "Track Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        System.Windows.MessageBox.Show("Received a bad response from track.", "Track Error", MessageBoxButton.OK, MessageBoxImage.Error);
                         return;
                     }
                     for (int i = 0; i < 4; i++)
                     {
                         if (!float.TryParse(times[i], out float result))
                         {
-                            MessageBox.Show("Received a bad response from track.", "Track Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                            System.Windows.MessageBox.Show("Received a bad response from track.", "Track Error", MessageBoxButton.OK, MessageBoxImage.Error);
                             return;
                         }
                         try
@@ -300,6 +343,9 @@ namespace DerbyApp
                                 dr["Heat " + Results.CurrentHeatNumber] = result;
                                 LdrBoard.CalculateResults(Results.ResultsTable);
                                 _db.UpdateResultsTable(Results.RaceName, dr);
+                                CancelReplayButton.Visibility = Visibility.Visible;
+                                CancelReplayButtonShadow.Visibility = Visibility.Visible;
+                                _replay.ShowReplay();
                             }
                         }
                         catch { }
@@ -332,16 +378,15 @@ namespace DerbyApp
             }
             catch (HttpRequestException e)
             {
-                MessageBox.Show(e.Message, "Track Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                System.Windows.MessageBox.Show(e.Message, "Track Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
             RaceCountDownString = "";
-            ButtonVisibility = Visibility.Visible;
         }
 
         private void TimeTickStart(object sender, EventArgs e)
         {
             _startTimer.Stop();
-            MessageBox.Show("Unable to communicate with track.", "Track Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            System.Windows.MessageBox.Show("Unable to communicate with track.", "Track Error", MessageBoxButton.OK, MessageBoxImage.Error);
         }
 
         private void TimeTickRace(object sender, EventArgs e)
@@ -353,6 +398,7 @@ namespace DerbyApp
                     break;
                 case MaxRaceTime - 1:
                     RaceCountDownString = "Go!!!";
+                    _replay.StartRecording(Path.Combine(Path.GetDirectoryName(_databaseName), Path.GetFileNameWithoutExtension(_databaseName), "videos"), Results.RaceName, Results.CurrentHeatNumber);
                     break;
                 case 0:
                     RaceCountDownString = "";

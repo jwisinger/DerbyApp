@@ -2,7 +2,6 @@
 #warning HELP: Improve Help?
 #warning APPEARANCE: Change "start race" button to just "race"?
 
-using Microsoft.Win32;
 using System.IO;
 using System.Windows;
 using DerbyApp.RacerDatabase;
@@ -15,13 +14,14 @@ using System.Collections.Generic;
 using DerbyApp.Pages;
 using System.Collections.ObjectModel;
 using DerbyApp.Helpers;
+using System.Windows.Forms;
 
 namespace DerbyApp
 {
     public partial class MainWindow : Window, INotifyPropertyChanged
     {
         private Database _db;
-        private readonly string _databaseName = "";
+        private string _databaseName = "";
         private EditRace _editRace;
         private RacerTableView _racerTableView;
         private RaceTracker _raceTracker;
@@ -102,7 +102,7 @@ namespace DerbyApp
             e.Continue = false;
             if (_raceTracker.Results.InProgress)
             {
-                if (MessageBoxResult.OK == MessageBox.Show(
+                if (MessageBoxResult.OK == System.Windows.MessageBox.Show(
                     "Adding or removing a racer will reset the race in progress and erase all results.",
                     "Race Results Will Be Erased", MessageBoxButton.OKCancel, MessageBoxImage.Warning))
                 {
@@ -122,7 +122,7 @@ namespace DerbyApp
             while (results.RaceFormat.HeatCount < heatCount) results.AddRunOffHeat(null);
             _db.LoadResultsTable(results);
 
-            _raceTracker = new RaceTracker(results, _db)
+            _raceTracker = new RaceTracker(results, _db, _databaseName)
             {
                 DisplayPhotos = DisplayPhotosChecked ? Visibility.Visible : Visibility.Collapsed
             };
@@ -149,7 +149,7 @@ namespace DerbyApp
 
         private void ButtonChangeDatabase_Click(object sender, RoutedEventArgs e)
         {
-            OpenFileDialog dialog = new()
+            Microsoft.Win32.OpenFileDialog dialog = new()
             {
                 CheckFileExists = false,
                 DefaultExt = "sqlite",
@@ -159,10 +159,10 @@ namespace DerbyApp
             };
             if ((bool)dialog.ShowDialog())
             {
-                string databaseName = dialog.FileName;
-                this.Title = "Current Event = " + Path.GetFileNameWithoutExtension(databaseName);
-                _db = new Database(databaseName);
-                Database.StoreDatabaseRegistry(databaseName, _editRace.CurrentRaceName);
+                _databaseName = dialog.FileName;
+                this.Title = "Current Event = " + Path.GetFileNameWithoutExtension(_databaseName);
+                _db = new Database(_databaseName);
+                Database.StoreDatabaseRegistry(_databaseName, _editRace.CurrentRaceName);
                 _editRace = new EditRace(_db);
                 _racerTableView = new RacerTableView(_db);
                 _racerTableView.RacerRemoved += RacerTableView_RacerRemoved;
@@ -195,7 +195,7 @@ namespace DerbyApp
             else
             {
                 mainFrame.Navigate(new Default());
-                MessageBox.Show("Your currently selected race " + _editRace.CurrentRaceName + " has no racers in it.");
+                System.Windows.MessageBox.Show("Your currently selected race " + _editRace.CurrentRaceName + " has no racers in it.");
             }
             Database.StoreDatabaseRegistry(_databaseName, _editRace.CurrentRaceName);
         }
@@ -263,12 +263,12 @@ namespace DerbyApp
 
         private void HelpItem_Click(object sender, RoutedEventArgs e)
         {
-            mainFrame.Navigate(new Help());
+            mainFrame.Navigate(new Pages.Help());
         }
 
         private void AboutItem_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("",
+            System.Windows.MessageBox.Show("",
                 "Version: " + System.Reflection.Assembly.GetEntryAssembly().GetName().Version.ToString(),
                 MessageBoxButton.OK, MessageBoxImage.None);
         }

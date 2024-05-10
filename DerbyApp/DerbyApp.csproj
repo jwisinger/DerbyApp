@@ -13,8 +13,9 @@
 	<CollectSQLiteInteropFiles>false</CollectSQLiteInteropFiles>
 	<AssemblyVersion>1.1</AssemblyVersion>
 	<FileVersion>1.1</FileVersion>
+	<NeutralLanguage>en</NeutralLanguage>
   </PropertyGroup>
-	
+
   <ItemGroup>
     <None Remove=".jpg" />
     <None Remove="Girl-Scout-Logo.png" />
@@ -28,6 +29,7 @@
     <None Remove="Images\No Camera2.png" />
     <None Remove="Images\racecar.ico" />
     <None Remove="Images\Racer.png" />
+    <None Remove="Images\Record.png" />
     <None Remove="Images\Right.png" />
     <None Remove="Images\Right2.png" />
     <None Remove="Images\SelectEvent.png" />
@@ -48,6 +50,7 @@
     <PackageReference Include="Emgu.CV" Version="4.9.0.5494" />
     <PackageReference Include="Emgu.CV.Bitmap" Version="4.9.0.5494" />
     <PackageReference Include="Emgu.CV.runtime.windows" Version="4.9.0.5494" />
+    <PackageReference Include="Emgu.CV.UI" Version="4.9.0.5494" />
     <PackageReference Include="PDFsharp-MigraDoc-GDI" Version="6.0.0" />
     <PackageReference Include="System.Data.SQLite" Version="1.0.118" />
     <PackageReference Include="System.Data.SQLite.Core" Version="1.0.118" />
@@ -67,6 +70,7 @@
     <Resource Include="Images\No Camera2.png" />
     <Content Include="racecar.ico" />
     <Resource Include="Images\Racer.png" />
+    <Resource Include="Images\Record.png" />
     <Resource Include="Images\Right2.png" />
     <Resource Include="Images\Right.png" />
     <Resource Include="Images\SelectEvent.png" />
@@ -80,6 +84,21 @@
     <Resource Include="Images\ViewRacers2.png" />
     <Resource Include="Images\ViewReport.png" />
     <Resource Include="Images\ViewReport2.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Properties\Resources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
   </ItemGroup>
 
 </Project>
