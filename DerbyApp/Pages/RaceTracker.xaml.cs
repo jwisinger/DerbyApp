@@ -15,7 +15,6 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Data;
-using System.Windows.Forms;
 using System.Windows.Media;
 using System.Windows.Threading;
 
@@ -158,18 +157,14 @@ namespace DerbyApp
             Results.ColumnAdded += ResultsColumnAdded;
             _databaseName = databaseName;
 
-            System.Windows.Forms.Integration.WindowsFormsHost host = new();
-            Emgu.CV.UI.ImageBox ib = new();
-            host.Child = ib;
-            InstantReplayForm.Children.Add(host);
-            _replay = new Replay(ib);
+            _replay = new Replay(frameVideo);
             _replay.ReplayEnded += ReplayEnded;
         }
 
         public void ReplayEnded(object sender, EventArgs e)
         {
             ButtonVisibility = Visibility.Visible;
-            System.Windows.Application.Current.Dispatcher.Invoke(()=>ShowReplay(false));
+            Application.Current.Dispatcher.Invoke(()=>ShowReplay(false));
         }
 
         private void ButtonNextHeat_Click(object sender, RoutedEventArgs e)
@@ -299,7 +294,7 @@ namespace DerbyApp
             }
             catch (HttpRequestException e)
             {
-                System.Windows.MessageBox.Show(e.Message, "Track Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(e.Message, "Track Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -319,19 +314,19 @@ namespace DerbyApp
                     }
                     catch
                     {
-                        System.Windows.MessageBox.Show("Received a bad response from track.", "Track Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        MessageBox.Show("Received a bad response from track.", "Track Error", MessageBoxButton.OK, MessageBoxImage.Error);
                         return;
                     }
                     if (times.Length < 4)
                     {
-                        System.Windows.MessageBox.Show("Received a bad response from track.", "Track Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        MessageBox.Show("Received a bad response from track.", "Track Error", MessageBoxButton.OK, MessageBoxImage.Error);
                         return;
                     }
                     for (int i = 0; i < 4; i++)
                     {
                         if (!float.TryParse(times[i], out float result))
                         {
-                            System.Windows.MessageBox.Show("Received a bad response from track.", "Track Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                            MessageBox.Show("Received a bad response from track.", "Track Error", MessageBoxButton.OK, MessageBoxImage.Error);
                             return;
                         }
                         try
@@ -378,7 +373,7 @@ namespace DerbyApp
             }
             catch (HttpRequestException e)
             {
-                System.Windows.MessageBox.Show(e.Message, "Track Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(e.Message, "Track Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
             RaceCountDownString = "";
         }
@@ -386,7 +381,7 @@ namespace DerbyApp
         private void TimeTickStart(object sender, EventArgs e)
         {
             _startTimer.Stop();
-            System.Windows.MessageBox.Show("Unable to communicate with track.", "Track Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            MessageBox.Show("Unable to communicate with track.", "Track Error", MessageBoxButton.OK, MessageBoxImage.Error);
         }
 
         private void TimeTickRace(object sender, EventArgs e)

@@ -1,7 +1,12 @@
 ﻿using Emgu.CV;
 using System;
+using System.Drawing;
 using System.IO;
 using System.Threading;
+using System.Windows;
+using System.Windows.Interop;
+using System.Windows.Media.Imaging;
+using System.Windows.Media;
 
 namespace DerbyApp.Helpers
 {
@@ -16,15 +21,16 @@ namespace DerbyApp.Helpers
 
         private VideoCapture _videoCapture;
         private readonly Mat _currentFrame;
-        private readonly Emgu.CV.UI.ImageBox _imageBox;
+        private readonly System.Windows.Controls.Image _imageBox;
         private VideoWriter _videoWriter;
         private VideoMethod _currentState = VideoMethod.None;
         public event EventHandler ReplayEnded;
         private double _frameRate = 0;
         private int _totalFrames = 0;
         private string _lastWrittenFile;
+        private const double FRAME_RATE = 15.0;
 
-        public Replay(Emgu.CV.UI.ImageBox i)
+        public Replay(System.Windows.Controls.Image i)
         {
             _imageBox = i;
             _currentFrame = new Mat();
@@ -43,7 +49,7 @@ namespace DerbyApp.Helpers
         {
             _videoCapture = new VideoCapture(0, VideoCapture.API.DShow);
             _videoCapture.ImageGrabbed += VideoCapture_NewFrame;
-            _videoCapture.Set(Emgu.CV.CvEnum.CapProp.Fps, 60);
+            _videoCapture.Set(Emgu.CV.CvEnum.CapProp.Fps, FRAME_RATE);
             _currentState = VideoMethod.None;
             _videoCapture.Start();
         }
@@ -67,11 +73,11 @@ namespace DerbyApp.Helpers
         {
             try
             {
-                _currentState = VideoMethod.Recording;
                 _lastWrittenFile = Path.Combine(path, raceName + "_" + heatNumber + ".mp4");
                 if (!Directory.Exists(path)) Directory.CreateDirectory(path);
-                _videoWriter = new VideoWriter(_lastWrittenFile, -1, 15,
+                _videoWriter = new VideoWriter(_lastWrittenFile, -1, FRAME_RATE,
                     new System.Drawing.Size(_videoCapture.Width, _videoCapture.Height), true);
+                _currentState = VideoMethod.Recording;
             }
             catch { }
         }
@@ -115,7 +121,16 @@ namespace DerbyApp.Helpers
         {
             try
             {
-                if (_videoCapture.Retrieve(_currentFrame)) _imageBox.Image = _currentFrame;
+                _videoCapture.Retrieve(_currentFrame);
+                try
+                {
+                    Application.Current.Dispatcher.BeginInvoke(new Action(() =>
+                    {
+                        Bitmap bMap = _currentFrame.ToImage<Emgu.CV.Structure.Bgr, byte>().ToBitmap();
+                        _imageBox.Source = NewRacer.ImageSourceFromBitmap(bMap);
+                    }));
+                }
+                catch { }
                 ProcessFrame();
             }
             catch { }

@@ -118,22 +118,25 @@
                         </DataGridTemplateColumn>
                     </DataGrid.Columns>
                 </DataGrid>
-                <Grid Grid.Row="1" Name="InstantReplayForm">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="1*"/>
-                        <RowDefinition Height="40"/>
-                    </Grid.RowDefinitions>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="1*"/>
-                    </Grid.ColumnDefinitions>
-                    <Label Grid.Row="1" FontSize="12" BorderThickness="2" Margin="150,5,150,5"  BorderBrush="Black" HorizontalContentAlignment="Center" HorizontalAlignment="Stretch" Background="LightGray" Content="              Recording...              "/>
-                    <Button Name="CancelReplayButtonShadow" Grid.Row="1" Margin="100,5,100,5">
-                        <Button.Effect>
-                            <DropShadowEffect/>
-                        </Button.Effect>
-                    </Button>
-                    <Button Name="CancelReplayButton" Grid.Row="1" Content="Cancel Replay" FontSize="16" Margin="100,5,100,5" Click="ButtonCancelReplay_Click"/>
-                </Grid>
+                <Border Grid.Row="1" BorderThickness="5" BorderBrush="#FF688CAF">
+                    <Grid Grid.Row="1" Background="LightSlateGray">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="1*"/>
+                            <RowDefinition Height="40"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1*"/>
+                        </Grid.ColumnDefinitions>
+                        <Image Grid.Row="0" Name="frameVideo" RenderOptions.BitmapScalingMode="Fant" Stretch="Uniform"/>
+                        <Label Grid.Row="1" FontSize="12" BorderThickness="2" Margin="150,5,150,5"  BorderBrush="Black" HorizontalContentAlignment="Center" HorizontalAlignment="Stretch" Background="LightGray" Content="              Recording...              "/>
+                        <Button Name="CancelReplayButtonShadow" Grid.Row="1" Margin="100,5,100,5">
+                            <Button.Effect>
+                                <DropShadowEffect/>
+                            </Button.Effect>
+                        </Button>
+                        <Button Name="CancelReplayButton" Grid.Row="1" Content="Cancel Replay" FontSize="16" Margin="100,5,100,5" Click="ButtonCancelReplay_Click"/>
+                    </Grid>
+                </Border>
             </Grid>
             <Button Grid.Column="1" Grid.Row="4" Content="" Visibility="{Binding ElementName=raceTrackerWindow, Path=ButtonVisibility, Mode=TwoWay}" HorizontalAlignment="Right" Margin="0,0,170,0" VerticalAlignment="Center" Height="35" Width="150" FontSize="18">
                 <Button.Effect>
