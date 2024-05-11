@@ -63,9 +63,9 @@ namespace DerbyApp.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap Pause {
+        internal static System.Drawing.Bitmap first {
             get {
-                object obj = ResourceManager.GetObject("Pause", resourceCulture);
+                object obj = ResourceManager.GetObject("first", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -73,9 +73,9 @@ namespace DerbyApp.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap Play {
+        internal static System.Drawing.Bitmap GIRL3 {
             get {
-                object obj = ResourceManager.GetObject("Play", resourceCulture);
+                object obj = ResourceManager.GetObject("GIRL3", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -83,9 +83,9 @@ namespace DerbyApp.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap Record {
+        internal static System.Drawing.Bitmap second {
             get {
-                object obj = ResourceManager.GetObject("Record", resourceCulture);
+                object obj = ResourceManager.GetObject("second", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -93,9 +93,9 @@ namespace DerbyApp.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap Stop {
+        internal static System.Drawing.Bitmap third {
             get {
-                object obj = ResourceManager.GetObject("Stop", resourceCulture);
+                object obj = ResourceManager.GetObject("third", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
