@@ -1,6 +1,14 @@
-﻿#warning REPORT: Add an actual report page to give options for per racer, per race and maybe overall
+﻿#warning TODO: Make pictures clickable to zoom
+#warning TODO: when race name has illegal characters, it can't generate video filenames
+#warning TODO: add time based scoring
+#warning TODO: add ability to select where videos and reports are stored (Google Drive)
+#warning REPORT: Add an actual report page to give options for per racer, per race and maybe overall
 #warning HELP: Improve Help?
 #warning APPEARANCE: Change "start race" button to just "race"?
+#warning EMBEDDED: Add IMU "level" feature
+#warning FUN: Computer could play starting sounds and maybe something else
+#warning FUN: Computer could announce racers via speech synthesis, maybe add an avatar
+#warning FUN: Could I somehow generate winners certificates along with "appearance" winners?
 
 using System.IO;
 using System.Windows;
@@ -14,7 +22,6 @@ using System.Collections.Generic;
 using DerbyApp.Pages;
 using System.Collections.ObjectModel;
 using DerbyApp.Helpers;
-using System.Windows.Forms;
 
 namespace DerbyApp
 {
