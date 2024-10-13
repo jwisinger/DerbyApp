@@ -74,6 +74,7 @@ namespace DerbyApp.Helpers
             try
             {
                 _lastWrittenFile = Path.Combine(path, raceName + "_" + heatNumber + ".mp4");
+                _ = string.Join("_", _lastWrittenFile.Split(Path.GetInvalidFileNameChars()));
                 if (!Directory.Exists(path)) Directory.CreateDirectory(path);
                 _videoWriter = new VideoWriter(_lastWrittenFile, -1, FRAME_RATE,
                     new System.Drawing.Size(_videoCapture.Width, _videoCapture.Height), true);

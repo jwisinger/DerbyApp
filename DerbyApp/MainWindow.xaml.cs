@@ -1,5 +1,5 @@
 ﻿#warning TODO: Make pictures clickable to zoom
-#warning TODO: when race name has illegal characters, it can't generate video filenames
+#warning TODO: when race name has illegal characters, it can't generate video filenames (I think I fixed this, but need to test)
 #warning TODO: add time based scoring
 #warning TODO: add ability to select where videos and reports are stored (Google Drive)
 #warning REPORT: Add an actual report page to give options for per racer, per race and maybe overall
