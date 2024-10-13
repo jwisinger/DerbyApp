@@ -2,6 +2,7 @@
 #warning TODO: when race name has illegal characters, it can't generate video filenames (I think I fixed this, but need to test)
 #warning TODO: add time based scoring
 #warning TODO: add ability to select where videos and reports are stored (Google Drive)
+#warning TODO: make race run without track for testing
 #warning REPORT: Add an actual report page to give options for per racer, per race and maybe overall
 #warning HELP: Improve Help?
 #warning APPEARANCE: Change "start race" button to just "race"?
