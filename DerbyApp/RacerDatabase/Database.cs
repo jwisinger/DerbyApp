@@ -159,7 +159,7 @@ namespace DerbyApp.RacerDatabase
             SQLiteCommand cmd = new("SELECT * FROM [" + _racerTableName + "]", SqliteConn);
             SQLiteDataAdapter sda = new(cmd);
             DataSet ds = new();
-            if (Racers == null) Racers = new ObservableCollection<Racer>();
+            if (Racers == null) Racers = [];
             else Racers.Clear();
             sda.Fill(ds);
             if (ds.Tables[0].Rows.Count > 0)
@@ -185,7 +185,7 @@ namespace DerbyApp.RacerDatabase
 
         public (ObservableCollection<Racer>, int) GetRacers(string raceName, ObservableCollection<Racer> Racers = null)
         {
-            if (Racers == null) Racers = new ObservableCollection<Racer>();
+            if (Racers == null) Racers = [];
             else Racers.Clear();
             int raceFormatIndex = -1;
             if (raceName != "")
@@ -249,7 +249,7 @@ namespace DerbyApp.RacerDatabase
 
         public ObservableCollection<string> GetListOfRaces()
         {
-            ObservableCollection<string> retVal = new();
+            ObservableCollection<string> retVal = [];
             string sql = "SELECT name FROM sqlite_schema WHERE type ='table' AND name NOT LIKE 'sqlite_%';";
             SQLiteCommand command = new(sql, SqliteConn);
             SQLiteDataReader r = command.ExecuteReader();
@@ -293,26 +293,29 @@ namespace DerbyApp.RacerDatabase
             command.ExecuteNonQuery();
         }
 
-        public static void StoreDatabaseRegistry(string database, string activeRace)
+        public static void StoreDatabaseRegistry(string database, string activeRace, string outputFolderName)
         {
             RegistryKey key = Registry.CurrentUser.CreateSubKey(@"SOFTWARE\DerbyApp");
             if (database != null)
             {
                 key.SetValue("database", database);
                 if (activeRace != null) key.SetValue("activeRace", activeRace);
+                key.SetValue("outputFolderName", outputFolderName);
             }
             key.Close();
         }
 
-        public static bool GetDatabaseRegistry(out string database, out string activeRace)
+        public static bool GetDatabaseRegistry(out string database, out string activeRace, out string outputFolderName)
         {
             database = "";
             activeRace = "";
+            outputFolderName = "";
             RegistryKey key = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\DerbyApp");
             if (key != null)
             {
                 if (key.GetValue("database") is string s1) database = s1;
                 if (key.GetValue("activeRace") is string s2) activeRace = s2;
+                if (key.GetValue("outputFolderName") is string s3) outputFolderName = s3;
                 return true;
             }
             return false;

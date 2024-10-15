@@ -18,9 +18,9 @@ namespace DerbyApp.Pages
         private readonly Database _db;
         private int _raceFormatIndex = 0;
         public ObservableCollection<string> Races;
-        public ObservableCollection<Racer> Racers = new();
-        public ObservableCollection<Racer> AllRacers = new();
-        public ObservableCollection<Racer> AvailableRacers = new();
+        public ObservableCollection<Racer> Racers = [];
+        public ObservableCollection<Racer> AllRacers = [];
+        public ObservableCollection<Racer> AvailableRacers = [];
         private Visibility _displayPhotos = Visibility.Visible;
         public event PropertyChangedEventHandler PropertyChanged;
         public event EventHandler<bool> RaceChanged;
@@ -111,7 +111,7 @@ namespace DerbyApp.Pages
 
         private void CbName_KeyUp(object sender, System.Windows.Input.KeyEventArgs e)
         {
-            var regex = new Regex(@"[^a-zA-Z0-9\s]");
+            var regex = AlphaNumericRegex();
             cbName.Text = regex.Replace(cbName.Text, "");
             if (cbName.Text.Length > 0) buttonDeleteRace.IsEnabled = true;
             else buttonDeleteRace.IsEnabled = false;
@@ -208,5 +208,8 @@ namespace DerbyApp.Pages
                 }
             }
         }
+
+        [GeneratedRegex(@"[^a-zA-Z0-9\s]")]
+        private static partial Regex AlphaNumericRegex();
     }
 }

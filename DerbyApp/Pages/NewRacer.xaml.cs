@@ -96,9 +96,9 @@ namespace DerbyApp
             RacerAdded?.Invoke(this, new EventArgs());
         }
 
-        [DllImport("gdi32.dll", EntryPoint = "DeleteObject")]
+        [LibraryImport("gdi32.dll", EntryPoint = "DeleteObject")]
         [return: MarshalAs(UnmanagedType.Bool)]
-        private static extern bool DeleteObject([In] IntPtr hObject);
+        private static partial bool DeleteObject(IntPtr hObject);
 
         public static ImageSource ImageSourceFromBitmap(Bitmap bmp)
         {

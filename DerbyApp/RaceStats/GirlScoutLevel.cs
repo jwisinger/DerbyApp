@@ -1,13 +1,8 @@
 ﻿namespace DerbyApp.RaceStats
 {
-    internal class GirlScoutLevel
+    internal class GirlScoutLevel(string level)
     {
-        public string Level { get; set; }
-        public bool IsSelected { get; set; }
-        public GirlScoutLevel(string level)
-        {
-            Level = level;
-            IsSelected = true;
-        }
+        public string Level { get; set; } = level;
+        public bool IsSelected { get; set; } = true;
     }
 }

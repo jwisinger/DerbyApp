@@ -1,15 +1,12 @@
-﻿#warning TODO: Make pictures clickable to zoom
-#warning TODO: when race name has illegal characters, it can't generate video filenames (I think I fixed this, but need to test)
-#warning TODO: add time based scoring
-#warning TODO: add ability to select where videos and reports are stored (Google Drive)
-#warning TODO: make race run without track for testing
-#warning REPORT: Add an actual report page to give options for per racer, per race and maybe overall
-#warning HELP: Improve Help?
-#warning APPEARANCE: Change "start race" button to just "race"?
-#warning EMBEDDED: Add IMU "level" feature
-#warning FUN: Computer could play starting sounds and maybe something else
-#warning FUN: Computer could announce racers via speech synthesis, maybe add an avatar
-#warning FUN: Could I somehow generate winners certificates along with "appearance" winners?
+﻿#warning 01 TODO: Make pictures clickable to zoom
+#warning 02 TODO: add time based scoring
+#warning 04 REPORT: Add an actual report page to give options for per racer, per race and maybe overall
+#warning 08 HELP: Improve Help?
+#warning 09 APPEARANCE: Change "start race" button to just "race"?
+#warning 10 EMBEDDED: Add IMU "level" feature
+#warning 06 FUN: Computer could announce racers via speech synthesis, maybe add an avatar
+#warning 07 FUN: Could I somehow generate winners certificates along with "appearance" winners?
+#warning 03 TODO: Allow choosing of webcam in case there are two?
 
 using System.IO;
 using System.Windows;
@@ -23,6 +20,7 @@ using System.Collections.Generic;
 using DerbyApp.Pages;
 using System.Collections.ObjectModel;
 using DerbyApp.Helpers;
+using Microsoft.Win32;
 
 namespace DerbyApp
 {
@@ -30,6 +28,7 @@ namespace DerbyApp
     {
         private Database _db;
         private string _databaseName = "";
+        private string _outputFolderName = "";
         private EditRace _editRace;
         private RacerTableView _racerTableView;
         private RaceTracker _raceTracker;
@@ -73,7 +72,7 @@ namespace DerbyApp
 
         public MainWindow()
         {
-            Database.GetDatabaseRegistry(out string databaseName, out string activeRace);
+            Database. GetDatabaseRegistry(out string databaseName, out string activeRace, out _outputFolderName);
             if (!File.Exists(databaseName))
             {
                 DatabaseCreator dbc = new();
@@ -83,7 +82,7 @@ namespace DerbyApp
             InitializeComponent();
             this.Title = "Current Event = " + Path.GetFileNameWithoutExtension(databaseName);
             _db = new Database(databaseName);
-            Database.StoreDatabaseRegistry(databaseName, activeRace);
+            Database.StoreDatabaseRegistry(databaseName, activeRace, _outputFolderName);
             _databaseName = databaseName;
             _editRace = new EditRace(_db)
             {
@@ -130,7 +129,7 @@ namespace DerbyApp
             while (results.RaceFormat.HeatCount < heatCount) results.AddRunOffHeat(null);
             _db.LoadResultsTable(results);
 
-            _raceTracker = new RaceTracker(results, _db, _databaseName)
+            _raceTracker = new RaceTracker(results, _db, _databaseName, _outputFolderName)
             {
                 DisplayPhotos = DisplayPhotosChecked ? Visibility.Visible : Visibility.Collapsed
             };
@@ -157,7 +156,7 @@ namespace DerbyApp
 
         private void ButtonChangeDatabase_Click(object sender, RoutedEventArgs e)
         {
-            Microsoft.Win32.OpenFileDialog dialog = new()
+            OpenFileDialog dialog = new()
             {
                 CheckFileExists = false,
                 DefaultExt = "sqlite",
@@ -170,7 +169,7 @@ namespace DerbyApp
                 _databaseName = dialog.FileName;
                 this.Title = "Current Event = " + Path.GetFileNameWithoutExtension(_databaseName);
                 _db = new Database(_databaseName);
-                Database.StoreDatabaseRegistry(_databaseName, _editRace.CurrentRaceName);
+                Database.StoreDatabaseRegistry(_databaseName, _editRace.CurrentRaceName, _outputFolderName);
                 _editRace = new EditRace(_db);
                 _racerTableView = new RacerTableView(_db);
                 _racerTableView.RacerRemoved += RacerTableView_RacerRemoved;
@@ -205,12 +204,12 @@ namespace DerbyApp
                 mainFrame.Navigate(new Default());
                 System.Windows.MessageBox.Show("Your currently selected race " + _editRace.CurrentRaceName + " has no racers in it.");
             }
-            Database.StoreDatabaseRegistry(_databaseName, _editRace.CurrentRaceName);
+            Database.StoreDatabaseRegistry(_databaseName, _editRace.CurrentRaceName, _outputFolderName);
         }
 
         private void ButtonReport_Click(object sender, RoutedEventArgs e)
         {
-            List<RaceResults> races = new();
+            List<RaceResults> races = [];
             foreach (string raceName in _db.GetListOfRaces())
             {
                 (ObservableCollection<Racer> racers, int raceFormatIndex) = _db.GetRacers(raceName);
@@ -220,7 +219,7 @@ namespace DerbyApp
                 _db.LoadResultsTable(results);
                 races.Add(results);
             }
-            GenerateReport.Generate(_db.EventName, _db.GetAllRacers(), races);
+            GenerateReport.Generate(_db.EventName, _outputFolderName, _db.GetAllRacers(), races);
         }
 
         private void ButtonCollapse_Click(object sender, RoutedEventArgs e)
@@ -271,14 +270,32 @@ namespace DerbyApp
 
         private void HelpItem_Click(object sender, RoutedEventArgs e)
         {
-            mainFrame.Navigate(new Pages.Help());
+            mainFrame.Navigate(new Help());
         }
 
         private void AboutItem_Click(object sender, RoutedEventArgs e)
         {
-            System.Windows.MessageBox.Show("",
+            MessageBox.Show("",
                 "Version: " + System.Reflection.Assembly.GetEntryAssembly().GetName().Version.ToString(),
                 MessageBoxButton.OK, MessageBoxImage.None);
+        }
+
+        private void OutDirItem_Click(object sender, RoutedEventArgs e)
+        {
+            var folderDialog = new OpenFolderDialog
+            {
+                DefaultDirectory = Path.GetDirectoryName(_databaseName),
+                Multiselect = false,
+                Title = "Select Output Folder",
+                ValidateNames = true
+            }; 
+
+
+            if (folderDialog.ShowDialog() == true)
+            {
+                _outputFolderName = folderDialog.FolderName;
+                _raceTracker.OutputFolderName = _outputFolderName;
+            }
         }
     }
 }

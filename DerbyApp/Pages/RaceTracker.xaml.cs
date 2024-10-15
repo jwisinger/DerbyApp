@@ -1,4 +1,4 @@
-﻿#warning FUN: When clicking "start heat", should the PC do the countdown (and remote control the lights) ... this would mean bypassing the embedded countdown?
+﻿#warning 05 FUN: When clicking "start heat", should the PC do the countdown (and remote control the lights) ... this would mean bypassing the embedded countdown?
 
 using DerbyApp.Helpers;
 using DerbyApp.RacerDatabase;
@@ -28,7 +28,6 @@ namespace DerbyApp
         private Visibility _buttonVisibility = Visibility.Visible;
         private string _currentHeatLabelString = "Current Heat (1)";
         private readonly Database _db = null;
-        private readonly DispatcherTimer _startTimer;
         private readonly DispatcherTimer _raceTimer;
         private string _raceCountDownString = "";
         private int _raceCountDownTime = 0;
@@ -36,6 +35,7 @@ namespace DerbyApp
         private readonly Replay _replay;
         private readonly string _databaseName;
 
+        public string OutputFolderName;
         public RaceResults Results { get; set; }
         public Leaderboard LdrBoard { get; set; }
 
@@ -137,7 +137,7 @@ namespace DerbyApp
             gridRaceResults.Columns.Add(new DataGridTextColumn() { Header = e.PropertyName, Binding=new System.Windows.Data.Binding(e.PropertyName) { StringFormat = "N3" } });
         }
 
-        public RaceTracker(RaceResults results, Database db, string databaseName)
+        public RaceTracker(RaceResults results, Database db, string databaseName, string outputFolderName)
         {
             InitializeComponent();
             Results = results;
@@ -149,13 +149,12 @@ namespace DerbyApp
             gridLeaderBoard.DataContext = LdrBoard.Board;
             gridCurrentHeat.DataContext = Results.RaceFormat.CurrentRacers;
             CurrentHeatLabel.DataContext = this;
-            _startTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(5) };
             _raceTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
-            _startTimer.Tick += TimeTickStart;
             _raceTimer.Tick += TimeTickRace;
             LdrBoard.CalculateResults(Results.ResultsTable);
             Results.ColumnAdded += ResultsColumnAdded;
             _databaseName = databaseName;
+            OutputFolderName = outputFolderName;
 
             _replay = new Replay(frameVideo);
             _replay.ReplayEnded += ReplayEnded;
@@ -254,7 +253,6 @@ namespace DerbyApp
 
         private void ButtonStart_Click(object sender, RoutedEventArgs e)
         {
-            _startTimer.Start();
             ButtonVisibility = Visibility.Collapsed;
             CancelReplayButton.Visibility = Visibility.Collapsed;
             CancelReplayButtonShadow.Visibility = Visibility.Collapsed;
@@ -264,7 +262,6 @@ namespace DerbyApp
 
         private void ButtonGetTimes_Click(object sender, RoutedEventArgs e)
         {
-            _startTimer.Start();
             ButtonVisibility = Visibility.Collapsed;
             _ = GetTimes();
         }
@@ -286,16 +283,16 @@ namespace DerbyApp
             try
             {
                 using HttpClient client2 = new();
+                client2.Timeout = TimeSpan.FromSeconds(5);
                 string reponse = await client2.GetStringAsync(new Uri("http://192.168.0.1/start"));
-                _startTimer.Stop();
-                _raceCountDownTime = 12;
-                _raceTimer.Start();
-                ShowReplay(true);
             }
             catch (HttpRequestException e)
             {
                 MessageBox.Show(e.Message, "Track Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+            _raceCountDownTime = 12;
+            _raceTimer.Start();
+            ShowReplay(true);
         }
 
         private async Task GetTimes()
@@ -303,8 +300,8 @@ namespace DerbyApp
             try
             {
                 using HttpClient client2 = new();
+                client2.Timeout = TimeSpan.FromSeconds(5);
                 string reponse = await client2.GetStringAsync(new Uri("http://192.168.0.1/read"));
-                _startTimer.Stop();
                 if (reponse.Contains("Times"))
                 {
                     string[] times;
@@ -338,9 +335,6 @@ namespace DerbyApp
                                 dr["Heat " + Results.CurrentHeatNumber] = result;
                                 LdrBoard.CalculateResults(Results.ResultsTable);
                                 _db.UpdateResultsTable(Results.RaceName, dr);
-                                CancelReplayButton.Visibility = Visibility.Visible;
-                                CancelReplayButtonShadow.Visibility = Visibility.Visible;
-                                _replay.ShowReplay();
                             }
                         }
                         catch { }
@@ -375,13 +369,10 @@ namespace DerbyApp
             {
                 MessageBox.Show(e.Message, "Track Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+            CancelReplayButton.Visibility = Visibility.Visible;
+            CancelReplayButtonShadow.Visibility = Visibility.Visible;
+            _replay.ShowReplay();
             RaceCountDownString = "";
-        }
-
-        private void TimeTickStart(object sender, EventArgs e)
-        {
-            _startTimer.Stop();
-            MessageBox.Show("Unable to communicate with track.", "Track Error", MessageBoxButton.OK, MessageBoxImage.Error);
         }
 
         private void TimeTickRace(object sender, EventArgs e)
@@ -393,7 +384,7 @@ namespace DerbyApp
                     break;
                 case MaxRaceTime - 1:
                     RaceCountDownString = "Go!!!";
-                    _replay.StartRecording(Path.Combine(Path.GetDirectoryName(_databaseName), Path.GetFileNameWithoutExtension(_databaseName), "videos"), Results.RaceName, Results.CurrentHeatNumber);
+                    _replay.StartRecording(Path.Combine(OutputFolderName, Path.GetFileNameWithoutExtension(_databaseName), "videos"), Results.RaceName, Results.CurrentHeatNumber);
                     break;
                 case 0:
                     RaceCountDownString = "";

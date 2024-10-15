@@ -42,7 +42,7 @@ namespace DerbyApp.RaceStats
 
             ResultsTable = new DataTable();
             ResultsTable.Columns.Add("Number", Type.GetType("System.Int32"));
-            ResultsTable.PrimaryKey = new DataColumn[] { ResultsTable.Columns["Number"] };
+            ResultsTable.PrimaryKey = [ResultsTable.Columns["Number"]];
             ResultsTable.Columns.Add("Name", Type.GetType("System.String"));
             for (int i = 1; i <= RaceFormat.HeatCount; i++)
             {

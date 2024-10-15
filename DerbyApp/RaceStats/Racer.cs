@@ -109,10 +109,10 @@ namespace DerbyApp.RaceStats
         public ImageSource PhotoSource { get => _photosource; set => _photosource = value; }
         public Image Photo { get => _photo; set { _photo = value; PhotoSource = GetImageSource(_photo); } }
 
-        private static ImageSource GetImageSource(Image photo)
+        private static BitmapImage GetImageSource(Image photo)
         {
-            using var ms = new MemoryStream();
-            var bitmapImage = new BitmapImage();
+            using MemoryStream ms = new();
+            BitmapImage bitmapImage = new();
             photo.Save(ms, ImageFormat.Bmp);
             ms.Seek(0, SeekOrigin.Begin);
             bitmapImage.BeginInit();

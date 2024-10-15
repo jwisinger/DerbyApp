@@ -5,7 +5,7 @@ namespace DerbyApp.RaceStats
     internal class GirlScoutLevels
     {
         public static ObservableCollection<GirlScoutLevel> ScoutLevels { get; set; } =
-            new ObservableCollection<GirlScoutLevel> {
+            [
                 new("Daisy"),
                 new("Brownie"),
                 new("Junior"),
@@ -13,6 +13,6 @@ namespace DerbyApp.RaceStats
                 new("Senior"),
                 new("Ambassador"),
                 new("Adult")
-            };
+            ];
     }
 }

@@ -65,7 +65,7 @@ namespace DerbyApp
             Paragraph paragraph = section.Headers.Primary.AddParagraph();
             paragraph.Format.Alignment = ParagraphAlignment.Left;
             paragraph.AddFormattedText("\r\n", "Normal");
-#warning TODO: Replace this hardcoded event name with a nicer way to change it
+#warning 01 TODO: Replace this hardcoded event name with a nicer way to change it
             paragraph.AddFormattedText("Spring Creek Trails\r\n Trefoil Derby 2024\r\n", "Heading1");
 
             paragraph = section.AddParagraph();
@@ -95,7 +95,7 @@ namespace DerbyApp
             {
                 Leaderboard ldr = new(result.Racers, result.RaceFormat.HeatCount, result.RaceFormat.LaneCount);
                 ldr.CalculateResults(result.ResultsTable);
-                List<Racer> raceResults = ldr.Board.OrderByDescending(x => x.Score).ToList();
+                List<Racer> raceResults = [.. ldr.Board.OrderByDescending(x => x.Score)];
                 int racerPosition = raceResults.FindIndex(x => x.Number == r.Number);
                 if (racerPosition > -1)
                 {
@@ -160,9 +160,9 @@ namespace DerbyApp
             return document;
         }
 
-        static public void Generate(string eventName, ObservableCollection<Racer> racers, List<RaceResults> races)
+        static public void Generate(string eventName, string outputFolderName, ObservableCollection<Racer> racers, List<RaceResults> races)
         {
-            string eventPath = Path.Combine(Path.GetDirectoryName(eventName), Path.GetFileNameWithoutExtension(eventName));
+            string eventPath = Path.Combine(outputFolderName, Path.GetFileNameWithoutExtension(eventName));
             Directory.CreateDirectory(eventPath);
             foreach (Racer r in racers)
             {

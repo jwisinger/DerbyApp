@@ -5,24 +5,14 @@ using System.Linq;
 
 namespace DerbyApp.RaceStats
 {
-    public class RaceFormat
+    public class RaceFormat(string name, int heatCount, int racerCount, int laneCount, int[][] heats)
     {
-        public ObservableCollection<Racer> CurrentRacers;
-        public string Name { get; }
-        public int HeatCount;
-        public readonly int RacerCount;
-        public readonly int LaneCount;
-        public int[][] Heats;
-
-        public RaceFormat(string name, int heatCount, int racerCount, int laneCount, int[][] heats)
-        {
-            Name = name;
-            HeatCount = heatCount;
-            RacerCount = racerCount;
-            LaneCount = laneCount;
-            Heats = heats;
-            CurrentRacers = new ObservableCollection<Racer>();
-        }
+        public ObservableCollection<Racer> CurrentRacers = [];
+        public string Name { get; } = name;
+        public int HeatCount = heatCount;
+        public readonly int RacerCount = racerCount;
+        public readonly int LaneCount = laneCount;
+        public int[][] Heats = heats;
 
         public void UpdateDisplayedHeat(int heatNumber, ObservableCollection<Racer> racers)
         {

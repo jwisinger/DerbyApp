@@ -49,8 +49,11 @@
         </Grid.ColumnDefinitions>
         <DockPanel>
             <Menu DockPanel.Dock="Top" HorizontalAlignment="Left">
-                <MenuItem Header="_Help" Click="HelpItem_Click"/>
                 <MenuItem Header="_About" Click="AboutItem_Click"/>
+                <MenuItem Header="_Help" Click="HelpItem_Click"/>
+                <MenuItem Header="_Settings">
+                    <MenuItem Header="_Output Directory" Click="OutDirItem_Click"/>
+                </MenuItem>
             </Menu>
             <StackPanel></StackPanel>
         </DockPanel>

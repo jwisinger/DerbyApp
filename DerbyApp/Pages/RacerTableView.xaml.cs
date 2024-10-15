@@ -10,7 +10,7 @@ namespace DerbyApp
 {
     public partial class RacerTableView : Page, INotifyPropertyChanged
     {
-        public ObservableCollection<Racer> Racers = new();
+        public ObservableCollection<Racer> Racers = [];
         private readonly Database _db;
         private bool _editHandle = true;
         private Visibility _displayPhotos = Visibility.Visible;

@@ -11,7 +11,7 @@ namespace DerbyApp.Windows
     public partial class AddRacer : Window
     {
         private readonly int _maxRacers;
-        public List<Racer> SelectedRacers = new();
+        public List<Racer> SelectedRacers = [];
         public AddRacer(IEnumerable<Racer> racer, int maxRacers)
         {
             InitializeComponent();

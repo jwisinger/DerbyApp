@@ -18,8 +18,7 @@ namespace DerbyApp.RaceStats
             int racerNum = 0;
 
             _laneCount = laneCount;
-            Board = new TrulyObservableCollection<Racer>();
-            foreach (Racer r in racers) Board.Add(r);
+            Board = [.. racers];
 
             RaceScoreTable = new DataTable();
             RaceScoreTable.Columns.Add("Number", Type.GetType("System.Int32"));
@@ -54,7 +53,7 @@ namespace DerbyApp.RaceStats
         {
             for (int i = 1; i <= raceResultsTable.Columns.Count - 2; i++)
             {
-                List<Tuple<double, string>> l = new();
+                List<Tuple<double, string>> l = [];
                 foreach (DataRow dataRow in raceResultsTable.Rows)
                 {
                     if (dataRow["Heat " + i] == DBNull.Value)
