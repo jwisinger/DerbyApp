@@ -1,5 +1,6 @@
 ﻿#warning 05 FUN: When clicking "start heat", should the PC do the countdown (and remote control the lights) ... this would mean bypassing the embedded countdown?
 
+using DerbyApp.Assitant;
 using DerbyApp.Helpers;
 using DerbyApp.RacerDatabase;
 using DerbyApp.RaceStats;
@@ -31,7 +32,7 @@ namespace DerbyApp
         private readonly DispatcherTimer _raceTimer;
         private string _raceCountDownString = "";
         private int _raceCountDownTime = 0;
-        private const int MaxRaceTime = 12;
+        private const int MaxRaceTime = 10;
         private readonly Replay replay;
         private readonly string _databaseName;
 
@@ -258,7 +259,8 @@ namespace DerbyApp
             ButtonVisibility = Visibility.Collapsed;
             CancelReplayButton.Visibility = Visibility.Collapsed;
             CancelReplayButtonShadow.Visibility = Visibility.Collapsed;
-            RaceCountDownString = "On Your Marks!";
+            Announcer.StartRace(1);
+            //RaceCountDownString = "On Your Marks!";
             _ = StartHeat();
         }
 
@@ -292,7 +294,7 @@ namespace DerbyApp
             {
                 MessageBox.Show(e.Message, "Track Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
-            _raceCountDownTime = 12;
+            _raceCountDownTime = MaxRaceTime;
             _raceTimer.Start();
             ShowReplay(true);
         }
@@ -382,10 +384,12 @@ namespace DerbyApp
             switch(_raceCountDownTime)
             {
                 case MaxRaceTime:
-                    RaceCountDownString = "Get set!!";
+                    Announcer.StartRace(2);
+                    //RaceCountDownString = "Get set!!";
                     break;
                 case MaxRaceTime - 1:
-                    RaceCountDownString = "Go!!!";
+                    Announcer.StartRace(3);
+                    //RaceCountDownString = "Go!!!";
                     Replay.StartRecording(Path.Combine(OutputFolderName, Path.GetFileNameWithoutExtension(_databaseName), "videos"), Results.RaceName, Results.CurrentHeatNumber);
                     break;
                 case 0:
