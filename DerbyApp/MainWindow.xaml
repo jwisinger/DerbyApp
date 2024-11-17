@@ -38,6 +38,37 @@
                 </Setter.Value>
             </Setter>
         </Style>
+        <Style TargetType="{x:Type CheckBox}" x:Key="cameraFlipCheckboxStyle">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type CheckBox}">
+                        <StackPanel Orientation="Horizontal">
+                            <Image x:Name="checkboxImage" Source="/Images/CameraFlip.png" Width="64"/>
+                            <ContentPresenter/>
+                        </StackPanel>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="checkboxImage" Property="Source" Value="/Images/CameraFlip.png"/>
+                            </Trigger>
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsMouseOver" Value="True"/>
+                                    <Condition Property="IsChecked" Value="False"/>
+                                </MultiTrigger.Conditions>
+                                <Setter TargetName="checkboxImage" Property="Source" Value="/Images/CameraFlip2.png"/>
+                            </MultiTrigger>
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsMouseOver" Value="True"/>
+                                    <Condition Property="IsChecked" Value="True"/>
+                                </MultiTrigger.Conditions>
+                                <Setter TargetName="checkboxImage" Property="Source" Value="/Images/CameraFlip2.png"/>
+                            </MultiTrigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
@@ -51,9 +82,9 @@
             <Menu DockPanel.Dock="Top" HorizontalAlignment="Left">
                 <MenuItem Header="_About" Click="AboutItem_Click"/>
                 <MenuItem Header="_Help" Click="HelpItem_Click"/>
-                <MenuItem Header="_Settings">
+                <!--<MenuItem Header="_Settings">
                     <MenuItem Header="_Output Directory" Click="OutDirItem_Click"/>
-                </MenuItem>
+                </MenuItem>-->
             </Menu>
             <StackPanel></StackPanel>
         </DockPanel>
@@ -154,7 +185,8 @@
                 </Style>
             </Image.Style>
         </Image>
-        <CheckBox Name="cameraCheckbox" Visibility="{Binding ElementName=MainWindowName, Path=CollapsedVisibility}" HorizontalAlignment="Center" Style="{StaticResource cameraCheckboxStyle}" VerticalAlignment="Bottom" IsChecked="{Binding ElementName=MainWindowName, Path=DisplayPhotosChecked, Mode=TwoWay}" Click="CheckBox_Checked" Grid.Column="0" FontWeight="Bold" FontSize="20" Margin="0,0,0,10"/>
+        <CheckBox Name="cameraCheckbox" Visibility="{Binding ElementName=MainWindowName, Path=CollapsedVisibility}" HorizontalAlignment="Left" Style="{StaticResource cameraCheckboxStyle}" VerticalAlignment="Bottom" IsChecked="{Binding ElementName=MainWindowName, Path=DisplayPhotosChecked, Mode=TwoWay}" Click="CheckBox_Checked" Grid.Column="0" FontWeight="Bold" FontSize="20" Margin="40,0,0,10"/>
+        <CheckBox Name="cameraFlipCheckbox" Visibility="{Binding ElementName=MainWindowName, Path=CollapsedVisibility}" HorizontalAlignment="Right" Style="{StaticResource cameraFlipCheckboxStyle}" VerticalAlignment="Bottom" IsChecked="{Binding ElementName=MainWindowName, Path=FlipCameraChecked, Mode=TwoWay}" Click="FlipCameraBox_Checked" Grid.Column="0" FontWeight="Bold" FontSize="20" Margin="0,0,40,10"/>
         <Frame Name="mainFrame" NavigationUIVisibility="Hidden" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Margin="0,0,0,0" />
     </Grid>
 </Window>

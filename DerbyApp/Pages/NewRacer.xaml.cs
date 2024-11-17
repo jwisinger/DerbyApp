@@ -19,6 +19,7 @@ namespace DerbyApp
         public Racer Racer = new();
         public event EventHandler RacerAdded;
         public Mat CurrentFrame {get; set;}
+        public bool FlipImage = false;
         private VideoCapture _videoCapture = null;
 
         public NewRacer()
@@ -66,6 +67,7 @@ namespace DerbyApp
                 Application.Current.Dispatcher.BeginInvoke(new Action(() =>
                 {
                     Bitmap bMap = CurrentFrame.ToImage<Emgu.CV.Structure.Bgr, byte>().ToBitmap();
+                    if (FlipImage) bMap.RotateFlip(RotateFlipType.Rotate180FlipNone);
                     frameVideo.Source = ImageSourceFromBitmap(bMap);
                     if (_needSnapshot)
                     {

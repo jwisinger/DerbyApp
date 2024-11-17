@@ -4,9 +4,6 @@ using System.Drawing;
 using System.IO;
 using System.Threading;
 using System.Windows;
-using System.Windows.Interop;
-using System.Windows.Media.Imaging;
-using System.Windows.Media;
 
 namespace DerbyApp.Helpers
 {
@@ -25,6 +22,7 @@ namespace DerbyApp.Helpers
         private VideoWriter _videoWriter;
         private VideoMethod _currentState = VideoMethod.None;
         public event EventHandler ReplayEnded;
+        public bool FlipImage = false;
         private double _frameRate = 0;
         private int _totalFrames = 0;
         private string _lastWrittenFile;
@@ -128,6 +126,7 @@ namespace DerbyApp.Helpers
                     Application.Current.Dispatcher.BeginInvoke(new Action(() =>
                     {
                         Bitmap bMap = _currentFrame.ToImage<Emgu.CV.Structure.Bgr, byte>().ToBitmap();
+                        if (FlipImage) bMap.RotateFlip(RotateFlipType.Rotate180FlipNone);
                         _imageBox.Source = NewRacer.ImageSourceFromBitmap(bMap);
                     }));
                 }

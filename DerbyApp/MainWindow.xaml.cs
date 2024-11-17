@@ -34,6 +34,7 @@ namespace DerbyApp
         private RaceTracker _raceTracker;
         private readonly NewRacer _newRacer;
         private bool _displayPhotosChecked = true;
+        private bool _flipCameraChecked = true;
         private Visibility _collapsedVisibility = Visibility.Visible;
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -42,6 +43,12 @@ namespace DerbyApp
         {
             get => _displayPhotosChecked;
             set => _displayPhotosChecked = value;
+        }
+
+        public bool FlipCameraChecked
+        {
+            get => _flipCameraChecked;
+            set => _flipCameraChecked = value;
         }
 
         public Visibility CollapsedVisibility
@@ -70,6 +77,20 @@ namespace DerbyApp
             }
         }
 
+        private void FlipCameraBox_Checked(object sender, RoutedEventArgs e)
+        {
+            if (FlipCameraChecked)
+            {
+                _newRacer.FlipImage = true;
+                _raceTracker.Replay.FlipImage = true;
+            }
+            else
+            {
+                _newRacer.FlipImage = false;
+                _raceTracker.Replay.FlipImage = false;
+            }
+        }
+
         public MainWindow()
         {
             Database. GetDatabaseRegistry(out string databaseName, out string activeRace, out _outputFolderName);
@@ -78,6 +99,7 @@ namespace DerbyApp
                 DatabaseCreator dbc = new();
                 if (System.Windows.Forms.DialogResult.OK != dbc.ShowDialog()) this.Close();
                 databaseName = dbc.DatabaseFile;
+                _outputFolderName = Path.GetDirectoryName(databaseName);
             }
             InitializeComponent();
             this.Title = "Current Event = " + Path.GetFileNameWithoutExtension(databaseName);
@@ -169,6 +191,7 @@ namespace DerbyApp
                 _databaseName = dialog.FileName;
                 this.Title = "Current Event = " + Path.GetFileNameWithoutExtension(_databaseName);
                 _db = new Database(_databaseName);
+                _outputFolderName = Path.GetDirectoryName(_databaseName);
                 Database.StoreDatabaseRegistry(_databaseName, _editRace.CurrentRaceName, _outputFolderName);
                 _editRace = new EditRace(_db);
                 _racerTableView = new RacerTableView(_db);
@@ -202,7 +225,7 @@ namespace DerbyApp
             else
             {
                 mainFrame.Navigate(new Default());
-                System.Windows.MessageBox.Show("Your currently selected race " + _editRace.CurrentRaceName + " has no racers in it.");
+                MessageBox.Show("Your currently selected race " + _editRace.CurrentRaceName + " has no racers in it.");
             }
             Database.StoreDatabaseRegistry(_databaseName, _editRace.CurrentRaceName, _outputFolderName);
         }

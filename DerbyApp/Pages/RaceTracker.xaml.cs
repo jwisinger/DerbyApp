@@ -32,7 +32,7 @@ namespace DerbyApp
         private string _raceCountDownString = "";
         private int _raceCountDownTime = 0;
         private const int MaxRaceTime = 12;
-        private readonly Replay _replay;
+        private readonly Replay replay;
         private readonly string _databaseName;
 
         public string OutputFolderName;
@@ -100,6 +100,8 @@ namespace DerbyApp
             }
         }
 
+        internal Replay Replay => replay;
+
         public event PropertyChangedEventHandler PropertyChanged;
         public event EventHandler HeatChanged;
 
@@ -156,8 +158,8 @@ namespace DerbyApp
             _databaseName = databaseName;
             OutputFolderName = outputFolderName;
 
-            _replay = new Replay(frameVideo);
-            _replay.ReplayEnded += ReplayEnded;
+            replay = new Replay(frameVideo);
+            replay.ReplayEnded += ReplayEnded;
         }
 
         public void ReplayEnded(object sender, EventArgs e)
@@ -275,7 +277,7 @@ namespace DerbyApp
 
         private void ButtonCancelReplay_Click(object sender, RoutedEventArgs e)
         {
-            _replay.Cancel();
+            Replay.Cancel();
         }
 
         private async Task StartHeat()
@@ -371,7 +373,7 @@ namespace DerbyApp
             }
             CancelReplayButton.Visibility = Visibility.Visible;
             CancelReplayButtonShadow.Visibility = Visibility.Visible;
-            _replay.ShowReplay();
+            Replay.ShowReplay();
             RaceCountDownString = "";
         }
 
@@ -384,7 +386,7 @@ namespace DerbyApp
                     break;
                 case MaxRaceTime - 1:
                     RaceCountDownString = "Go!!!";
-                    _replay.StartRecording(Path.Combine(OutputFolderName, Path.GetFileNameWithoutExtension(_databaseName), "videos"), Results.RaceName, Results.CurrentHeatNumber);
+                    Replay.StartRecording(Path.Combine(OutputFolderName, Path.GetFileNameWithoutExtension(_databaseName), "videos"), Results.RaceName, Results.CurrentHeatNumber);
                     break;
                 case 0:
                     RaceCountDownString = "";
