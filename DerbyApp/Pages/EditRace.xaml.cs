@@ -209,6 +209,11 @@ namespace DerbyApp.Pages
             }
         }
 
+        private void ZoomPicture(object sender, RoutedEventArgs e)
+        {
+            new ImageDisplay((sender as Image).Source).ShowDialog();
+        }
+
         [GeneratedRegex(@"[^a-zA-Z0-9\s]")]
         private static partial Regex AlphaNumericRegex();
     }

@@ -6,7 +6,7 @@ namespace DerbyApp.Assitant
     {
         public static void StartRace(int step)
         {
-            SpeechSynthesizer synth = new SpeechSynthesizer();
+            SpeechSynthesizer synth = new();
             synth.SetOutputToDefaultAudioDevice();
 
             switch (step)

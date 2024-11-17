@@ -5,6 +5,7 @@ using DerbyApp.RacerDatabase;
 using DerbyApp.RaceStats;
 using System.Windows.Controls;
 using System;
+using DerbyApp.Pages;
 
 namespace DerbyApp
 {
@@ -64,6 +65,11 @@ namespace DerbyApp
                 Racers.RemoveAt(dataGridRacerTable.SelectedIndex);
                 RacerRemoved?.Invoke(this, new RacerEventArgs() { racer = r });
             }
+        }
+
+        private void ZoomPicture(object sender, RoutedEventArgs e)
+        {
+            new ImageDisplay((sender as Image).Source).ShowDialog();
         }
     }
 }

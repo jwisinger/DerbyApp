@@ -2,6 +2,7 @@
 
 using DerbyApp.Assitant;
 using DerbyApp.Helpers;
+using DerbyApp.Pages;
 using DerbyApp.RacerDatabase;
 using DerbyApp.RaceStats;
 using System;
@@ -402,6 +403,11 @@ namespace DerbyApp
                     break;
             }
             _raceCountDownTime--;
+        }
+
+        private void ZoomPicture(object sender, RoutedEventArgs e)
+        {
+            new ImageDisplay((sender as Image).Source).ShowDialog();
         }
     }
 }

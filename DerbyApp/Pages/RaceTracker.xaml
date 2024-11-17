@@ -82,7 +82,7 @@
                     <DataGridTemplateColumn Header="Photo" Width="64" IsReadOnly="True" Visibility="{Binding Data.DisplayPhotos, Source={StaticResource proxy}, UpdateSourceTrigger=PropertyChanged}">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
-                                <Image RenderOptions.BitmapScalingMode="Fant" Stretch="Uniform" MinWidth="64" MinHeight="48" Source="{Binding PhotoSource}"/>
+                                <Image RenderOptions.BitmapScalingMode="Fant" MouseLeftButtonDown="ZoomPicture" Stretch="Uniform" MinWidth="64" MinHeight="48" Source="{Binding PhotoSource}"/>
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
@@ -112,7 +112,7 @@
                         <DataGridTemplateColumn Header="Photo" Width="64" IsReadOnly="True" Visibility="{Binding Data.DisplayPhotos, Source={StaticResource proxy}, UpdateSourceTrigger=PropertyChanged}">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
-                                    <Image RenderOptions.BitmapScalingMode="Fant" Stretch="Uniform" MinWidth="64" MinHeight="48" Source="{Binding PhotoSource}"/>
+                                    <Image RenderOptions.BitmapScalingMode="Fant" MouseLeftButtonDown="ZoomPicture" Stretch="Uniform" MinWidth="64" MinHeight="48" Source="{Binding PhotoSource}"/>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>

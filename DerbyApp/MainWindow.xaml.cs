@@ -1,12 +1,11 @@
-﻿#warning 01 TODO: Make pictures clickable to zoom
-#warning 02 TODO: add time based scoring
+﻿#warning 02 TODO: add time based scoring
+#warning 03 TODO: Allow choosing of webcam in case there are two?
 #warning 04 REPORT: Add an actual report page to give options for per racer, per race and maybe overall
+#warning 06 FUN: Computer could announce racers via speech synthesis, maybe add an avatar
+#warning 07 FUN: Could I somehow generate winners certificates along with "appearance" winners?
 #warning 08 HELP: Improve Help?
 #warning 09 APPEARANCE: Change "start race" button to just "race"?
 #warning 10 EMBEDDED: Add IMU "level" feature
-#warning 06 FUN: Computer could announce racers via speech synthesis, maybe add an avatar
-#warning 07 FUN: Could I somehow generate winners certificates along with "appearance" winners?
-#warning 03 TODO: Allow choosing of webcam in case there are two?
 
 using System.IO;
 using System.Windows;
