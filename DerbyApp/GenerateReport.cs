@@ -48,7 +48,7 @@ namespace DerbyApp
             style.ParagraphFormat.SpaceAfter = 3;
         }
 
-        static Document CreateDocument(Racer r, List<RaceResults> races)
+        static Document CreateDocument(Racer r, List<RaceResults> races, String eventName)
         {
             Document document = new();
             DefineStyles(document);
@@ -65,8 +65,7 @@ namespace DerbyApp
             Paragraph paragraph = section.Headers.Primary.AddParagraph();
             paragraph.Format.Alignment = ParagraphAlignment.Left;
             paragraph.AddFormattedText("\r\n", "Normal");
-#warning 01 TODO: Replace this hardcoded event name with a nicer way to change it
-            paragraph.AddFormattedText("Spring Creek Trails\r\n Trefoil Derby 2024\r\n", "Heading1");
+            paragraph.AddFormattedText(eventName, "Heading1");
 
             paragraph = section.AddParagraph();
             paragraph.Format.SpaceAfter = 30;
@@ -160,13 +159,13 @@ namespace DerbyApp
             return document;
         }
 
-        static public void Generate(string eventName, string outputFolderName, ObservableCollection<Racer> racers, List<RaceResults> races)
+        static public void Generate(string eventName, string eventFile, string outputFolderName, ObservableCollection<Racer> racers, List<RaceResults> races)
         {
-            string eventPath = Path.Combine(outputFolderName, Path.GetFileNameWithoutExtension(eventName));
+            string eventPath = Path.Combine(outputFolderName, Path.GetFileNameWithoutExtension(eventFile));
             Directory.CreateDirectory(eventPath);
             foreach (Racer r in racers)
             {
-                Document document = CreateDocument(r, races);
+                Document document = CreateDocument(r, races, eventName);
                  PdfDocumentRenderer pdfRenderer = new()
                 {
                     Document = document

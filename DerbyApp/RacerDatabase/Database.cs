@@ -7,9 +7,6 @@ using Microsoft.Win32;
 using DerbyApp.RaceStats;
 using DerbyApp.Helpers;
 using System.Linq;
-using Emgu.CV.Face;
-using MigraDoc.Rendering;
-using System.Data.Entity;
 using System.Drawing.Imaging;
 
 namespace DerbyApp.RacerDatabase
@@ -17,8 +14,9 @@ namespace DerbyApp.RacerDatabase
     public class Database
     {
         public readonly SQLiteConnection SqliteConn;
-        public readonly string EventName = "";
+        public readonly string EventFile = "";
         private readonly string _racerTableName = "raceTable";
+        private readonly string _settingsTableName = "settingsTable";
 
         private SQLiteConnection CreateConnection()
         {
@@ -35,7 +33,7 @@ namespace DerbyApp.RacerDatabase
 
         public Database(string databaseFile)
         {
-            EventName = databaseFile;
+            EventFile = databaseFile;
             if (!File.Exists(databaseFile))
             {
                 SQLiteConnection.CreateFile(databaseFile);
@@ -50,6 +48,36 @@ namespace DerbyApp.RacerDatabase
             string sql = "CREATE TABLE IF NOT EXISTS [" + _racerTableName + "] ([Number] INTEGER PRIMARY KEY AUTOINCREMENT, [Name] VARCHAR(50), [Weight(oz)] DECIMAL(5, 3), [Troop] VARCHAR(10), [Level] VARCHAR(20), [Email] VARCHAR(100), [Image] MEDIUMBLOB)";
             SQLiteCommand command = new(sql, SqliteConn);
             command.ExecuteNonQuery();
+        }
+
+        public void StoreRaceSettings(string eventName)
+        {
+            string sql = "CREATE TABLE IF NOT EXISTS [" + _settingsTableName + "] ([Number] INTEGER PRIMARY KEY, [Name] VARCHAR(500))";
+            SQLiteCommand command = new(sql, SqliteConn);
+            command.ExecuteNonQuery();
+
+            sql = "REPLACE INTO [" + _settingsTableName + "] ([Number], [Name]) VALUES (@Number, @Name)";
+            command = new SQLiteCommand(sql, SqliteConn);
+            command.Parameters.Add("@Number", DbType.Int64).Value = 1;
+            command.Parameters.Add("@Name", DbType.String).Value = eventName;
+            command.ExecuteNonQuery();
+        }
+
+        public void LoadRaceSettings(out string eventName)
+        {
+            SQLiteCommand command = new("SELECT * FROM [" + _settingsTableName + "] ORDER BY ROWID ASC LIMIT 1", SqliteConn);
+
+            using var reader = command.ExecuteReader();
+            if (reader.HasRows)
+            {
+                reader.Read();
+                //var id = reader.GetInt64(0);
+                eventName = reader.GetString(1);
+            }
+            else
+            {
+                eventName = "";
+            }
         }
 
         public void LoadResultsTable(RaceResults results)
@@ -250,7 +278,7 @@ namespace DerbyApp.RacerDatabase
         public ObservableCollection<string> GetListOfRaces()
         {
             ObservableCollection<string> retVal = [];
-            string sql = "SELECT name FROM sqlite_schema WHERE type ='table' AND name NOT LIKE 'sqlite_%';";
+            string sql = "SELECT name FROM sqlite_schema WHERE type ='table' AND (name NOT LIKE 'sqlite_%') AND (name NOT LIKE 'settings%');";
             SQLiteCommand command = new(sql, SqliteConn);
             SQLiteDataReader r = command.ExecuteReader();
             while (r.Read()) retVal.Add(Convert.ToString(r["name"]));

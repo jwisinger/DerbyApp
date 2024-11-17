@@ -82,14 +82,15 @@
             <Menu DockPanel.Dock="Top" HorizontalAlignment="Left">
                 <MenuItem Header="_About" Click="AboutItem_Click"/>
                 <MenuItem Header="_Help" Click="HelpItem_Click"/>
-                <!--<MenuItem Header="_Settings">
-                    <MenuItem Header="_Output Directory" Click="OutDirItem_Click"/>
-                </MenuItem>-->
+                <MenuItem Header="_Settings">
+                    <!--<MenuItem Header="_Output Directory" Click="OutDirItem_Click"/>-->
+                    <MenuItem Header="_Race Name" Click="SetRaceName_Click"/>
+                </MenuItem>
             </Menu>
             <StackPanel></StackPanel>
         </DockPanel>
         <GridSplitter Width="5" Grid.Column="0" IsEnabled="False"></GridSplitter>
-        <Image Visibility="{Binding ElementName=MainWindowName, Path=CollapsedVisibility}" HorizontalAlignment="Left" Margin="0,10,0,0" VerticalAlignment="Top" MouseLeftButtonDown="ButtonChangeDatabase_Click" >
+        <Image Visibility="{Binding ElementName=MainWindowName, Path=CollapsedVisibility}" HorizontalAlignment="Left" Margin="0,30,0,0" VerticalAlignment="Top" MouseLeftButtonDown="ButtonChangeDatabase_Click" >
             <Image.Style>
                 <Style TargetType="{x:Type Image}">
                     <Setter Property="Source" Value="/Images/SelectEvent.png"/>
@@ -101,7 +102,7 @@
                 </Style>
             </Image.Style>
         </Image>
-        <Image Visibility="{Binding ElementName=MainWindowName, Path=CollapsedVisibility}" HorizontalAlignment="Left" Margin="0,60,0,0" VerticalAlignment="Top" MouseLeftButtonDown="ButtonAddRacer_Click" >
+        <Image Visibility="{Binding ElementName=MainWindowName, Path=CollapsedVisibility}" HorizontalAlignment="Left" Margin="0,80,0,0" VerticalAlignment="Top" MouseLeftButtonDown="ButtonAddRacer_Click" >
             <Image.Style>
                 <Style TargetType="{x:Type Image}">
                     <Setter Property="Source" Value="/Images/AddRacer.png"/>
@@ -113,7 +114,7 @@
                 </Style>
             </Image.Style>
         </Image>
-        <Image Visibility="{Binding ElementName=MainWindowName, Path=CollapsedVisibility}" HorizontalAlignment="Left" Margin="0,110,0,0" VerticalAlignment="Top" MouseLeftButtonDown="ButtonViewRacerTable_Click" >
+        <Image Visibility="{Binding ElementName=MainWindowName, Path=CollapsedVisibility}" HorizontalAlignment="Left" Margin="0,130,0,0" VerticalAlignment="Top" MouseLeftButtonDown="ButtonViewRacerTable_Click" >
             <Image.Style>
                 <Style TargetType="{x:Type Image}">
                     <Setter Property="Source" Value="/Images/ViewRacers.png"/>
@@ -125,7 +126,7 @@
                 </Style>
             </Image.Style>
         </Image>
-        <Image Visibility="{Binding ElementName=MainWindowName, Path=CollapsedVisibility}" HorizontalAlignment="Left" Margin="0,160,0,0" VerticalAlignment="Top" MouseLeftButtonDown="ButtonSelectRace_Click" >
+        <Image Visibility="{Binding ElementName=MainWindowName, Path=CollapsedVisibility}" HorizontalAlignment="Left" Margin="0,180,0,0" VerticalAlignment="Top" MouseLeftButtonDown="ButtonSelectRace_Click" >
             <Image.Style>
                 <Style TargetType="{x:Type Image}">
                     <Setter Property="Source" Value="/Images/SelectRace.png"/>
@@ -137,7 +138,7 @@
                 </Style>
             </Image.Style>
         </Image>
-        <Image Visibility="{Binding ElementName=MainWindowName, Path=CollapsedVisibility}" HorizontalAlignment="Left" Margin="0,210,0,0" VerticalAlignment="Top" MouseLeftButtonDown="ButtonStartRace_Click" >
+        <Image Visibility="{Binding ElementName=MainWindowName, Path=CollapsedVisibility}" HorizontalAlignment="Left" Margin="0,230,0,0" VerticalAlignment="Top" MouseLeftButtonDown="ButtonStartRace_Click" >
             <Image.Style>
                 <Style TargetType="{x:Type Image}">
                     <Setter Property="Source" Value="/Images/StartRace.png"/>
@@ -149,7 +150,7 @@
                 </Style>
             </Image.Style>
         </Image>
-        <Image Visibility="{Binding ElementName=MainWindowName, Path=CollapsedVisibility}" HorizontalAlignment="Left" Margin="0,260,0,0" VerticalAlignment="Top" MouseLeftButtonDown="ButtonReport_Click" >
+        <Image Visibility="{Binding ElementName=MainWindowName, Path=CollapsedVisibility}" HorizontalAlignment="Left" Margin="0,280,0,0" VerticalAlignment="Top" MouseLeftButtonDown="ButtonReport_Click" >
             <Image.Style>
                 <Style TargetType="{x:Type Image}">
                     <Setter Property="Source" Value="/Images/ViewReport.png"/>

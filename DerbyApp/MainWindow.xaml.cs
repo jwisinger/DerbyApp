@@ -27,6 +27,7 @@ namespace DerbyApp
     {
         private Database _db;
         private string _databaseName = "";
+        private string _eventName = "";
         private string _outputFolderName = "";
         private EditRace _editRace;
         private RacerTableView _racerTableView;
@@ -105,6 +106,7 @@ namespace DerbyApp
             _db = new Database(databaseName);
             Database.StoreDatabaseRegistry(databaseName, activeRace, _outputFolderName);
             _databaseName = databaseName;
+            _db.LoadRaceSettings(out _eventName);
             _editRace = new EditRace(_db)
             {
                 CurrentRaceName = activeRace
@@ -130,7 +132,7 @@ namespace DerbyApp
             e.Continue = false;
             if (_raceTracker.Results.InProgress)
             {
-                if (MessageBoxResult.OK == System.Windows.MessageBox.Show(
+                if (MessageBoxResult.OK == MessageBox.Show(
                     "Adding or removing a racer will reset the race in progress and erase all results.",
                     "Race Results Will Be Erased", MessageBoxButton.OKCancel, MessageBoxImage.Warning))
                 {
@@ -192,6 +194,7 @@ namespace DerbyApp
                 _db = new Database(_databaseName);
                 _outputFolderName = Path.GetDirectoryName(_databaseName);
                 Database.StoreDatabaseRegistry(_databaseName, _editRace.CurrentRaceName, _outputFolderName);
+                _db.LoadRaceSettings(out _eventName);
                 _editRace = new EditRace(_db);
                 _racerTableView = new RacerTableView(_db);
                 _racerTableView.RacerRemoved += RacerTableView_RacerRemoved;
@@ -241,7 +244,7 @@ namespace DerbyApp
                 _db.LoadResultsTable(results);
                 races.Add(results);
             }
-            GenerateReport.Generate(_db.EventName, _outputFolderName, _db.GetAllRacers(), races);
+            GenerateReport.Generate(_eventName, _db.EventFile, _outputFolderName, _db.GetAllRacers(), races);
         }
 
         private void ButtonCollapse_Click(object sender, RoutedEventArgs e)
@@ -293,6 +296,14 @@ namespace DerbyApp
         private void HelpItem_Click(object sender, RoutedEventArgs e)
         {
             mainFrame.Navigate(new Help());
+        }
+
+        private void SetRaceName_Click(object sender, RoutedEventArgs e)
+        {
+            InputBox ib = new("Please enter a name for this event:", _eventName);
+
+            if ((bool)ib.ShowDialog()) _eventName = ib.Input;
+            _db.StoreRaceSettings(_eventName);
         }
 
         private void AboutItem_Click(object sender, RoutedEventArgs e)
