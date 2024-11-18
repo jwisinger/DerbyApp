@@ -21,6 +21,17 @@ namespace DerbyApp
         public Mat CurrentFrame {get; set;}
         public bool FlipImage = false;
         private VideoCapture _videoCapture = null;
+        private int _selectedCamera = 0;
+
+        public int SelectedCamera
+        {
+            get => _selectedCamera;
+            set
+            {
+                _selectedCamera = value;
+                GetCamera();
+            }
+        }
 
         public NewRacer()
         {
@@ -36,7 +47,7 @@ namespace DerbyApp
 
         public void GetCamera()
         {
-            _videoCapture = new VideoCapture(0, VideoCapture.API.DShow);
+            _videoCapture = new VideoCapture(SelectedCamera, VideoCapture.API.DShow);
             CurrentFrame = new Mat();
             _videoCapture.ImageGrabbed += VideoCapture_NewFrame;
             _videoCapture.Start();

@@ -85,6 +85,7 @@
                 <MenuItem Header="_Settings">
                     <!--<MenuItem Header="_Output Directory" Click="OutDirItem_Click"/>-->
                     <MenuItem Header="_Race Name" Click="SetRaceName_Click"/>
+                    <MenuItem Header="_Select Camera" Click="SelectCamera_Click"/>
                 </MenuItem>
             </Menu>
             <StackPanel></StackPanel>

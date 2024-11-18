@@ -27,6 +27,18 @@ namespace DerbyApp.Helpers
         private int _totalFrames = 0;
         private string _lastWrittenFile;
         private const double FRAME_RATE = 15.0;
+        private int _selectedCamera = 0;
+
+        public int SelectedCamera
+        {
+            get => _selectedCamera;
+            set
+            {
+                _selectedCamera = value;
+                _videoCapture.Dispose();
+                Start();
+            }
+        }
 
         public Replay(System.Windows.Controls.Image i)
         {
@@ -45,7 +57,7 @@ namespace DerbyApp.Helpers
 
         private void Start()
         {
-            _videoCapture = new VideoCapture(0, VideoCapture.API.DShow);
+            _videoCapture = new VideoCapture(SelectedCamera, VideoCapture.API.DShow);
             _videoCapture.ImageGrabbed += VideoCapture_NewFrame;
             _videoCapture.Set(Emgu.CV.CvEnum.CapProp.Fps, FRAME_RATE);
             _currentState = VideoMethod.None;

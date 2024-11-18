@@ -1,11 +1,9 @@
-﻿#warning 02 TODO: add time based scoring
-#warning 03 TODO: Allow choosing of webcam in case there are two?
-#warning 04 REPORT: Add an actual report page to give options for per racer, per race and maybe overall
-#warning 06 FUN: Computer could announce racers via speech synthesis, maybe add an avatar
-#warning 07 FUN: Could I somehow generate winners certificates along with "appearance" winners?
-#warning 08 HELP: Improve Help?
-#warning 09 APPEARANCE: Change "start race" button to just "race"?
-#warning 10 EMBEDDED: Add IMU "level" feature
+﻿#warning 2 TODO: add time based scoring
+#warning 4 FUN: Computer could announce racers via speech synthesis, maybe add an avatar
+#warning 5 REPORT: Add an actual report page to give options for per racer, per race and maybe overall
+#warning 6 FUN: Could I somehow generate winners certificates along with "appearance" winners?
+#warning 7 HELP: Improve Help?
+#warning 8 APPEARANCE: Change "start race" button to just "race"?
 
 using System.IO;
 using System.Windows;
@@ -29,6 +27,7 @@ namespace DerbyApp
         private string _databaseName = "";
         private string _eventName = "";
         private string _outputFolderName = "";
+        private int _selectedCamera = 0;
         private EditRace _editRace;
         private RacerTableView _racerTableView;
         private RaceTracker _raceTracker;
@@ -304,6 +303,17 @@ namespace DerbyApp
 
             if ((bool)ib.ShowDialog()) _eventName = ib.Input;
             _db.StoreRaceSettings(_eventName);
+        }
+
+        private void SelectCamera_Click(object sender, RoutedEventArgs e)
+        {
+            SelectCamera sc = new();
+            if ((bool)sc.ShowDialog())
+            {
+                _selectedCamera = sc.GetSelectedCamera();
+                _newRacer.SelectedCamera = _selectedCamera;
+                _raceTracker.Replay.SelectedCamera = _selectedCamera;
+            }
         }
 
         private void AboutItem_Click(object sender, RoutedEventArgs e)
