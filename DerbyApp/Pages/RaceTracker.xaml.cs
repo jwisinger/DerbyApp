@@ -1,4 +1,4 @@
-﻿#warning 3 FUN: When clicking "start heat", should the PC do the countdown (and remote control the lights) ... this would mean bypassing the embedded countdown?
+﻿#warning 2 FUN: When clicking "start heat", should the PC do the countdown (and remote control the lights) ... this would mean bypassing the embedded countdown?
 
 using DerbyApp.Assitant;
 using DerbyApp.Helpers;
@@ -127,7 +127,7 @@ namespace DerbyApp
         {
             if (e.Column is DataGridTextColumn col && e.PropertyType == typeof(double))
             {
-                col.Binding = new System.Windows.Data.Binding(e.PropertyName) { StringFormat = "N3" };
+                col.Binding = new Binding(e.PropertyName) { StringFormat = "N3" };
             }
         }
 
@@ -147,7 +147,7 @@ namespace DerbyApp
             Results = results;
             _db = db;
             Results.RaceFormat.UpdateDisplayedHeat(Results.CurrentHeatNumber, results.Racers);
-            LdrBoard = new Leaderboard(results.Racers, results.RaceFormat.HeatCount, results.RaceFormat.LaneCount);
+            LdrBoard = new Leaderboard(results.Racers, results.RaceFormat.HeatCount, results.RaceFormat.LaneCount, false);
             gridRaceResults.AutoGeneratingColumn += Datagrid_AutoGeneratingColumn;
             gridRaceResults.DataContext = Results.ResultsTable.DefaultView;
             gridLeaderBoard.DataContext = LdrBoard.Board;

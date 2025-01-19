@@ -48,7 +48,7 @@ namespace DerbyApp
             style.ParagraphFormat.SpaceAfter = 3;
         }
 
-        static Document CreateDocument(Racer r, List<RaceResults> races, String eventName)
+        static Document CreateDocument(Racer r, List<RaceResults> races, String eventName, bool timeBasedScoring)
         {
             Document document = new();
             DefineStyles(document);
@@ -92,9 +92,11 @@ namespace DerbyApp
 
             foreach (RaceResults result in races)
             {
-                Leaderboard ldr = new(result.Racers, result.RaceFormat.HeatCount, result.RaceFormat.LaneCount);
+                Leaderboard ldr = new(result.Racers, result.RaceFormat.HeatCount, result.RaceFormat.LaneCount, timeBasedScoring);
                 ldr.CalculateResults(result.ResultsTable);
-                List<Racer> raceResults = [.. ldr.Board.OrderByDescending(x => x.Score)];
+                List<Racer> raceResults;
+                if (timeBasedScoring) raceResults = [.. ldr.Board.OrderBy(x => x.Score)];
+                else raceResults = [.. ldr.Board.OrderByDescending(x => x.Score)];
                 int racerPosition = raceResults.FindIndex(x => x.Number == r.Number);
                 if (racerPosition > -1)
                 {
@@ -120,7 +122,6 @@ namespace DerbyApp
                         {
                             if (resultRow[i + 2] != DBNull.Value)
                             {
-
                                 paragraph.AddFormattedText("Heat " + (i + 1) + " Time: " + ((double)resultRow[i + 2]).ToString("0.000") + " seconds (" + (1 + result.RaceFormat.LaneCount - (int)scoreRow[i + 2]) + ")\r\n", "Normal");
                             }
                         }
@@ -159,13 +160,13 @@ namespace DerbyApp
             return document;
         }
 
-        static public void Generate(string eventName, string eventFile, string outputFolderName, ObservableCollection<Racer> racers, List<RaceResults> races)
+        static public void Generate(string eventName, string eventFile, string outputFolderName, ObservableCollection<Racer> racers, List<RaceResults> races, bool timeBasedScoring)
         {
             string eventPath = Path.Combine(outputFolderName, Path.GetFileNameWithoutExtension(eventFile));
             Directory.CreateDirectory(eventPath);
             foreach (Racer r in racers)
             {
-                Document document = CreateDocument(r, races, eventName);
+                Document document = CreateDocument(r, races, eventName, timeBasedScoring);
                  PdfDocumentRenderer pdfRenderer = new()
                 {
                     Document = document

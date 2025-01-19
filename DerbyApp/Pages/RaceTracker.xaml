@@ -78,7 +78,7 @@
                     <DataGridTextColumn Header="Lane" Width="60" Binding="{Binding Lane}"></DataGridTextColumn>
                     <DataGridTextColumn Header="Number" Width="90" Binding="{Binding Number}"></DataGridTextColumn>
                     <DataGridTextColumn Header="Name" Width="150" Binding="{Binding RacerName}"></DataGridTextColumn>
-                    <DataGridTextColumn Header="Score" Width="70" Binding="{Binding Score}"></DataGridTextColumn>
+                    <DataGridTextColumn Header="Score" Width="70" Binding="{Binding Score, StringFormat=N3}"></DataGridTextColumn>
                     <DataGridTemplateColumn Header="Photo" Width="64" IsReadOnly="True" Visibility="{Binding Data.DisplayPhotos, Source={StaticResource proxy}, UpdateSourceTrigger=PropertyChanged}">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
@@ -108,7 +108,7 @@
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="Number" Width="90" Binding="{Binding Number}"></DataGridTextColumn>
                         <DataGridTextColumn Header="Name" Width="150" Binding="{Binding RacerName}"></DataGridTextColumn>
-                        <DataGridTextColumn Header="Score" Width="70" Binding="{Binding Score}"></DataGridTextColumn>
+                        <DataGridTextColumn Header="Score" Width="70" Binding="{Binding Score, StringFormat=N3}"></DataGridTextColumn>
                         <DataGridTemplateColumn Header="Photo" Width="64" IsReadOnly="True" Visibility="{Binding Data.DisplayPhotos, Source={StaticResource proxy}, UpdateSourceTrigger=PropertyChanged}">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>

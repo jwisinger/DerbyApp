@@ -11,14 +11,16 @@ namespace DerbyApp.RaceStats
     {
         public DataTable RaceScoreTable;
         public TrulyObservableCollection<Racer> Board;
+        public bool TimeBasedScoring = false;
         private readonly int _laneCount = 0;
 
-        public Leaderboard(ObservableCollection<Racer> racers, int heatCount, int laneCount)
+        public Leaderboard(ObservableCollection<Racer> racers, int heatCount, int laneCount, bool timeBasedScoring)
         {
             int racerNum = 0;
 
             _laneCount = laneCount;
             Board = [.. racers];
+            TimeBasedScoring = timeBasedScoring;
 
             RaceScoreTable = new DataTable();
             RaceScoreTable.Columns.Add("Number", Type.GetType("System.Int32"));
@@ -78,6 +80,12 @@ namespace DerbyApp.RaceStats
                 }
             }
 
+            if (TimeBasedScoring) CalculateResultsTimeBased(raceResultsTable);
+            else CalculateResultsPlaceBased();
+        }
+
+        private void CalculateResultsPlaceBased()
+        {
             foreach (DataRow dataRow in RaceScoreTable.Rows)
             {
                 Racer r = Board.Where(x => x.Number == (int)dataRow["Number"]).FirstOrDefault();
@@ -90,6 +98,21 @@ namespace DerbyApp.RaceStats
                     }
                     r.Score = total;
                 }
+            }
+        }
+
+        private void CalculateResultsTimeBased(DataTable raceResultsTable)
+        {
+            foreach (DataRow dataRow in raceResultsTable.Rows)
+            {
+                double total = 0;
+                foreach (object obj in dataRow.ItemArray)
+                {
+                    if (obj.GetType() == typeof(double)) total += (double)obj;
+                }
+
+                Racer r = Board.Where(x => x.Number == (int)dataRow["Number"]).FirstOrDefault();
+                if (r != null) r.Score = (decimal)total;
             }
         }
     }

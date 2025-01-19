@@ -16,7 +16,7 @@ namespace DerbyApp.RaceStats
         private string _troop = "";
         private string _level = "";
         private string _email = "";
-        private int _score = 0;
+        private decimal _score = 0;
         private int _raceOrder = 0;
         private char _lane = ' ';
         private ImageSource _photosource = GetImageSource(new Bitmap(640, 480));
@@ -78,7 +78,7 @@ namespace DerbyApp.RaceStats
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Email)));
             }
         }
-        public int Score
+        public decimal Score
         {
             get => _score;
             set

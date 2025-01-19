@@ -1,9 +1,8 @@
-﻿#warning 2 TODO: add time based scoring
-#warning 4 FUN: Computer could announce racers via speech synthesis, maybe add an avatar
-#warning 5 REPORT: Add an actual report page to give options for per racer, per race and maybe overall
-#warning 6 FUN: Could I somehow generate winners certificates along with "appearance" winners?
-#warning 7 HELP: Improve Help?
-#warning 8 APPEARANCE: Change "start race" button to just "race"?
+﻿#warning 3 FUN: Computer could announce racers via speech synthesis, maybe add an avatar
+#warning 4 REPORT: Add an actual report page to give options for per racer, per race and maybe overall
+#warning 5 FUN: Could I somehow generate winners certificates along with "appearance" winners?
+#warning 6 HELP: Improve Help?
+#warning 7 APPEARANCE: Change "start race" button to just "race"?
 
 using System.IO;
 using System.Windows;
@@ -34,6 +33,7 @@ namespace DerbyApp
         private readonly NewRacer _newRacer;
         private bool _displayPhotosChecked = true;
         private bool _flipCameraChecked = true;
+        private bool _timeBasedScoring = false;
         private Visibility _collapsedVisibility = Visibility.Visible;
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -92,7 +92,7 @@ namespace DerbyApp
 
         public MainWindow()
         {
-            Database. GetDatabaseRegistry(out string databaseName, out string activeRace, out _outputFolderName);
+            Database.GetDatabaseRegistry(out string databaseName, out string activeRace, out _outputFolderName, out _timeBasedScoring);
             if (!File.Exists(databaseName))
             {
                 DatabaseCreator dbc = new();
@@ -101,9 +101,10 @@ namespace DerbyApp
                 _outputFolderName = Path.GetDirectoryName(databaseName);
             }
             InitializeComponent();
+            MenuItemScoring.IsChecked = _timeBasedScoring;
             this.Title = "Current Event = " + Path.GetFileNameWithoutExtension(databaseName);
             _db = new Database(databaseName);
-            Database.StoreDatabaseRegistry(databaseName, activeRace, _outputFolderName);
+            Database.StoreDatabaseRegistry(databaseName, activeRace, _outputFolderName, _timeBasedScoring);
             _databaseName = databaseName;
             _db.LoadRaceSettings(out _eventName);
             _editRace = new EditRace(_db)
@@ -159,6 +160,8 @@ namespace DerbyApp
             else _editRace.buttonAddRacer.IsEnabled = true;
             _raceTracker.HeatChanged += RaceTracker_HeatChanged;
             if (!e) _raceTracker.Results.InProgress = false;
+            _raceTracker.LdrBoard.TimeBasedScoring = _timeBasedScoring;
+            _raceTracker.LdrBoard.CalculateResults(_raceTracker.Results.ResultsTable);
         }
 
         private void RacerTableView_RacerRemoved(object sender, EventArgs e)
@@ -192,7 +195,7 @@ namespace DerbyApp
                 this.Title = "Current Event = " + Path.GetFileNameWithoutExtension(_databaseName);
                 _db = new Database(_databaseName);
                 _outputFolderName = Path.GetDirectoryName(_databaseName);
-                Database.StoreDatabaseRegistry(_databaseName, _editRace.CurrentRaceName, _outputFolderName);
+                Database.StoreDatabaseRegistry(_databaseName, _editRace.CurrentRaceName, _outputFolderName, _timeBasedScoring);
                 _db.LoadRaceSettings(out _eventName);
                 _editRace = new EditRace(_db);
                 _racerTableView = new RacerTableView(_db);
@@ -228,7 +231,7 @@ namespace DerbyApp
                 mainFrame.Navigate(new Default());
                 MessageBox.Show("Your currently selected race " + _editRace.CurrentRaceName + " has no racers in it.");
             }
-            Database.StoreDatabaseRegistry(_databaseName, _editRace.CurrentRaceName, _outputFolderName);
+            Database.StoreDatabaseRegistry(_databaseName, _editRace.CurrentRaceName, _outputFolderName, _timeBasedScoring);
         }
 
         private void ButtonReport_Click(object sender, RoutedEventArgs e)
@@ -243,7 +246,7 @@ namespace DerbyApp
                 _db.LoadResultsTable(results);
                 races.Add(results);
             }
-            GenerateReport.Generate(_eventName, _db.EventFile, _outputFolderName, _db.GetAllRacers(), races);
+            GenerateReport.Generate(_eventName, _db.EventFile, _outputFolderName, _db.GetAllRacers(), races, _timeBasedScoring);
         }
 
         private void ButtonCollapse_Click(object sender, RoutedEventArgs e)
@@ -314,6 +317,15 @@ namespace DerbyApp
                 _newRacer.SelectedCamera = _selectedCamera;
                 _raceTracker.Replay.SelectedCamera = _selectedCamera;
             }
+        }
+
+        private void TimeBasedScoring_Click(object sender, RoutedEventArgs e)
+        {
+            if ((sender as System.Windows.Controls.MenuItem).IsChecked) _timeBasedScoring = true;
+            else _timeBasedScoring = false;
+            _raceTracker.LdrBoard.TimeBasedScoring = _timeBasedScoring;
+            _raceTracker.LdrBoard.CalculateResults(_raceTracker.Results.ResultsTable);
+            Database.StoreDatabaseRegistry(_databaseName, _editRace.CurrentRaceName, _outputFolderName, _timeBasedScoring);
         }
 
         private void AboutItem_Click(object sender, RoutedEventArgs e)
