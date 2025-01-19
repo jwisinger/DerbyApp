@@ -8,6 +8,7 @@ using System.IO;
 using System.Windows;
 using DerbyApp.RacerDatabase;
 using DerbyApp.RaceStats;
+using DerbyApp.Windows;
 using System.ComponentModel;
 using System.Windows.Threading;
 using System;
@@ -96,7 +97,7 @@ namespace DerbyApp
             if (!File.Exists(databaseName))
             {
                 DatabaseCreator dbc = new();
-                if (System.Windows.Forms.DialogResult.OK != dbc.ShowDialog()) this.Close();
+                if (!(bool)dbc.ShowDialog()) this.Close();
                 databaseName = dbc.DatabaseFile;
                 _outputFolderName = Path.GetDirectoryName(databaseName);
             }

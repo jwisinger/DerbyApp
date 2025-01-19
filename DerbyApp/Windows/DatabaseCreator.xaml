@@ -1,0 +1,32 @@
+﻿<Window x:Class="DerbyApp.Windows.DatabaseCreator"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:DerbyApp.Windows"
+        mc:Ignorable="d"
+        Title="Missing Event FIle" Height="170" Width="400">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="53*"/>
+            <ColumnDefinition Width="347*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="2*"/>
+            <RowDefinition Height="1*"/>
+        </Grid.RowDefinitions>
+        <TextBox Margin="10,10,10,51" TextWrapping="Wrap" Text="No valid event file could be found.  This is likely because this is the first time you are running this application.  Please select an existing event file, or create a new one." FontSize="16" Grid.ColumnSpan="2" Grid.RowSpan="2" >
+            <TextBox.BorderBrush>
+                <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.MenuTextColorKey}}"/>
+            </TextBox.BorderBrush>
+        </TextBox>
+        <Grid Grid.Row="1" Grid.ColumnSpan="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2*"/>
+                <ColumnDefinition Width="1*"/>
+            </Grid.ColumnDefinitions>
+            <Button Grid.Column="0" Content="Select Event File..." Margin="10,10,10,10" FontSize="16" Click="ButtonBrowse_Click"/>
+            <Button Grid.Column="1" Content="Cancel" Margin="10,10,10,10" FontSize="16" Click="ButtonCancel_Click"/>
+        </Grid>
+    </Grid>
+</Window>
