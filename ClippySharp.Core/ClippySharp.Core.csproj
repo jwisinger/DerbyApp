@@ -1,0 +1,115 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Resources\agents\bonzi\agent.json" />
+    <None Remove="Resources\agents\bonzi\map.png" />
+    <None Remove="Resources\agents\bonzi\sounds-mp3.json" />
+    <None Remove="Resources\agents\bonzi\sounds-ogg.json" />
+    <None Remove="Resources\agents\clippy\agent.json" />
+    <None Remove="Resources\agents\clippy\map.png" />
+    <None Remove="Resources\agents\clippy\sounds-mp3.json" />
+    <None Remove="Resources\agents\clippy\sounds-ogg.json" />
+    <None Remove="Resources\agents\f1\agent.json" />
+    <None Remove="Resources\agents\f1\map.png" />
+    <None Remove="Resources\agents\f1\sounds-mp3.json" />
+    <None Remove="Resources\agents\f1\sounds-ogg.json" />
+    <None Remove="Resources\agents\genius\agent.json" />
+    <None Remove="Resources\agents\genius\map.png" />
+    <None Remove="Resources\agents\genius\sounds-mp3.json" />
+    <None Remove="Resources\agents\genius\sounds-ogg.json" />
+    <None Remove="Resources\agents\links\agent.json" />
+    <None Remove="Resources\agents\links\map.png" />
+    <None Remove="Resources\agents\links\sounds-mp3.json" />
+    <None Remove="Resources\agents\links\sounds-ogg.json" />
+    <None Remove="Resources\agents\merlin\agent.json" />
+    <None Remove="Resources\agents\merlin\map.png" />
+    <None Remove="Resources\agents\merlin\sounds-mp3.json" />
+    <None Remove="Resources\agents\merlin\sounds-ogg.json" />
+    <None Remove="Resources\agents\peedy\agent.json" />
+    <None Remove="Resources\agents\peedy\map.png" />
+    <None Remove="Resources\agents\peedy\sounds-mp3.json" />
+    <None Remove="Resources\agents\peedy\sounds-ogg.json" />
+    <None Remove="Resources\agents\rocky\agent.json" />
+    <None Remove="Resources\agents\rocky\map.png" />
+    <None Remove="Resources\agents\rocky\sounds-mp3.json" />
+    <None Remove="Resources\agents\rocky\sounds-ogg.json" />
+    <None Remove="Resources\agents\rover\agent.json" />
+    <None Remove="Resources\agents\rover\map.png" />
+    <None Remove="Resources\agents\rover\sounds-mp3.json" />
+    <None Remove="Resources\agents\rover\sounds-ogg.json" />
+    <None Remove="Resources\border.png" />
+    <None Remove="Resources\tip.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\agents\bonzi\agent.json">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\agents\bonzi\map.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\agents\bonzi\sounds-mp3.json">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\agents\bonzi\sounds-ogg.json">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\agents\clippy\agent.json">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\agents\clippy\map.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\agents\clippy\sounds-mp3.json">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\agents\clippy\sounds-ogg.json">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="NETStandard.Library" Version="2.0.3" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\agents\f1\agent.json" />
+    <EmbeddedResource Include="Resources\agents\f1\map.png" />
+    <EmbeddedResource Include="Resources\agents\f1\sounds-mp3.json" />
+    <EmbeddedResource Include="Resources\agents\f1\sounds-ogg.json" />
+    <EmbeddedResource Include="Resources\agents\genius\agent.json" />
+    <EmbeddedResource Include="Resources\agents\genius\map.png" />
+    <EmbeddedResource Include="Resources\agents\genius\sounds-mp3.json" />
+    <EmbeddedResource Include="Resources\agents\genius\sounds-ogg.json" />
+    <EmbeddedResource Include="Resources\agents\links\agent.json" />
+    <EmbeddedResource Include="Resources\agents\links\map.png" />
+    <EmbeddedResource Include="Resources\agents\links\sounds-mp3.json" />
+    <EmbeddedResource Include="Resources\agents\links\sounds-ogg.json" />
+    <EmbeddedResource Include="Resources\agents\merlin\agent.json" />
+    <EmbeddedResource Include="Resources\agents\merlin\map.png" />
+    <EmbeddedResource Include="Resources\agents\merlin\sounds-mp3.json" />
+    <EmbeddedResource Include="Resources\agents\merlin\sounds-ogg.json" />
+    <EmbeddedResource Include="Resources\agents\peedy\agent.json" />
+    <EmbeddedResource Include="Resources\agents\peedy\map.png" />
+    <EmbeddedResource Include="Resources\agents\peedy\sounds-mp3.json" />
+    <EmbeddedResource Include="Resources\agents\peedy\sounds-ogg.json" />
+    <EmbeddedResource Include="Resources\agents\rocky\agent.json" />
+    <EmbeddedResource Include="Resources\agents\rocky\map.png" />
+    <EmbeddedResource Include="Resources\agents\rocky\sounds-mp3.json" />
+    <EmbeddedResource Include="Resources\agents\rocky\sounds-ogg.json" />
+    <EmbeddedResource Include="Resources\agents\rover\agent.json" />
+    <EmbeddedResource Include="Resources\agents\rover\map.png" />
+    <EmbeddedResource Include="Resources\agents\rover\sounds-mp3.json" />
+    <EmbeddedResource Include="Resources\agents\rover\sounds-ogg.json" />
+    <EmbeddedResource Include="Resources\border.png" />
+    <EmbeddedResource Include="Resources\tip.png" />
+  </ItemGroup>
+
+</Project>

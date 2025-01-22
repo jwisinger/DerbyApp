@@ -1,6 +1,6 @@
 ﻿using System.Speech.Synthesis;
 
-namespace DerbyApp.Assitant
+namespace DerbyApp.Assistant
 {
     internal class Announcer
     {

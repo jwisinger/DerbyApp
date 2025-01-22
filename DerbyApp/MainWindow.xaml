@@ -4,8 +4,9 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:DerbyApp"
+        xmlns:helpers="clr-namespace:DerbyApp.Helpers"
         mc:Ignorable="d"
-        Title="MainWindow" Height="500" Width="859" Name="MainWindowName" Background="AliceBlue">
+        Title="MainWindow" Height="600" Width="859" Name="MainWindowName" Background="AliceBlue">
     <Window.Resources>
         <Style TargetType="{x:Type CheckBox}" x:Key="cameraCheckboxStyle">
             <Setter Property="Template">
@@ -79,14 +80,34 @@
             <ColumnDefinition Width="1*"/>
         </Grid.ColumnDefinitions>
         <DockPanel>
-            <Menu DockPanel.Dock="Top" HorizontalAlignment="Left">
-                <MenuItem Header="_About" Click="AboutItem_Click"/>
-                <MenuItem Header="_Help" Click="HelpItem_Click"/>
+            <Menu DockPanel.Dock="Top" HorizontalAlignment="Left" Background="AliceBlue">
                 <MenuItem Header="_Settings">
                     <!--<MenuItem Header="_Output Directory" Click="OutDirItem_Click"/>-->
                     <MenuItem Header="_Race Name" Click="SetRaceName_Click"/>
                     <MenuItem Header="_Select Camera" Click="SelectCamera_Click"/>
                     <MenuItem Header="_Time Based Scoring" IsCheckable="True" Click="TimeBasedScoring_Click" Name="MenuItemScoring"/>
+                </MenuItem>
+                <MenuItem Header="_Assistant">
+                    <!--<MenuItem Header="_Output Directory" Click="OutDirItem_Click"/>-->
+                    <MenuItem Header="_Character" ItemsSource="{Binding CharacterMenuItems}">
+                        <MenuItem.ItemContainerStyle>
+                            <Style TargetType="{x:Type MenuItem}">
+                                <Setter Property="Command" Value="{Binding Command}"/>
+                                <Setter Property="IsChecked" Value="{Binding IsChecked, Mode=TwoWay}"/>
+                                <Setter Property="IsCheckable" Value="True"/>
+                            </Style>
+                        </MenuItem.ItemContainerStyle>
+                        <MenuItem.ItemTemplate>
+                            <HierarchicalDataTemplate DataType="{x:Type helpers:MenuItemViewModel}" ItemsSource="{Binding Path=MenuItems}">
+                                <TextBlock Text="{Binding Header}"/>
+                            </HierarchicalDataTemplate>
+                        </MenuItem.ItemTemplate>
+                    </MenuItem>
+                    <MenuItem Header="_Voice"/>
+                </MenuItem>
+                <MenuItem Header="_Help">
+                    <MenuItem Header="_Help" Click="HelpItem_Click"/>
+                    <MenuItem Header="_About" Click="AboutItem_Click"/>
                 </MenuItem>
             </Menu>
             <StackPanel></StackPanel>
@@ -188,6 +209,7 @@
                 </Style>
             </Image.Style>
         </Image>
+        <Image x:Name="agentImage" HorizontalAlignment="Center" Height="150" Margin="0,0,0,70" VerticalAlignment="Bottom" Width="150" MouseLeftButtonDown="agentImage_MouseLeftButtonDown" />
         <CheckBox Name="cameraCheckbox" Visibility="{Binding ElementName=MainWindowName, Path=CollapsedVisibility}" HorizontalAlignment="Left" Style="{StaticResource cameraCheckboxStyle}" VerticalAlignment="Bottom" IsChecked="{Binding ElementName=MainWindowName, Path=DisplayPhotosChecked, Mode=TwoWay}" Click="CheckBox_Checked" Grid.Column="0" FontWeight="Bold" FontSize="20" Margin="40,0,0,10"/>
         <CheckBox Name="cameraFlipCheckbox" Visibility="{Binding ElementName=MainWindowName, Path=CollapsedVisibility}" HorizontalAlignment="Right" Style="{StaticResource cameraFlipCheckboxStyle}" VerticalAlignment="Bottom" IsChecked="{Binding ElementName=MainWindowName, Path=FlipCameraChecked, Mode=TwoWay}" Click="FlipCameraBox_Checked" Grid.Column="0" FontWeight="Bold" FontSize="20" Margin="0,0,40,10"/>
         <Frame Name="mainFrame" NavigationUIVisibility="Hidden" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Margin="0,0,0,0" />

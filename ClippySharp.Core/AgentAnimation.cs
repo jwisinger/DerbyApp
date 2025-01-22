@@ -1,0 +1,36 @@
+﻿using System;
+using System.Collections.Generic;
+using ClippySharp.Core.Models;
+
+namespace ClippySharp.Core
+{
+    internal class AgentAnimation
+    {
+        const string Idle = "Idle";
+
+        public string Name { get; }
+
+        public List<AgentAnimationFrame> Frames { get; }
+
+		readonly AgentAnimationModel model;
+		internal bool UseExitBranching => model.UseExitBranching;
+
+		public AgentAnimation(AgentAnimator animator, string name, AgentAnimationModel model)
+        {
+			this.model = model;
+
+			Name = name;
+            Frames = new List<AgentAnimationFrame>();
+
+            foreach (var frame in model.Frames)
+            {
+                Frames.Add(new AgentAnimationFrame(animator, frame));
+            }
+        }
+
+        internal bool IsIdle()
+        {
+            return Name.IndexOf(Idle, StringComparison.Ordinal) == 0;
+        }
+    }
+}

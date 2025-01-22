@@ -1,8 +1,11 @@
-﻿#warning 3 FUN: Computer could announce racers via speech synthesis, maybe add an avatar
-#warning 4 REPORT: Add an actual report page to give options for per racer, per race and maybe overall
-#warning 5 FUN: Could I somehow generate winners certificates along with "appearance" winners?
-#warning 6 HELP: Improve Help?
-#warning 7 APPEARANCE: Change "start race" button to just "race"?
+﻿#warning 1 BUG: Pick optimal for each character for each action
+#warning 2 FUN: Add a "get attention" or idle thing if user waits too long
+#warning 2 FUN: Add a gesture right for instant replay
+#warning 2 FUN: Computer could announce racers via speech synthesis, maybe add an avatar
+#warning 3 REPORT: Add an actual report page to give options for per racer, per race and maybe overall
+#warning 4 FUN: Could I somehow generate winners certificates along with "appearance" winners?
+#warning 5 HELP: Improve Help?
+#warning 6 APPEARANCE: Change "start race" button to just "race"?
 
 using System.IO;
 using System.Windows;
@@ -18,6 +21,9 @@ using DerbyApp.Pages;
 using System.Collections.ObjectModel;
 using DerbyApp.Helpers;
 using Microsoft.Win32;
+using System.Windows.Input;
+using DerbyApp.Assistant;
+using ClippySharp.Core;
 
 namespace DerbyApp
 {
@@ -36,8 +42,11 @@ namespace DerbyApp
         private bool _flipCameraChecked = true;
         private bool _timeBasedScoring = false;
         private Visibility _collapsedVisibility = Visibility.Visible;
+        private AgentInterface _agentInterface;
 
         public event PropertyChangedEventHandler PropertyChanged;
+
+        public TrulyObservableCollection<MenuItemViewModel> CharacterMenuItems { get; set; }
 
         public bool DisplayPhotosChecked
         {
@@ -121,6 +130,7 @@ namespace DerbyApp
             _editRace.RaceChanging += EditRace_RaceChanging;
 
             mainFrame.Navigate(new Default());
+            CreateMenu();
         }
 
         private void RaceTracker_HeatChanged(object sender, EventArgs e)
@@ -209,20 +219,24 @@ namespace DerbyApp
         private void ButtonAddRacer_Click(object sender, RoutedEventArgs e)
         {
             mainFrame.Navigate(_newRacer);
+            _agentInterface.AddRacerAction();
         }
 
         private void ButtonViewRacerTable_Click(object sender, RoutedEventArgs e)
         {
             mainFrame.Navigate(_racerTableView);
+            _agentInterface.ViewRacerAction();
         }
 
         private void ButtonSelectRace_Click(object sender, RoutedEventArgs e)
         {
             mainFrame.Navigate(_editRace);
+            _agentInterface.SelectRaceAction();
         }
 
         private void ButtonStartRace_Click(object sender, RoutedEventArgs e)
         {
+            _agentInterface.StartRaceAction();
             if (_editRace.Racers.Count > 0)
             {
                 mainFrame.Navigate(_raceTracker);
@@ -238,6 +252,7 @@ namespace DerbyApp
         private void ButtonReport_Click(object sender, RoutedEventArgs e)
         {
             List<RaceResults> races = [];
+            _agentInterface.ReportAction();
             foreach (string raceName in _db.GetListOfRaces())
             {
                 (ObservableCollection<Racer> racers, int raceFormatIndex) = _db.GetRacers(raceName);
@@ -352,6 +367,47 @@ namespace DerbyApp
                 _outputFolderName = folderDialog.FolderName;
                 _raceTracker.OutputFolderName = _outputFolderName;
             }
+        }
+
+        private void CreateMenu()
+        {
+            CharacterMenuItems = [];
+
+            MenuItemViewModel item = new MenuItemViewModel { Header = "none", ParentList = CharacterMenuItems };
+            item.SelectionChanged += Item_AgentChanged;
+            CharacterMenuItems.Add(item);
+
+            foreach (string s in AgentInterface.GetAgentList())
+            {
+                item = new MenuItemViewModel { Header = s, ParentList = CharacterMenuItems };
+                item.SelectionChanged += Item_AgentChanged;
+                CharacterMenuItems.Add(item);
+            }
+            DataContext = this;
+            _agentInterface = new AgentInterface(agentImage);
+        }
+
+        private void Item_AgentChanged(object sender, string e)
+        {
+            if (e != "none")
+            {
+                string[][] sArray = AgentEnvironment.Current.GetAgents();
+                foreach (string[] s in sArray)
+                {
+                    if (s[1] == e)
+                    {
+                        agentImage.Visibility = Visibility.Visible;
+                        _agentInterface.ChangeAgent(s[0]);
+                        break;
+                    }
+                }
+            }
+            else agentImage.Visibility = Visibility.Collapsed;
+        }
+
+        private void agentImage_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            _agentInterface.ClickAgent();
         }
     }
 }
