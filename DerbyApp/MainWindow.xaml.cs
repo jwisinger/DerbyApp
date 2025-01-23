@@ -23,7 +23,7 @@ using DerbyApp.Helpers;
 using Microsoft.Win32;
 using System.Windows.Input;
 using DerbyApp.Assistant;
-using ClippySharp.Core;
+using ClippySharp;
 
 namespace DerbyApp
 {
@@ -373,7 +373,7 @@ namespace DerbyApp
         {
             CharacterMenuItems = [];
 
-            MenuItemViewModel item = new MenuItemViewModel { Header = "none", ParentList = CharacterMenuItems };
+            MenuItemViewModel item = new() { Header = "none", ParentList = CharacterMenuItems };
             item.SelectionChanged += Item_AgentChanged;
             CharacterMenuItems.Add(item);
 
@@ -391,7 +391,7 @@ namespace DerbyApp
         {
             if (e != "none")
             {
-                string[][] sArray = AgentEnvironment.Current.GetAgents();
+                string[][] sArray = AgentEnvironment.GetAgents();
                 foreach (string[] s in sArray)
                 {
                     if (s[1] == e)
@@ -405,7 +405,7 @@ namespace DerbyApp
             else agentImage.Visibility = Visibility.Collapsed;
         }
 
-        private void agentImage_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        private void AgentImage_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             _agentInterface.ClickAgent();
         }

@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using ClippySharp.Core.Models;
+﻿using ClippySharp.Models;
 
-namespace ClippySharp.Core
+namespace ClippySharp
 {
     internal class AgentAnimation
     {
@@ -12,15 +10,15 @@ namespace ClippySharp.Core
 
         public List<AgentAnimationFrame> Frames { get; }
 
-		readonly AgentAnimationModel model;
-		internal bool UseExitBranching => model.UseExitBranching;
+        readonly AgentAnimationModel model;
+        internal bool UseExitBranching => model.UseExitBranching;
 
-		public AgentAnimation(AgentAnimator animator, string name, AgentAnimationModel model)
+        public AgentAnimation(AgentAnimator animator, string name, AgentAnimationModel model)
         {
-			this.model = model;
+            this.model = model;
 
-			Name = name;
-            Frames = new List<AgentAnimationFrame>();
+            Name = name;
+            Frames = [];
 
             foreach (var frame in model.Frames)
             {
@@ -30,7 +28,7 @@ namespace ClippySharp.Core
 
         internal bool IsIdle()
         {
-            return Name.IndexOf(Idle, StringComparison.Ordinal) == 0;
+            return Name.StartsWith(Idle, StringComparison.Ordinal);
         }
     }
 }

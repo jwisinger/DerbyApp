@@ -1,12 +1,13 @@
-﻿using System.Collections.Generic;
-using ClippySharp.Core.Models;
+﻿using ClippySharp.Models;
+using System.Drawing;
+using System.Windows.Media;
 
-namespace ClippySharp.Core
+namespace ClippySharp
 {
-    internal class AgentAnimationFrame
+    internal class AgentAnimationFrame(AgentAnimator animator, AgentFrameModel mode)
     {
-        readonly AgentAnimator animator;
-        readonly AgentFrameModel model;
+        readonly AgentAnimator animator = animator;
+        readonly AgentFrameModel model = mode;
 
         public string ExitBranch => model.ExitBranch;
 
@@ -15,13 +16,7 @@ namespace ClippySharp.Core
         public int Duration => model.Duration;
         public string Sound => model.Sound;
 
-        public AgentAnimationFrame(AgentAnimator animator, AgentFrameModel mode)
-        {
-            this.animator = animator;
-            this.model = mode;
-        }
-
-        public IImageWrapper? GetImage ()
+        public ImageSource? GetImage()
         {
             if (model.Images != null)
             {

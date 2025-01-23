@@ -209,7 +209,7 @@
                 </Style>
             </Image.Style>
         </Image>
-        <Image x:Name="agentImage" HorizontalAlignment="Center" Height="150" Margin="0,0,0,70" VerticalAlignment="Bottom" Width="150" MouseLeftButtonDown="agentImage_MouseLeftButtonDown" />
+        <Image x:Name="agentImage" HorizontalAlignment="Center" Height="150" Margin="0,0,0,70" VerticalAlignment="Bottom" Width="150" MouseLeftButtonDown="AgentImage_MouseLeftButtonDown" />
         <CheckBox Name="cameraCheckbox" Visibility="{Binding ElementName=MainWindowName, Path=CollapsedVisibility}" HorizontalAlignment="Left" Style="{StaticResource cameraCheckboxStyle}" VerticalAlignment="Bottom" IsChecked="{Binding ElementName=MainWindowName, Path=DisplayPhotosChecked, Mode=TwoWay}" Click="CheckBox_Checked" Grid.Column="0" FontWeight="Bold" FontSize="20" Margin="40,0,0,10"/>
         <CheckBox Name="cameraFlipCheckbox" Visibility="{Binding ElementName=MainWindowName, Path=CollapsedVisibility}" HorizontalAlignment="Right" Style="{StaticResource cameraFlipCheckboxStyle}" VerticalAlignment="Bottom" IsChecked="{Binding ElementName=MainWindowName, Path=FlipCameraChecked, Mode=TwoWay}" Click="FlipCameraBox_Checked" Grid.Column="0" FontWeight="Bold" FontSize="20" Margin="0,0,40,10"/>
         <Frame Name="mainFrame" NavigationUIVisibility="Hidden" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Margin="0,0,0,0" />

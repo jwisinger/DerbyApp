@@ -105,7 +105,7 @@ namespace DerbyApp.Helpers
                     //Lets check to see if we have reached the end of the video
                     //If we have lets stop the capture and video as in pause button was pressed
                     //and reset the video back to start
-                    if(_currentState == VideoMethod.Viewing)
+                    if (_currentState == VideoMethod.Viewing)
                     {
                         double framenumber = _videoCapture.Get(Emgu.CV.CvEnum.CapProp.PosFrames);
                         if (framenumber == _totalFrames)

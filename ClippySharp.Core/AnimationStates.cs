@@ -1,4 +1,4 @@
-﻿namespace ClippySharp.Core
+﻿namespace ClippySharp
 {
     public enum AnimationStates
     {

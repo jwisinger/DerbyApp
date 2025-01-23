@@ -1,29 +1,28 @@
-﻿using System.Collections.Generic;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 
-namespace ClippySharp.Core.Models
+namespace ClippySharp.Models
 {
-	public class AgentAnimationModel
-	{
-		[JsonProperty ("useExitBranching")]
-		public bool UseExitBranching { get; set; }
+    public class AgentAnimationModel
+    {
+        [JsonProperty("useExitBranching")]
+        public bool UseExitBranching { get; set; }
 
-		[JsonProperty ("frames")]
-		public AgentFrameModel[] Frames { get; set; }
-	}
+        [JsonProperty("frames")]
+        public required AgentFrameModel[] Frames { get; set; }
+    }
 
-	public class AgentModel
-	{
-		[JsonProperty ("overlayCount")]
-		public int OverlayCount { get; set; }
+    public class AgentModel
+    {
+        [JsonProperty("overlayCount")]
+        public int OverlayCount { get; set; }
 
-		[JsonProperty ("sounds")]
-		public string[] Sounds { get; set; }
+        [JsonProperty("sounds")]
+        public required string[] Sounds { get; set; }
 
-		[JsonProperty ("framesize")]
-		public int[] FrameSize { get; set; }
+        [JsonProperty("framesize")]
+        public required int[] FrameSize { get; set; }
 
-		[JsonProperty ("animations")]
-		public Dictionary<string, AgentAnimationModel> Animations { get; set; }
-	}
+        [JsonProperty("animations")]
+        public required Dictionary<string, AgentAnimationModel> Animations { get; set; }
+    }
 }

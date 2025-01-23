@@ -1,11 +1,11 @@
-﻿using System.Windows;
-using System.Collections.ObjectModel;
-using System.ComponentModel;
+﻿using DerbyApp.Pages;
 using DerbyApp.RacerDatabase;
 using DerbyApp.RaceStats;
-using System.Windows.Controls;
 using System;
-using DerbyApp.Pages;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Windows;
+using System.Windows.Controls;
 
 namespace DerbyApp
 {

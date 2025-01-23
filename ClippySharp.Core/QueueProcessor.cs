@@ -1,15 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-
-namespace ClippySharp.Core
+﻿
+namespace ClippySharp
 {
     public class QueueProcessor : IDisposable
     {
         const int QueueProcessorDelay = 500;
         public readonly Queue<Action> queue;
-        CancellationTokenSource source;
+        CancellationTokenSource? source;
 
         public QueueProcessor()
         {
@@ -17,7 +13,7 @@ namespace ClippySharp.Core
             Start();
         }
 
-        public void Start ()
+        public void Start()
         {
             Stop();
 
@@ -29,7 +25,8 @@ namespace ClippySharp.Core
                     if (queue.Count > 0)
                     {
                         queue.Dequeue()?.Invoke();
-                    } else
+                    }
+                    else
                     {
                         Thread.Sleep(QueueProcessorDelay);
                     }
@@ -38,7 +35,7 @@ namespace ClippySharp.Core
             }, source.Token);
         }
 
-        public void Stop ()
+        public void Stop()
         {
             source?.Cancel();
         }
@@ -58,10 +55,10 @@ namespace ClippySharp.Core
             queue.Clear();
         }
 
-		public void Dispose ()
-		{
-			source?.Cancel ();
-
-		}
-	}
+        public void Dispose()
+        {
+            source?.Cancel();
+            GC.SuppressFinalize(this);
+        }
+    }
 }

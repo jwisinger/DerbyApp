@@ -138,7 +138,7 @@ namespace DerbyApp
 
         private void ResultsColumnAdded(object sender, PropertyChangedEventArgs e)
         {
-            gridRaceResults.Columns.Add(new DataGridTextColumn() { Header = e.PropertyName, Binding=new System.Windows.Data.Binding(e.PropertyName) { StringFormat = "N3" } });
+            gridRaceResults.Columns.Add(new DataGridTextColumn() { Header = e.PropertyName, Binding = new System.Windows.Data.Binding(e.PropertyName) { StringFormat = "N3" } });
         }
 
         public RaceTracker(RaceResults results, Database db, string databaseName, string outputFolderName)
@@ -167,7 +167,7 @@ namespace DerbyApp
         public void ReplayEnded(object sender, EventArgs e)
         {
             ButtonVisibility = Visibility.Visible;
-            Application.Current.Dispatcher.Invoke(()=>ShowReplay(false));
+            Application.Current.Dispatcher.Invoke(() => ShowReplay(false));
         }
 
         private void ButtonNextHeat_Click(object sender, RoutedEventArgs e)
@@ -382,7 +382,7 @@ namespace DerbyApp
 
         private void TimeTickRace(object sender, EventArgs e)
         {
-            switch(_raceCountDownTime)
+            switch (_raceCountDownTime)
             {
                 case MaxRaceTime:
                     Announcer.StartRace(2);

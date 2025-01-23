@@ -1,7 +1,7 @@
-﻿namespace ClippySharp.Core
+﻿namespace ClippySharp
 {
-	public enum SoundType
-	{
-		NotDetected, Mpeg, Ogg
-	}
+    public enum SoundType
+    {
+        NotDetected, Mpeg, Ogg
+    }
 }

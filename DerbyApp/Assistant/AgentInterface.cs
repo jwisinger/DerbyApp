@@ -1,10 +1,8 @@
-﻿using DerbyApp.ClippySharp;
-using ClippySharp.Core;
+﻿using ClippySharp;
 using System;
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Media;
 
 namespace DerbyApp.Assistant
 {
@@ -16,7 +14,7 @@ namespace DerbyApp.Assistant
 
         public AgentInterface(Image agentImage)
         {
-            AgentEnvironment.Current.Initialize(new AgentDelegate(), new SoundPlayer());
+            AgentEnvironment.Current.Initialize(new SoundPlayer());
             AgentImage = agentImage;
         }
 
@@ -24,7 +22,7 @@ namespace DerbyApp.Assistant
         {
             List<string> agentList = [];
 
-            foreach (var item in AgentEnvironment.Current.GetAgents())
+            foreach (var item in AgentEnvironment.GetAgents())
             {
                 agentList.Add(item[1]);
             }
@@ -57,34 +55,46 @@ namespace DerbyApp.Assistant
 
         public void AddRacerAction()
         {
-            _isVisible = true;
-            Agent.Stop();
-            Agent.Play("?");
+            if (_isVisible)
+            {
+                Agent.Stop();
+                Agent.Play("?");
+            }
         }
 
         public void ViewRacerAction()
         {
-            _isVisible = true;
-            Agent.Stop();
-            Agent.Play("?");
+            if (_isVisible)
+            {
+                Agent.Stop();
+                Agent.Play("Searching");
+            }
         }
 
         public void SelectRaceAction()
         {
-            _isVisible = true;
-            Agent.Stop();
-            Agent.Play("?");
+            if (_isVisible)
+            {
+                Agent.Stop();
+                Agent.Play("?");
+            }
         }
 
         public void StartRaceAction()
         {
-            _isVisible = true;
-            Agent.Stop();
-            Agent.Play("?");
+            if (_isVisible)
+            {
+                Agent.Stop();
+                Agent.Play("?");
+            }
         }
 
         public void ReportAction()
         {
+            if (_isVisible)
+            {
+
+            }
         }
 
         private void Agent_NeedsRender(object sender, EventArgs e)
@@ -92,7 +102,7 @@ namespace DerbyApp.Assistant
             Application.Current.Dispatcher.Invoke(() => {
                 var image = Agent.GetCurrentImage();
                 if (image != null)
-                    AgentImage.Source = image.NativeObject as ImageSource;
+                    AgentImage.Source = image;
             });
         }
     }

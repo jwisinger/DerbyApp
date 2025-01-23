@@ -1,13 +1,13 @@
-﻿using System.Data.SQLite;
-using System;
-using System.IO;
-using System.Data;
-using System.Collections.ObjectModel;
-using Microsoft.Win32;
+﻿using DerbyApp.Helpers;
 using DerbyApp.RaceStats;
-using DerbyApp.Helpers;
-using System.Linq;
+using Microsoft.Win32;
+using System;
+using System.Collections.ObjectModel;
+using System.Data;
+using System.Data.SQLite;
 using System.Drawing.Imaging;
+using System.IO;
+using System.Linq;
 
 namespace DerbyApp.RacerDatabase
 {
@@ -346,7 +346,7 @@ namespace DerbyApp.RacerDatabase
                 if (key.GetValue("database") is string s1) database = s1;
                 if (key.GetValue("activeRace") is string s2) activeRace = s2;
                 if (key.GetValue("outputFolderName") is string s3) outputFolderName = s3;
-                if (key.GetValue("timeBasedScoring") is string s4) if(bool.TryParse(s4, out bool b)) timeBasedScoring = b;
+                if (key.GetValue("timeBasedScoring") is string s4) if (bool.TryParse(s4, out bool b)) timeBasedScoring = b;
                 return true;
             }
             return false;
