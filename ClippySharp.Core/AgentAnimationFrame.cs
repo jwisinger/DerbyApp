@@ -4,25 +4,16 @@ using System.Windows.Media;
 
 namespace ClippySharp
 {
-    internal class AgentAnimationFrame(AgentAnimator animator, AgentFrameModel mode)
+    internal class AgentAnimationFrame(AgentFrameModel model)
     {
-        readonly AgentAnimator animator = animator;
-        readonly AgentFrameModel model = mode;
+        readonly AgentFrameModel _model = model;
 
-        public string ExitBranch => model.ExitBranch;
+        public string ExitBranch => _model.ExitBranch;
 
-        public Dictionary<string, AgentFrameBranchModel[]> Branching => model.Branching;
+        public Dictionary<string, AgentFrameBranchModel[]> Branching => _model.Branching;
 
-        public int Duration => model.Duration;
-        public string Sound => model.Sound;
-
-        public ImageSource? GetImage()
-        {
-            if (model.Images != null)
-            {
-                return animator.GetImage(model.Images);
-            }
-            return null;
-        }
+        public int Duration => _model.Duration;
+        public string Sound => _model.Sound;
+        public int[][] Images => _model.Images;
     }
 }

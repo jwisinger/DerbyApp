@@ -1,11 +1,10 @@
-﻿#warning 1 BUG: Pick optimal for each character for each action
-#warning 2 FUN: Add a "get attention" or idle thing if user waits too long
-#warning 2 FUN: Add a gesture right for instant replay
-#warning 2 FUN: Computer could announce racers via speech synthesis, maybe add an avatar
+﻿#warning 1 FUN: Add a gesture right for instant replay
+#warning 2 FUN: Computer could announce racers via speech synthesis (Perhaps pop out racer images when announcer talks)
 #warning 3 REPORT: Add an actual report page to give options for per racer, per race and maybe overall
 #warning 4 FUN: Could I somehow generate winners certificates along with "appearance" winners?
 #warning 5 HELP: Improve Help?
-#warning 6 APPEARANCE: Change "start race" button to just "race"?
+#warning 6 APPEARANCE: Make menubar icons with sound enable, etc.
+#warning 7 APPEARANCE: Change "start race" button to just "race"?
 
 using System.IO;
 using System.Windows;
@@ -24,6 +23,7 @@ using Microsoft.Win32;
 using System.Windows.Input;
 using DerbyApp.Assistant;
 using ClippySharp;
+using System.Speech.Synthesis;
 
 namespace DerbyApp
 {
@@ -38,15 +38,30 @@ namespace DerbyApp
         private RacerTableView _racerTableView;
         private RaceTracker _raceTracker;
         private readonly NewRacer _newRacer;
+        private int _maxRaceTime = 10;
         private bool _displayPhotosChecked = true;
-        private bool _flipCameraChecked = true;
+        private bool _menuBarChecked = true;
+        private bool _playSoundsChecked = true;
+        private bool _flipCameraChecked = false;
         private bool _timeBasedScoring = false;
         private Visibility _collapsedVisibility = Visibility.Visible;
         private AgentInterface _agentInterface;
+        private readonly Announcer _announcer = new();
 
         public event PropertyChangedEventHandler PropertyChanged;
 
         public TrulyObservableCollection<MenuItemViewModel> CharacterMenuItems { get; set; }
+        public TrulyObservableCollection<MenuItemViewModel> VoiceMenuItems { get; set; }
+
+        public bool PlaySoundsChecked
+        {
+            get => _playSoundsChecked;
+            set
+            {
+                _playSoundsChecked = value;
+                _announcer.Muted = !value;
+            }
+        }
 
         public bool DisplayPhotosChecked
         {
@@ -60,6 +75,12 @@ namespace DerbyApp
             set => _flipCameraChecked = value;
         }
 
+        public bool MenuBarChecked
+        {
+            get => _menuBarChecked;
+            set => _menuBarChecked = value;
+        }
+
         public Visibility CollapsedVisibility
         {
             get => _collapsedVisibility;
@@ -70,7 +91,7 @@ namespace DerbyApp
             }
         }
 
-        private void CheckBox_Checked(object sender, RoutedEventArgs e)
+        private void DisplayPhotos_Checked(object sender, RoutedEventArgs e)
         {
             if (DisplayPhotosChecked)
             {
@@ -84,6 +105,14 @@ namespace DerbyApp
                 _editRace.DisplayPhotos = Visibility.Collapsed;
                 _raceTracker.DisplayPhotos = Visibility.Collapsed;
             }
+        }
+
+        private void MenuVisible_Checked(object sender, RoutedEventArgs e)
+        {
+        }
+
+        private void PlaySounds_Checked(object sender, RoutedEventArgs e)
+        {
         }
 
         private void FlipCameraBox_Checked(object sender, RoutedEventArgs e)
@@ -102,7 +131,7 @@ namespace DerbyApp
 
         public MainWindow()
         {
-            Database.GetDatabaseRegistry(out string databaseName, out string activeRace, out _outputFolderName, out _timeBasedScoring);
+            Database.GetDatabaseRegistry(out string databaseName, out string activeRace, out _outputFolderName, out _timeBasedScoring, out _maxRaceTime);
             if (!File.Exists(databaseName))
             {
                 DatabaseCreator dbc = new();
@@ -114,7 +143,7 @@ namespace DerbyApp
             MenuItemScoring.IsChecked = _timeBasedScoring;
             this.Title = "Current Event = " + Path.GetFileNameWithoutExtension(databaseName);
             _db = new Database(databaseName);
-            Database.StoreDatabaseRegistry(databaseName, activeRace, _outputFolderName, _timeBasedScoring);
+            Database.StoreDatabaseRegistry(databaseName, activeRace, _outputFolderName, _timeBasedScoring, _maxRaceTime);
             _databaseName = databaseName;
             _db.LoadRaceSettings(out _eventName);
             _editRace = new EditRace(_db)
@@ -173,6 +202,7 @@ namespace DerbyApp
             if (!e) _raceTracker.Results.InProgress = false;
             _raceTracker.LdrBoard.TimeBasedScoring = _timeBasedScoring;
             _raceTracker.LdrBoard.CalculateResults(_raceTracker.Results.ResultsTable);
+            _raceTracker.MaxRaceTime = _maxRaceTime;
         }
 
         private void RacerTableView_RacerRemoved(object sender, EventArgs e)
@@ -206,7 +236,7 @@ namespace DerbyApp
                 this.Title = "Current Event = " + Path.GetFileNameWithoutExtension(_databaseName);
                 _db = new Database(_databaseName);
                 _outputFolderName = Path.GetDirectoryName(_databaseName);
-                Database.StoreDatabaseRegistry(_databaseName, _editRace.CurrentRaceName, _outputFolderName, _timeBasedScoring);
+                Database.StoreDatabaseRegistry(_databaseName, _editRace.CurrentRaceName, _outputFolderName, _timeBasedScoring, _maxRaceTime);
                 _db.LoadRaceSettings(out _eventName);
                 _editRace = new EditRace(_db);
                 _racerTableView = new RacerTableView(_db);
@@ -246,7 +276,7 @@ namespace DerbyApp
                 mainFrame.Navigate(new Default());
                 MessageBox.Show("Your currently selected race " + _editRace.CurrentRaceName + " has no racers in it.");
             }
-            Database.StoreDatabaseRegistry(_databaseName, _editRace.CurrentRaceName, _outputFolderName, _timeBasedScoring);
+            Database.StoreDatabaseRegistry(_databaseName, _editRace.CurrentRaceName, _outputFolderName, _timeBasedScoring, _maxRaceTime);
         }
 
         private void ButtonReport_Click(object sender, RoutedEventArgs e)
@@ -265,26 +295,23 @@ namespace DerbyApp
             GenerateReport.Generate(_eventName, _db.EventFile, _outputFolderName, _db.GetAllRacers(), races, _timeBasedScoring);
         }
 
-        private void ButtonCollapse_Click(object sender, RoutedEventArgs e)
+        private void ButtonMenuBar_Click(object sender, RoutedEventArgs e)
         {
             DispatcherTimer t = new()
             {
                 Interval = TimeSpan.FromMilliseconds(10)
             };
-            t.Tick += TimeTickCollapse;
-            CollapseArrow.Visibility = Visibility.Hidden;
-            t.Start();
-        }
-
-        private void ButtonExpand_Click(object sender, RoutedEventArgs e)
-        {
-            DispatcherTimer t = new()
+            if (_menuBarChecked)
             {
-                Interval = TimeSpan.FromMilliseconds(10)
-            };
-            t.Tick += TimeTickExpand;
-            CollapsedVisibility = Visibility.Visible;
-            ExpandArrow.Visibility = Visibility.Hidden;
+                t.Tick += TimeTickExpand;
+                CollapsedVisibility = Visibility.Visible;
+                _menuBarChecked = true;
+            }
+            else
+            {
+                t.Tick += TimeTickCollapse;
+                _menuBarChecked = false;
+            }
             t.Start();
         }
 
@@ -295,7 +322,6 @@ namespace DerbyApp
             if (buttonColumn.Width.Value < 36)
             {
                 (sender as DispatcherTimer).Stop();
-                ExpandArrow.Visibility = Visibility.Visible;
                 CollapsedVisibility = Visibility.Hidden;
             }
         }
@@ -307,7 +333,6 @@ namespace DerbyApp
             if (buttonColumn.Width.Value > 250)
             {
                 (sender as DispatcherTimer).Stop();
-                CollapseArrow.Visibility = Visibility.Visible;
             }
         }
 
@@ -335,13 +360,29 @@ namespace DerbyApp
             }
         }
 
+        private void SetMaxRaceTime_Click(object sender, RoutedEventArgs e)
+        {
+            NumericInput input = new("Enter the max race time in seconds", _maxRaceTime);
+            if ((bool)input.ShowDialog()) _maxRaceTime = input.Input;
+            _raceTracker.MaxRaceTime = _maxRaceTime;
+            Database.StoreDatabaseRegistry(_databaseName, _editRace.CurrentRaceName, _outputFolderName, _timeBasedScoring, _maxRaceTime);
+        }
+
         private void TimeBasedScoring_Click(object sender, RoutedEventArgs e)
         {
             if ((sender as System.Windows.Controls.MenuItem).IsChecked) _timeBasedScoring = true;
             else _timeBasedScoring = false;
             _raceTracker.LdrBoard.TimeBasedScoring = _timeBasedScoring;
             _raceTracker.LdrBoard.CalculateResults(_raceTracker.Results.ResultsTable);
-            Database.StoreDatabaseRegistry(_databaseName, _editRace.CurrentRaceName, _outputFolderName, _timeBasedScoring);
+            Database.StoreDatabaseRegistry(_databaseName, _editRace.CurrentRaceName, _outputFolderName, _timeBasedScoring, _maxRaceTime);
+        }
+
+        private void EnablePhotos_Click(object sender, RoutedEventArgs e)
+        {
+        }
+
+        private void EnableSound_Click(object sender, RoutedEventArgs e)
+        {
         }
 
         private void AboutItem_Click(object sender, RoutedEventArgs e)
@@ -372,6 +413,7 @@ namespace DerbyApp
         private void CreateMenu()
         {
             CharacterMenuItems = [];
+            VoiceMenuItems = [];
 
             MenuItemViewModel item = new() { Header = "none", ParentList = CharacterMenuItems };
             item.SelectionChanged += Item_AgentChanged;
@@ -383,6 +425,14 @@ namespace DerbyApp
                 item.SelectionChanged += Item_AgentChanged;
                 CharacterMenuItems.Add(item);
             }
+
+            foreach (InstalledVoice voice in _announcer.GetVoices())
+            {
+                item = new MenuItemViewModel { Header = voice.VoiceInfo.Name, ParentList = VoiceMenuItems };
+                item.SelectionChanged += Item_VoiceChanged;
+                VoiceMenuItems.Add(item);
+            }
+
             DataContext = this;
             _agentInterface = new AgentInterface(agentImage);
         }
@@ -403,6 +453,12 @@ namespace DerbyApp
                 }
             }
             else agentImage.Visibility = Visibility.Collapsed;
+        }
+
+        private void Item_VoiceChanged(object sender, string e)
+        {
+            _announcer.Synth.SelectVoice(e);
+            _announcer.Introduction();
         }
 
         private void AgentImage_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)

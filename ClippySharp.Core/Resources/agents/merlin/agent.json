@@ -2335,7 +2335,7 @@
           "exitBranch": 3
         },
         {
-          "duration": 400,
+          "duration": 100,
           "images": [
             [
               896,
@@ -2386,7 +2386,49 @@
           "exitBranch": 4
         },
         {
-          "duration": 0
+          "duration": 100,
+          "images": [
+            [
+              768,
+              1024
+            ]
+          ]
+        },
+        {
+          "duration": 100,
+          "images": [
+            [
+              640,
+              1024
+            ]
+          ]
+        },
+        {
+          "duration": 100,
+          "images": [
+            [
+              512,
+              1024
+            ]
+          ]
+        },
+        {
+          "duration": 100,
+          "images": [
+            [
+              384,
+              1024
+            ]
+          ]
+        },
+        {
+          "duration": 100,
+          "images": [
+            [
+              0,
+              0
+            ]
+          ]
         }
       ]
     },

@@ -1,24 +1,43 @@
-﻿using System.Speech.Synthesis;
+﻿using System.Collections.ObjectModel;
+using System.Speech.Synthesis;
 
 namespace DerbyApp.Assistant
 {
     internal class Announcer
     {
-        public static void StartRace(int step)
+        public bool Muted = false;
+        public SpeechSynthesizer Synth = new();
+
+        private void Speak(string s)
         {
-            SpeechSynthesizer synth = new();
-            synth.SetOutputToDefaultAudioDevice();
+            if (!Muted) Synth.SpeakAsync(s);
+        }
+
+        public ReadOnlyCollection<InstalledVoice> GetVoices()
+        {
+            return Synth.GetInstalledVoices();
+        }
+
+        public void Introduction()
+        {
+            string s = "The announcer is now " + Synth.Voice.Name;
+            Speak(s);
+        }
+
+        public void StartRace(int step)
+        {
+            //Synth.SetOutputToDefaultAudioDevice();
 
             switch (step)
             {
                 case 1:
-                    synth.SpeakAsync("On your marks!");
+                    Speak("On your marks!");
                     break;
                 case 2:
-                    synth.SpeakAsync("Get set!");
+                    Speak("Get set!");
                     break;
                 case 3:
-                    synth.SpeakAsync("Go!");
+                    Speak("Go!");
                     break;
             }
         }

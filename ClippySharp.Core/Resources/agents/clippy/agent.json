@@ -508,7 +508,7 @@
         }
       ]
     },
-    "EmptyTrash": {
+    "Think": {
       "frames": [
         {
           "duration": 100,
@@ -5663,7 +5663,7 @@
         }
       ]
     },
-    "Think": {
+    "Thinking": {
       "frames": [
         {
           "duration": 100,

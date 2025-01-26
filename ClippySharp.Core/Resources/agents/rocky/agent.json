@@ -3887,7 +3887,7 @@
         }
       ]
     },
-    "GetArtsy": {
+    "GetAttention": {
       "frames": [
         {
           "duration": 0,
@@ -4214,7 +4214,7 @@
         }
       ]
     },
-    "GetAttention": {
+    "GetAttention1": {
       "frames": [
         {
           "duration": 10,
@@ -22163,7 +22163,7 @@
         }
       ]
     },
-    "SendMail": {
+    "Think": {
       "frames": [
         {
           "duration": 0,

@@ -740,7 +740,7 @@
         }
       ]
     },
-    "CharacterSucceeds": {
+    "Think": {
       "frames": [
         {
           "duration": 100,
@@ -2064,7 +2064,7 @@
         }
       ]
     },
-    "GetAttentionMinor": {
+    "Wave": {
       "frames": [
         {
           "duration": 100,
@@ -10128,7 +10128,7 @@
         }
       ]
     },
-    "Sports": {
+    "Waving": {
       "frames": [
         {
           "duration": 100,
@@ -11048,7 +11048,7 @@
         }
       ]
     },
-    "Writing": {
+    "Explain": {
       "frames": [
         {
           "duration": 100,

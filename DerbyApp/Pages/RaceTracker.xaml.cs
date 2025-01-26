@@ -33,7 +33,7 @@ namespace DerbyApp
         private readonly DispatcherTimer _raceTimer;
         private string _raceCountDownString = "";
         private int _raceCountDownTime = 0;
-        private const int MaxRaceTime = 10;
+        public int MaxRaceTime = 10;
         private readonly Replay replay;
         private readonly string _databaseName;
 
@@ -260,7 +260,7 @@ namespace DerbyApp
             ButtonVisibility = Visibility.Collapsed;
             CancelReplayButton.Visibility = Visibility.Collapsed;
             CancelReplayButtonShadow.Visibility = Visibility.Collapsed;
-            Announcer.StartRace(1);
+            //Announcer.StartRace(1);
             //RaceCountDownString = "On Your Marks!";
             _ = StartHeat();
         }
@@ -382,25 +382,26 @@ namespace DerbyApp
 
         private void TimeTickRace(object sender, EventArgs e)
         {
-            switch (_raceCountDownTime)
+            if (_raceCountDownTime == MaxRaceTime)
             {
-                case MaxRaceTime:
-                    Announcer.StartRace(2);
-                    //RaceCountDownString = "Get set!!";
-                    break;
-                case MaxRaceTime - 1:
-                    Announcer.StartRace(3);
-                    //RaceCountDownString = "Go!!!";
-                    Replay.StartRecording(Path.Combine(OutputFolderName, Path.GetFileNameWithoutExtension(_databaseName), "videos"), Results.RaceName, Results.CurrentHeatNumber);
-                    break;
-                case 0:
-                    RaceCountDownString = "";
-                    _raceTimer.Stop();
-                    ButtonGetTimes_Click(sender, null);
-                    break;
-                default:
-                    RaceCountDownString = _raceCountDownTime.ToString() + " seconds remaining.";
-                    break;
+                //Announcer.StartRace(2);
+                //RaceCountDownString = "Get set!!";
+            }
+            else if (_raceCountDownTime == MaxRaceTime - 1)
+            {
+                //Announcer.StartRace(3);
+                //RaceCountDownString = "Go!!!";
+                Replay.StartRecording(Path.Combine(OutputFolderName, Path.GetFileNameWithoutExtension(_databaseName), "videos"), Results.RaceName, Results.CurrentHeatNumber);
+            }
+            else if (_raceCountDownTime == 0)
+            {
+                RaceCountDownString = "";
+                _raceTimer.Stop();
+                ButtonGetTimes_Click(sender, null);
+            }
+            else
+            {
+                RaceCountDownString = _raceCountDownTime.ToString() + " seconds remaining.";
             }
             _raceCountDownTime--;
         }

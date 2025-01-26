@@ -13,7 +13,7 @@ namespace ClippySharp
         readonly AgentAnimationModel model;
         internal bool UseExitBranching => model.UseExitBranching;
 
-        public AgentAnimation(AgentAnimator animator, string name, AgentAnimationModel model)
+        public AgentAnimation(string name, AgentAnimationModel model)
         {
             this.model = model;
 
@@ -22,13 +22,13 @@ namespace ClippySharp
 
             foreach (var frame in model.Frames)
             {
-                Frames.Add(new AgentAnimationFrame(animator, frame));
+                Frames.Add(new AgentAnimationFrame(frame));
             }
         }
 
         internal bool IsIdle()
         {
-            return Name.StartsWith(Idle, StringComparison.Ordinal);
+            return Name.Contains(Idle, StringComparison.Ordinal);
         }
     }
 }

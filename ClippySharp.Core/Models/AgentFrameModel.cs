@@ -8,7 +8,7 @@ namespace ClippySharp.Models
         public required int Duration { get; set; }
 
         [JsonProperty("images")]
-        public required int[][]? Images { get; set; }
+        public required int[][] Images { get; set; }
 
         [JsonProperty("sound")]
         public required string Sound { get; set; }

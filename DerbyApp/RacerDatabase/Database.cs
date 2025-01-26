@@ -321,7 +321,7 @@ namespace DerbyApp.RacerDatabase
             command.ExecuteNonQuery();
         }
 
-        public static void StoreDatabaseRegistry(string database, string activeRace, string outputFolderName, bool timeBasedScoring)
+        public static void StoreDatabaseRegistry(string database, string activeRace, string outputFolderName, bool timeBasedScoring, int maxRaceTime)
         {
             RegistryKey key = Registry.CurrentUser.CreateSubKey(@"SOFTWARE\DerbyApp");
             if (database != null)
@@ -330,16 +330,18 @@ namespace DerbyApp.RacerDatabase
                 if (activeRace != null) key.SetValue("activeRace", activeRace);
                 key.SetValue("outputFolderName", outputFolderName);
                 key.SetValue("timeBasedScoring", timeBasedScoring);
+                key.SetValue("maxRaceTime", maxRaceTime);
             }
             key.Close();
         }
 
-        public static bool GetDatabaseRegistry(out string database, out string activeRace, out string outputFolderName, out bool timeBasedScoring)
+        public static bool GetDatabaseRegistry(out string database, out string activeRace, out string outputFolderName, out bool timeBasedScoring, out int maxRaceTime)
         {
             database = "";
             activeRace = "";
             outputFolderName = "";
             timeBasedScoring = false;
+            maxRaceTime = 10;
             RegistryKey key = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\DerbyApp");
             if (key != null)
             {
@@ -347,6 +349,7 @@ namespace DerbyApp.RacerDatabase
                 if (key.GetValue("activeRace") is string s2) activeRace = s2;
                 if (key.GetValue("outputFolderName") is string s3) outputFolderName = s3;
                 if (key.GetValue("timeBasedScoring") is string s4) if (bool.TryParse(s4, out bool b)) timeBasedScoring = b;
+                if (key.GetValue("maxRaceTime") is int s5) maxRaceTime = s5;
                 return true;
             }
             return false;

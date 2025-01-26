@@ -10,7 +10,7 @@ namespace DerbyApp.Assistant
     {
         readonly Image AgentImage;
         Agent Agent;
-        bool _isVisible = true;
+        bool _isVisible = false;
 
         public AgentInterface(Image agentImage)
         {
@@ -58,7 +58,7 @@ namespace DerbyApp.Assistant
             if (_isVisible)
             {
                 Agent.Stop();
-                Agent.Play("?");
+                Agent.Play("GetAttention");
             }
         }
 
@@ -67,7 +67,7 @@ namespace DerbyApp.Assistant
             if (_isVisible)
             {
                 Agent.Stop();
-                Agent.Play("Searching");
+                Agent.Play("Think");
             }
         }
 
@@ -76,7 +76,7 @@ namespace DerbyApp.Assistant
             if (_isVisible)
             {
                 Agent.Stop();
-                Agent.Play("?");
+                Agent.Play("Explain");
             }
         }
 
@@ -85,7 +85,7 @@ namespace DerbyApp.Assistant
             if (_isVisible)
             {
                 Agent.Stop();
-                Agent.Play("?");
+                Agent.Play("Wave");
             }
         }
 

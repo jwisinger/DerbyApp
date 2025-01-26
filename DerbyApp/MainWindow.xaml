@@ -73,19 +73,25 @@
     </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
+            <RowDefinition Height="20"/>
             <RowDefinition Height="1*"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Name="buttonColumn" Width="250"/>
             <ColumnDefinition Width="1*"/>
         </Grid.ColumnDefinitions>
-        <DockPanel>
+        <DockPanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2">
             <Menu DockPanel.Dock="Top" HorizontalAlignment="Left" Background="AliceBlue">
                 <MenuItem Header="_Settings">
                     <!--<MenuItem Header="_Output Directory" Click="OutDirItem_Click"/>-->
                     <MenuItem Header="_Race Name" Click="SetRaceName_Click"/>
                     <MenuItem Header="_Select Camera" Click="SelectCamera_Click"/>
+                    <MenuItem Header="_Set Max Race Time" Click="SetMaxRaceTime_Click"/>
+                    <MenuItem Header="_Show Menu Bar" IsCheckable="True" IsChecked="{Binding MenuBarChecked, Mode=TwoWay}" Click="ButtonMenuBar_Click"/>
+                    <MenuItem Header="_Flip Camera" IsCheckable="True" IsChecked="{Binding FlipCameraChecked, Mode=TwoWay}" Click="FlipCameraBox_Checked"/>
                     <MenuItem Header="_Time Based Scoring" IsCheckable="True" Click="TimeBasedScoring_Click" Name="MenuItemScoring"/>
+                    <MenuItem Header="_Enable Photos" IsCheckable="True" IsChecked="{Binding DisplayPhotosChecked, Mode=TwoWay}" Click="DisplayPhotos_Checked"/>
+                    <MenuItem Header="_Enable Sound" IsCheckable="True" IsChecked="{Binding PlaySoundsChecked, Mode=TwoWay}" Click="PlaySounds_Checked"/>
                 </MenuItem>
                 <MenuItem Header="_Assistant">
                     <!--<MenuItem Header="_Output Directory" Click="OutDirItem_Click"/>-->
@@ -103,17 +109,29 @@
                             </HierarchicalDataTemplate>
                         </MenuItem.ItemTemplate>
                     </MenuItem>
-                    <MenuItem Header="_Voice"/>
+                    <MenuItem Header="_Voice" ItemsSource="{Binding VoiceMenuItems}">
+                        <MenuItem.ItemContainerStyle>
+                            <Style TargetType="{x:Type MenuItem}">
+                                <Setter Property="Command" Value="{Binding Command}"/>
+                                <Setter Property="IsChecked" Value="{Binding IsChecked, Mode=TwoWay}"/>
+                                <Setter Property="IsCheckable" Value="True"/>
+                            </Style>
+                        </MenuItem.ItemContainerStyle>
+                        <MenuItem.ItemTemplate>
+                            <HierarchicalDataTemplate DataType="{x:Type helpers:MenuItemViewModel}" ItemsSource="{Binding Path=MenuItems}">
+                                <TextBlock Text="{Binding Header}"/>
+                            </HierarchicalDataTemplate>
+                        </MenuItem.ItemTemplate>
+                    </MenuItem>
                 </MenuItem>
                 <MenuItem Header="_Help">
                     <MenuItem Header="_Help" Click="HelpItem_Click"/>
                     <MenuItem Header="_About" Click="AboutItem_Click"/>
                 </MenuItem>
             </Menu>
-            <StackPanel></StackPanel>
         </DockPanel>
-        <GridSplitter Width="5" Grid.Column="0" IsEnabled="False"></GridSplitter>
-        <Image Visibility="{Binding ElementName=MainWindowName, Path=CollapsedVisibility}" HorizontalAlignment="Left" Margin="0,30,0,0" VerticalAlignment="Top" MouseLeftButtonDown="ButtonChangeDatabase_Click" >
+        <GridSplitter Grid.Row="1" Width="5" Grid.Column="0" IsEnabled="False"></GridSplitter>
+        <Image Grid.Row="1" Visibility="{Binding ElementName=MainWindowName, Path=CollapsedVisibility}" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top" MouseLeftButtonDown="ButtonChangeDatabase_Click" >
             <Image.Style>
                 <Style TargetType="{x:Type Image}">
                     <Setter Property="Source" Value="/Images/SelectEvent.png"/>
@@ -125,7 +143,7 @@
                 </Style>
             </Image.Style>
         </Image>
-        <Image Visibility="{Binding ElementName=MainWindowName, Path=CollapsedVisibility}" HorizontalAlignment="Left" Margin="0,80,0,0" VerticalAlignment="Top" MouseLeftButtonDown="ButtonAddRacer_Click" >
+        <Image Grid.Row="1" Visibility="{Binding ElementName=MainWindowName, Path=CollapsedVisibility}" HorizontalAlignment="Left" Margin="0,50,0,0" VerticalAlignment="Top" MouseLeftButtonDown="ButtonAddRacer_Click" >
             <Image.Style>
                 <Style TargetType="{x:Type Image}">
                     <Setter Property="Source" Value="/Images/AddRacer.png"/>
@@ -137,7 +155,7 @@
                 </Style>
             </Image.Style>
         </Image>
-        <Image Visibility="{Binding ElementName=MainWindowName, Path=CollapsedVisibility}" HorizontalAlignment="Left" Margin="0,130,0,0" VerticalAlignment="Top" MouseLeftButtonDown="ButtonViewRacerTable_Click" >
+        <Image Grid.Row="1" Visibility="{Binding ElementName=MainWindowName, Path=CollapsedVisibility}" HorizontalAlignment="Left" Margin="0,100,0,0" VerticalAlignment="Top" MouseLeftButtonDown="ButtonViewRacerTable_Click" >
             <Image.Style>
                 <Style TargetType="{x:Type Image}">
                     <Setter Property="Source" Value="/Images/ViewRacers.png"/>
@@ -149,7 +167,7 @@
                 </Style>
             </Image.Style>
         </Image>
-        <Image Visibility="{Binding ElementName=MainWindowName, Path=CollapsedVisibility}" HorizontalAlignment="Left" Margin="0,180,0,0" VerticalAlignment="Top" MouseLeftButtonDown="ButtonSelectRace_Click" >
+        <Image Grid.Row="1" Visibility="{Binding ElementName=MainWindowName, Path=CollapsedVisibility}" HorizontalAlignment="Left" Margin="0,150,0,0" VerticalAlignment="Top" MouseLeftButtonDown="ButtonSelectRace_Click" >
             <Image.Style>
                 <Style TargetType="{x:Type Image}">
                     <Setter Property="Source" Value="/Images/SelectRace.png"/>
@@ -161,7 +179,7 @@
                 </Style>
             </Image.Style>
         </Image>
-        <Image Visibility="{Binding ElementName=MainWindowName, Path=CollapsedVisibility}" HorizontalAlignment="Left" Margin="0,230,0,0" VerticalAlignment="Top" MouseLeftButtonDown="ButtonStartRace_Click" >
+        <Image Grid.Row="1" Visibility="{Binding ElementName=MainWindowName, Path=CollapsedVisibility}" HorizontalAlignment="Left" Margin="0,200,0,0" VerticalAlignment="Top" MouseLeftButtonDown="ButtonStartRace_Click" >
             <Image.Style>
                 <Style TargetType="{x:Type Image}">
                     <Setter Property="Source" Value="/Images/StartRace.png"/>
@@ -173,7 +191,7 @@
                 </Style>
             </Image.Style>
         </Image>
-        <Image Visibility="{Binding ElementName=MainWindowName, Path=CollapsedVisibility}" HorizontalAlignment="Left" Margin="0,280,0,0" VerticalAlignment="Top" MouseLeftButtonDown="ButtonReport_Click" >
+        <Image Grid.Row="1" Visibility="{Binding ElementName=MainWindowName, Path=CollapsedVisibility}" HorizontalAlignment="Left" Margin="0,250,0,0" VerticalAlignment="Top" MouseLeftButtonDown="ButtonReport_Click" >
             <Image.Style>
                 <Style TargetType="{x:Type Image}">
                     <Setter Property="Source" Value="/Images/ViewReport.png"/>
@@ -185,33 +203,7 @@
                 </Style>
             </Image.Style>
         </Image>
-        <Image Margin="0,0,0,10" Name="ExpandArrow" VerticalAlignment="Bottom" Visibility="Hidden" MouseLeftButtonDown="ButtonExpand_Click" HorizontalAlignment="Left" RenderOptions.BitmapScalingMode="Fant" Width="32" >
-            <Image.Style>
-                <Style TargetType="{x:Type Image}">
-                    <Setter Property="Source" Value="/Images/Right.png"/>
-                    <Style.Triggers>
-                        <Trigger Property="IsMouseOver" Value="True">
-                            <Setter Property="Source" Value="/Images/Right2.png"/>
-                        </Trigger>
-                    </Style.Triggers>
-                </Style>
-            </Image.Style>
-        </Image>
-        <Image Margin="0,0,10,10" Name="CollapseArrow" VerticalAlignment="Bottom" MouseLeftButtonDown="ButtonCollapse_Click" HorizontalAlignment="Right" RenderOptions.BitmapScalingMode="Fant" Width="32" >
-            <Image.Style>
-                <Style TargetType="{x:Type Image}">
-                    <Setter Property="Source" Value="/Images/Left.png"/>
-                    <Style.Triggers>
-                        <Trigger Property="IsMouseOver" Value="True">
-                            <Setter Property="Source" Value="/Images/Left2.png"/>
-                        </Trigger>
-                    </Style.Triggers>
-                </Style>
-            </Image.Style>
-        </Image>
-        <Image x:Name="agentImage" HorizontalAlignment="Center" Height="150" Margin="0,0,0,70" VerticalAlignment="Bottom" Width="150" MouseLeftButtonDown="AgentImage_MouseLeftButtonDown" />
-        <CheckBox Name="cameraCheckbox" Visibility="{Binding ElementName=MainWindowName, Path=CollapsedVisibility}" HorizontalAlignment="Left" Style="{StaticResource cameraCheckboxStyle}" VerticalAlignment="Bottom" IsChecked="{Binding ElementName=MainWindowName, Path=DisplayPhotosChecked, Mode=TwoWay}" Click="CheckBox_Checked" Grid.Column="0" FontWeight="Bold" FontSize="20" Margin="40,0,0,10"/>
-        <CheckBox Name="cameraFlipCheckbox" Visibility="{Binding ElementName=MainWindowName, Path=CollapsedVisibility}" HorizontalAlignment="Right" Style="{StaticResource cameraFlipCheckboxStyle}" VerticalAlignment="Bottom" IsChecked="{Binding ElementName=MainWindowName, Path=FlipCameraChecked, Mode=TwoWay}" Click="FlipCameraBox_Checked" Grid.Column="0" FontWeight="Bold" FontSize="20" Margin="0,0,40,10"/>
-        <Frame Name="mainFrame" NavigationUIVisibility="Hidden" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Margin="0,0,0,0" />
+        <Image Grid.Row="1" Grid.Column="0" x:Name="agentImage" HorizontalAlignment="Center" Height="150" Margin="0,0,0,50" VerticalAlignment="Bottom" Width="250" MouseLeftButtonDown="AgentImage_MouseLeftButtonDown" Stretch="None"/>
+        <Frame Grid.Row="1" Name="mainFrame" NavigationUIVisibility="Hidden" Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Margin="0,0,0,0" />
     </Grid>
 </Window>

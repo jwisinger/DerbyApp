@@ -1,6 +1,7 @@
 ﻿using ClippySharp.Models;
 using Newtonsoft.Json;
 using System.Windows.Media;
+using System.Windows.Threading;
 
 namespace ClippySharp
 {
@@ -9,72 +10,71 @@ namespace ClippySharp
     {
         public event EventHandler? NeedsRender;
 
-        public bool Sound { get; set; } = true;
-        public Size ImageSize { get; }
-
         internal AgentAnimator? Animator { get; }
         internal AgentModel? Model { get; }
-
-        readonly QueueProcessor queue;
+        public Size? ImageSize { get; }
+        public bool Sound { get; set; } = true;
+        private readonly DispatcherTimer _idleTimer;
+        private readonly DispatcherTimer _timeoutTimer;
 
         public Agent(string agent)
         {
-            //we initialize context
-            queue = new QueueProcessor();
-
-            var agentJson = AssemblyHelper.ReadResourceString(agent, "agent.json");
+            _idleTimer = new DispatcherTimer();
+            _timeoutTimer = new DispatcherTimer();
+            string agentJson = AssemblyHelper.ReadResourceString(agent, "agent.json");
             Model = JsonConvert.DeserializeObject<AgentModel>(agentJson);
-            if (Model == null) return;
+            if (Model != null)
+            {
+                ImageSize = new Size(Model.FrameSize[0], Model.FrameSize[1]);
+                Animator = new AgentAnimator(agent, this);
+                Animator.NeedsRefresh += Animator_NeedsRefresh;
+                Animator.AnimationEnded += Animator_AnimationEnded;
+                _idleTimer.Interval = TimeSpan.FromSeconds(5);
+                _idleTimer.Tick += IdleTimer_Tick;
+                _idleTimer.Start();
+                _timeoutTimer.Interval = TimeSpan.FromSeconds(5);
+                _timeoutTimer.Tick += TimeoutTimer_Tick;
+            }
+        }
 
-            ImageSize = new Size(Model.FrameSize[0], Model.FrameSize[1]);
-            Animator = new AgentAnimator(agent, this);
+        void IdleTimer_Tick(object? sender, EventArgs e)
+        {
+            AgentAnimation? animation = Animator?.GetIdleAnimation();
+            if (animation != null) Animator?.ShowAnimation(animation);
 
-            Animator.NeedsRefresh += Animator_NeedsRefresh;
+        }
+
+        void TimeoutTimer_Tick(object? sender, EventArgs e)
+        {
+            //MessageBox.Show("Timeout on animation");
+            _timeoutTimer.Stop();
+            _idleTimer.Start();
         }
 
         public void PlaySound(string? id)
         {
-            if (!Sound || string.IsNullOrEmpty(id))
+            if (Sound && !string.IsNullOrEmpty(id))
             {
-                return;
+                var sound = Animator?.Sounds?.FirstOrDefault(s => s.Id == id);
+                if (sound != null && AgentEnvironment.Current.SoundPlayer != null)
+                {
+                    AgentEnvironment.Current.SoundPlayer.Play(sound);
+                }
             }
-            var sound = Animator?.Sounds?.FirstOrDefault(s => s.Id == id);
-            if (sound != null && AgentEnvironment.Current.SoundPlayer != null)
-            {
-                AgentEnvironment.Current.SoundPlayer.Play(sound);
-            }
+        }
+
+        public bool Play(string animation)
+        {
+            if (Animator == null || !Animator.HasAnimation(animation)) return false;
+            _idleTimer.Stop();
+            _timeoutTimer.Start();
+            Animator?.ShowAnimation(animation);
+            return true;
         }
 
         public void Stop()
         {
-            this.queue.Clear();
             Animator?.ExitAnimation();
-        }
-
-        public bool Play(string animation, int timeout = 5000)
-        {
-            if (!Animator.HasAnimation(animation)) return false;
-
-            AddToQueue(() =>
-            {
-                void handler(object? s, AnimationStateEventArgs e)
-                {
-                    Animator.AnimationEnded -= handler;
-
-                    if (timeout > 0)
-                    {
-                        //window.setTimeout($.proxy(function() {
-                        //    if (completed) return;
-                        //    // exit after timeout
-                        //    this._animator.exitAnimation();
-                        //}, this), timeout)
-                    }
-                }
-
-                Animator.AnimationEnded += handler;
-                Animator?.ShowAnimation(animation);
-            });
-            return true;
         }
 
         void Animator_NeedsRefresh(object? sender, EventArgs e)
@@ -82,14 +82,15 @@ namespace ClippySharp
             NeedsRender?.Invoke(this, e);
         }
 
+        void Animator_AnimationEnded(object? sender, EventArgs e)
+        {
+            _timeoutTimer.Stop();
+            _idleTimer.Start();
+        }
+
         public ImageSource? GetCurrentImage()
         {
             return Animator?.GetCurrentImage();
-        }
-
-        void AddToQueue(Action p)
-        {
-            queue.Enqueue(p);
         }
 
         public void Dispose()

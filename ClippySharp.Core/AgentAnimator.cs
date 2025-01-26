@@ -17,11 +17,11 @@ namespace ClippySharp
         public event EventHandler? NeedsRefresh;
 
         public List<SoundData>? Sounds { get; }
-        public List<AgentAnimation> Animations { get; }
+        public List<AgentAnimation>? Animations { get; }
 
         internal string? currentAnimationName;
 
-        readonly Bitmap bitmapSheet;
+        readonly Bitmap _bitmapSheet;
         readonly System.Timers.Timer aTimer;
         readonly Agent agent;
 
@@ -35,10 +35,9 @@ namespace ClippySharp
         public AgentAnimator(string name, Agent agent)
         {
             this.agent = agent;
-            //sound processing
+
             var soundJson = AssemblyHelper.ReadResourceString(name, "sounds-mp3.json");
             var soundData = JsonConvert.DeserializeObject<Dictionary<string, string>>(soundJson);
-
             if (soundData != null)
             {
                 Sounds = [];
@@ -48,20 +47,17 @@ namespace ClippySharp
                 }
             }
 
-            //image processing
-            bitmapSheet = GetImageSheet(name, "map.png");
-
             if (agent.Model != null)
             {
                 Animations = [];
                 foreach (var animationKey in agent.Model.Animations)
                 {
-                    //if (animationKey.Value.TryGetValue("frames", out AgentAnimationModel animation))
-                    //{
-                    Animations.Add(new AgentAnimation(this, animationKey.Key, animationKey.Value));
-                    // };
+                    Animations.Add(new AgentAnimation(animationKey.Key, animationKey.Value));
                 }
             }
+
+            _bitmapSheet = GetImageSheet(name, "map.png");
+
             aTimer = new System.Timers.Timer();
             aTimer.Elapsed += ATimer_Elapsed;
         }
@@ -85,88 +81,55 @@ namespace ClippySharp
             Step();
         }
 
-        #region Public API
-
-        private static BitmapImage Convert(Bitmap bitmap)
-        {
-            using MemoryStream memory = new();
-            bitmap.Save(memory, ImageFormat.Png);
-            memory.Position = 0;
-            BitmapImage bitmapImage = new();
-            bitmapImage.BeginInit();
-            bitmapImage.StreamSource = memory;
-            bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
-            bitmapImage.EndInit();
-            return bitmapImage;
-        }
-
-        public ImageSource? GetImage(int[][] image)
-        {
-            ImageSource? imageView = null;
-
-            Application.Current.Dispatcher.Invoke(() =>
-            {
-                Bitmap img = new((int)agent.ImageSize.Width, (int)agent.ImageSize.Height);
-                using (Graphics gr = Graphics.FromImage(img))
-                {
-                    for (int i = 0; i < image.Length; i++)
-                    {
-                        RectangleF cropRect = new(image[i][0], image[i][1], (int)agent.ImageSize.Width, (int)agent.ImageSize.Height);
-                        gr.DrawImage(bitmapSheet, new RectangleF(0, 0, img.Width, img.Height), cropRect, GraphicsUnit.Pixel);
-                    }
-                }
-                var imgSource = Convert(img);
-                imageView = imgSource;
-            });
-
-            return imageView;
-        }
-
         public bool HasAnimation(string name)
         {
+            if (Animations == null) return false;
             return Animations.Any(s => s.Name == name);
         }
 
-        public bool IsIdleAnimation()
+        public bool ShowAnimation(AgentAnimation animation)
         {
-            return currentAnimation?.IsIdle() ?? false;
-        }
+            _exiting = false;
+            currentAnimation = animation;
+            currentAnimationName = animation.Name;
+            currentFrame = null;
+            currentFrameIndex = 0;
 
+            if (!_started)
+            {
+                Step();
+                _started = true;
+            }
+
+            return true;
+        }
+        
         public bool ShowAnimation(string animationName)
         {
-            this._exiting = false;
-            if (!this.HasAnimation(animationName))
+            _exiting = false;
+            if (!HasAnimation(animationName))
             {
                 return false;
             }
 
-            currentAnimation = Animations.FirstOrDefault(s => s.Name == animationName);
-            this.currentAnimationName = animationName;
+            currentAnimation = Animations?.FirstOrDefault(s => s.Name == animationName);
+            currentAnimationName = animationName;
+            currentFrame = null;
+            currentFrameIndex = 0;
 
-            this.currentFrame = null;
-            this.currentFrameIndex = 0;
-
-            if (!this._started)
+            if (!_started)
             {
-                this.Step();
-                this._started = true;
+                Step();
+                _started = true;
             }
 
             return true;
         }
 
-        public static AgentAnimation GetRandomAnimation(List<AgentAnimation> animations)
+        public AgentAnimation? GetIdleAnimation()
         {
-            return animations[(int)rnd.Next(0, animations.Count - 1)];
-        }
+            if (Animations == null) return null;
 
-        public AgentAnimation GetRandomAnimation()
-        {
-            return GetRandomAnimation(Animations);
-        }
-
-        public AgentAnimation GetIdleAnimation()
-        {
             var r = new List<AgentAnimation>();
             foreach (var animation in Animations)
             {
@@ -176,19 +139,7 @@ namespace ClippySharp
                 }
             }
 
-            return GetRandomAnimation(r);
-        }
-
-        public void OnQueueEmpty()
-        {
-            if (this.IsIdleAnimation()) return;
-            var idleAnim = this.GetIdleAnimation();
-            this.ShowAnimation(idleAnim.Name);
-        }
-
-        public ImageSource? GetCurrentImage()
-        {
-            return currentFrame?.GetImage();
+            return r[rnd.Next(0, r.Count - 1)];
         }
 
         public void ExitAnimation()
@@ -276,13 +227,46 @@ namespace ClippySharp
             return this.currentFrameIndex + 1;
         }
 
-        #endregion
+        public ImageSource? GetImage(int[][] image)
+        {
+            if (image == null) return null;
 
-    }
+            ImageSource? imageView = null;
 
-    public class AnimationStateEventArgs(string? name, AnimationStates states) : EventArgs
-    {
-        public string Name { get; } = name;
-        public AnimationStates State { get; } = states;
+            if (agent.ImageSize != null)
+            {
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    Bitmap img = new((int)agent.ImageSize.Width, (int)agent.ImageSize.Height);
+                    using (Graphics gr = Graphics.FromImage(img))
+                    {
+                        for (int i = 0; i < image.Length; i++)
+                        {
+                            RectangleF cropRect = new(image[i][0], image[i][1], (int)agent.ImageSize.Width, (int)agent.ImageSize.Height);
+                            gr.DrawImage(_bitmapSheet, new RectangleF(0, 0, img.Width, img.Height), cropRect, GraphicsUnit.Pixel);
+                        }
+                    }
+
+                    using MemoryStream memory = new();
+                    img.Save(memory, ImageFormat.Png);
+                    memory.Position = 0;
+                    BitmapImage bitmapImage = new();
+                    bitmapImage.BeginInit();
+                    bitmapImage.StreamSource = memory;
+                    bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
+                    bitmapImage.EndInit();
+
+                    imageView = bitmapImage;
+                });
+            }
+
+            return imageView;
+        }
+
+        public ImageSource? GetCurrentImage()
+        {
+            if (currentFrame == null) return null;
+            return GetImage(currentFrame.Images);
+        }
     }
 }
