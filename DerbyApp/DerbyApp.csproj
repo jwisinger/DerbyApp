@@ -27,11 +27,15 @@
     <None Remove="Images\CameraFlip.png" />
     <None Remove="Images\CameraFlip2.png" />
     <None Remove="Images\first.png" />
+    <None Remove="Images\G.png" />
     <None Remove="Images\GIRL3.jpg" />
+    <None Remove="Images\I.png" />
+    <None Remove="Images\L.png" />
     <None Remove="Images\Left.png" />
     <None Remove="Images\Left2.png" />
     <None Remove="Images\No Camera.png" />
     <None Remove="Images\No Camera2.png" />
+    <None Remove="Images\R.png" />
     <None Remove="Images\racecar.ico" />
     <None Remove="Images\Racer.png" />
     <None Remove="Images\Record.png" />
@@ -75,18 +79,22 @@
     <Resource Include="Images\Camera.png" />
     <Resource Include="Images\Camera2.png" />
     <Resource Include="Images\first.png" />
+    <Resource Include="Images\G.png" />
     <Resource Include="Images\Girl-Scout-Logo.png" />
     <Resource Include="Images\GIRL.jpg" />
     <Resource Include="Images\GIRL2.jpg" />
     <Resource Include="Images\GIRL3.jpg">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Resource>
+    <Resource Include="Images\I.png" />
+    <Resource Include="Images\L.png" />
     <Resource Include="Images\Left2.png" />
     <Resource Include="Images\Left.png" />
     <Resource Include="Images\No Camera.png" />
     <Resource Include="Images\No Camera2.png" />
     <Content Include="racecar.ico" />
     <ProjectReference Include="..\ClippySharp.Core\ClippySharp.csproj" />
+    <Resource Include="Images\R.png" />
     <Resource Include="Images\Racer.png" />
     <Resource Include="Images\Record.png" />
     <Resource Include="Images\Right2.png" />

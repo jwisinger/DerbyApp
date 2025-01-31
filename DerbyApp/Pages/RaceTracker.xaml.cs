@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.IO;
+using System.Linq;
 using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
@@ -25,7 +26,9 @@ namespace DerbyApp
     public partial class RaceTracker : Page, INotifyPropertyChanged
     {
         private Visibility _displayPhotos = Visibility.Collapsed;
+        private Visibility _recordingVisibility = Visibility.Collapsed;
         private bool _previousHeatEnabled = false;
+        private bool _cancelReplayEnabled = false;
         private bool _nextHeatEnabled = true;
         private Visibility _buttonVisibility = Visibility.Visible;
         private string _currentHeatLabelString = "Current Heat (1)";
@@ -56,6 +59,24 @@ namespace DerbyApp
             set
             {
                 _previousHeatEnabled = value;
+                NotifyPropertyChanged();
+            }
+        }
+        public bool CancelReplayEnabled
+        {
+            get => _cancelReplayEnabled;
+            set
+            {
+                _cancelReplayEnabled = value;
+                NotifyPropertyChanged();
+            }
+        }
+        public Visibility RecordingVisibility
+        {
+            get => _recordingVisibility;
+            set
+            {
+                _recordingVisibility = value;
                 NotifyPropertyChanged();
             }
         }
@@ -107,22 +128,6 @@ namespace DerbyApp
         public event PropertyChangedEventHandler PropertyChanged;
         public event EventHandler HeatChanged;
 
-        private void ShowReplay(bool state)
-        {
-            if (state)
-            {
-                LeaderInstantReplayGrid.RowDefinitions.Clear();
-                LeaderInstantReplayGrid.RowDefinitions.Add(new RowDefinition() { Height = (GridLength)(new GridLengthConverter()).ConvertFrom("0") });
-                LeaderInstantReplayGrid.RowDefinitions.Add(new RowDefinition() { Height = (GridLength)(new GridLengthConverter()).ConvertFrom("*") });
-            }
-            else
-            {
-                LeaderInstantReplayGrid.RowDefinitions.Clear();
-                LeaderInstantReplayGrid.RowDefinitions.Add(new RowDefinition() { Height = (GridLength)(new GridLengthConverter()).ConvertFrom("*") });
-                LeaderInstantReplayGrid.RowDefinitions.Add(new RowDefinition() { Height = (GridLength)(new GridLengthConverter()).ConvertFrom("0") });
-            }
-        }
-
         private void Datagrid_AutoGeneratingColumn(object sender, DataGridAutoGeneratingColumnEventArgs e)
         {
             if (e.Column is DataGridTextColumn col && e.PropertyType == typeof(double))
@@ -151,7 +156,7 @@ namespace DerbyApp
             gridRaceResults.AutoGeneratingColumn += Datagrid_AutoGeneratingColumn;
             gridRaceResults.DataContext = Results.ResultsTable.DefaultView;
             gridLeaderBoard.DataContext = LdrBoard.Board;
-            gridCurrentHeat.DataContext = Results.RaceFormat.CurrentRacers;
+            Results.RaceFormat.CurrentRacers.CollectionChanged += CurrentRacers_CollectionChanged;
             CurrentHeatLabel.DataContext = this;
             _raceTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
             _raceTimer.Tick += TimeTickRace;
@@ -164,10 +169,37 @@ namespace DerbyApp
             replay.ReplayEnded += ReplayEnded;
         }
 
+        private void CurrentRacers_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            if (Results.RaceFormat.CurrentRacers.Count == 0) return;
+            racer1Image.DataContext = Results.RaceFormat.CurrentRacers[0];
+            racer1Name.DataContext = Results.RaceFormat.CurrentRacers[0];
+            racer1Name.GetBindingExpression(TextBlock.TextProperty).UpdateTarget();
+            racer1Image.GetBindingExpression(Image.SourceProperty).UpdateTarget();
+
+            if (Results.RaceFormat.CurrentRacers.Count == 1) return;
+            racer2Image.DataContext = Results.RaceFormat.CurrentRacers[1];
+            racer2Name.DataContext = Results.RaceFormat.CurrentRacers[1];
+            racer2Name.GetBindingExpression(TextBlock.TextProperty).UpdateTarget();
+            racer2Image.GetBindingExpression(Image.SourceProperty).UpdateTarget();
+
+            if (Results.RaceFormat.CurrentRacers.Count == 2) return;
+            racer3Image.DataContext = Results.RaceFormat.CurrentRacers[2];
+            racer3Name.DataContext = Results.RaceFormat.CurrentRacers[2];
+            racer3Name.GetBindingExpression(TextBlock.TextProperty).UpdateTarget();
+            racer3Image.GetBindingExpression(Image.SourceProperty).UpdateTarget();
+
+            if (Results.RaceFormat.CurrentRacers.Count == 3) return;
+            racer4Image.DataContext = Results.RaceFormat.CurrentRacers[3];
+            racer4Name.DataContext = Results.RaceFormat.CurrentRacers[3];
+            racer4Name.GetBindingExpression(TextBlock.TextProperty).UpdateTarget();
+            racer4Image.GetBindingExpression(Image.SourceProperty).UpdateTarget();
+        }
+
         public void ReplayEnded(object sender, EventArgs e)
         {
             ButtonVisibility = Visibility.Visible;
-            Application.Current.Dispatcher.Invoke(() => ShowReplay(false));
+            CancelReplayEnabled = false;
         }
 
         private void ButtonNextHeat_Click(object sender, RoutedEventArgs e)
@@ -184,16 +216,16 @@ namespace DerbyApp
             {
                 BasedOn = TryFindResource("baseStyle") as Style
             };
-            style.Setters.Add(new Setter(System.Windows.Controls.Control.FontWeightProperty, FontWeights.Bold));
-            style.Setters.Add(new Setter(System.Windows.Controls.Control.BackgroundProperty, new SolidColorBrush(Colors.LightGreen)));
+            style.Setters.Add(new Setter(Control.FontWeightProperty, FontWeights.Bold));
+            style.Setters.Add(new Setter(Control.BackgroundProperty, new SolidColorBrush(Colors.LightGreen)));
             gridRaceResults.Columns[Results.CurrentHeatNumber + 1].HeaderStyle = style;
 
             Style style2 = new(typeof(DataGridColumnHeader))
             {
                 BasedOn = TryFindResource("baseStyle") as Style
             };
-            style2.Setters.Add(new Setter(System.Windows.Controls.Control.FontWeightProperty, FontWeights.Bold));
-            style2.Setters.Add(new Setter(System.Windows.Controls.Control.BackgroundProperty, new SolidColorBrush(Colors.Transparent)));
+            style2.Setters.Add(new Setter(Control.FontWeightProperty, FontWeights.Bold));
+            style2.Setters.Add(new Setter(Control.BackgroundProperty, new SolidColorBrush(Colors.Transparent)));
             gridRaceResults.Columns[Results.CurrentHeatNumber].HeaderStyle = style2;
             HeatChanged?.Invoke(this, null);
         }
@@ -258,8 +290,8 @@ namespace DerbyApp
         private void ButtonStart_Click(object sender, RoutedEventArgs e)
         {
             ButtonVisibility = Visibility.Collapsed;
-            CancelReplayButton.Visibility = Visibility.Collapsed;
-            CancelReplayButtonShadow.Visibility = Visibility.Collapsed;
+            PreviousHeatEnabled = false;
+            NextHeatEnabled = false;
             //Announcer.StartRace(1);
             //RaceCountDownString = "On Your Marks!";
             _ = StartHeat();
@@ -297,7 +329,6 @@ namespace DerbyApp
             }
             _raceCountDownTime = MaxRaceTime;
             _raceTimer.Start();
-            ShowReplay(true);
         }
 
         private async Task GetTimes()
@@ -374,10 +405,14 @@ namespace DerbyApp
             {
                 MessageBox.Show(e.Message, "Track Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
-            CancelReplayButton.Visibility = Visibility.Visible;
-            CancelReplayButtonShadow.Visibility = Visibility.Visible;
             Replay.ShowReplay();
+            RecordingVisibility = Visibility.Collapsed;
+            CancelReplayEnabled = true;
             RaceCountDownString = "";
+            if (Results.CurrentHeatNumber >= Results.RaceFormat.HeatCount) NextHeatEnabled = false;
+            else NextHeatEnabled = true;
+            if (Results.CurrentHeatNumber <= 1) PreviousHeatEnabled = false;
+            else PreviousHeatEnabled = true;
         }
 
         private void TimeTickRace(object sender, EventArgs e)
@@ -391,6 +426,7 @@ namespace DerbyApp
             {
                 //Announcer.StartRace(3);
                 //RaceCountDownString = "Go!!!";
+                RecordingVisibility = Visibility.Visible;
                 Replay.StartRecording(Path.Combine(OutputFolderName, Path.GetFileNameWithoutExtension(_databaseName), "videos"), Results.RaceName, Results.CurrentHeatNumber);
             }
             else if (_raceCountDownTime == 0)

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using DerbyApp.Helpers;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 
@@ -6,7 +7,7 @@ namespace DerbyApp.RaceStats
 {
     public class RaceFormat(string name, int heatCount, int racerCount, int laneCount, int[][] heats)
     {
-        public ObservableCollection<Racer> CurrentRacers = [];
+        public TrulyObservableCollection<Racer> CurrentRacers = [];
         public string Name { get; } = name;
         public int HeatCount = heatCount;
         public readonly int RacerCount = racerCount;
