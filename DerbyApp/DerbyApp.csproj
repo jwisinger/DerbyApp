@@ -93,7 +93,7 @@
     <Resource Include="Images\No Camera.png" />
     <Resource Include="Images\No Camera2.png" />
     <Content Include="racecar.ico" />
-    <ProjectReference Include="..\ClippySharp.Core\ClippySharp.csproj" />
+    <ProjectReference Include="..\ClippySharp\ClippySharp.csproj" />
     <Resource Include="Images\R.png" />
     <Resource Include="Images\Racer.png" />
     <Resource Include="Images\Record.png" />

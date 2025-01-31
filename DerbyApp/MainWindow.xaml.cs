@@ -24,6 +24,7 @@ using System.Windows.Input;
 using DerbyApp.Assistant;
 using ClippySharp;
 using System.Speech.Synthesis;
+using Emgu.CV;
 
 namespace DerbyApp
 {
@@ -388,8 +389,26 @@ namespace DerbyApp
         private void AboutItem_Click(object sender, RoutedEventArgs e)
         {
             MessageBox.Show("",
-                "Version: " + System.Reflection.Assembly.GetEntryAssembly().GetName().Version.ToString(),
-                MessageBoxButton.OK, MessageBoxImage.None);
+                "Version: " + System.Reflection.Assembly.GetEntryAssembly().GetName().Version.ToString()
+            /*"The following open source libraries are used in this software:" +
+            "\n| Reference | Version | License Type | License |" +
+            "\n| ----------------------------------------------------------------------------------------------------------------------------------|" +
+            "\n| DirectShowLib.Standard | 2.1.0 | LGPL v2.      | https://www.nuget.org/packages/DirectShowLib.Standard/2.1.0/License       |" +
+            "\n| Emgu.CV | 4.9.0.5494 | GPL v3 | https://www.nuget.org/packages/Emgu.CV/4.9.0.5494/License                 |" +
+            "\n| Emgu.CV.Bitmap | 4.9.0.5494 | GPL v3 | https://www.nuget.org/packages/Emgu.CV.Bitmap/4.9.0.5494/License          |" +
+            "\n| Emgu.CV.runtime.windows | 4.9.0.5494 | GPL v3 | https://www.nuget.org/packages/Emgu.CV.runtime.windows/4.9.0.5494/License |" +
+            "\n| Emgu.CV.UI | 4.9.0.5494 | GPL v3 | https://www.nuget.org/packages/Emgu.CV.UI/4.9.0.5494/License              |" +
+            "\n| NETStandard.Library | 2.0.3 |               | https://github.com/dotnet/standard/blob/master/LICENSE.TXT                |" +
+            "\n| Newtonsoft.Json | 13.0.3 | MIT | https://licenses.nuget.org/MIT                                            |" +
+            "\n| PDFsharp - MigraDoc - GDI | 6.1.1 | MIT | https://licenses.nuget.org/MIT                                            |" +
+            "\n| System.Data.SqlClient | 4.9.0 | MIT | https://licenses.nuget.org/MIT                                            |" +
+            "\n| System.Data.SQLite | 1.0.119.0 | Public Domain | https://www.sqlite.org/copyright.html                                     |" +
+            "\n| System.Data.SQLite.Core | 1.0.119.0 | Public Domain | https://www.sqlite.org/copyright.html                                     |" +
+            "\n| System.Drawing.Common | 8.0.1 | MIT | https://licenses.nuget.org/MIT                                            |" +
+            "\n| System.Speech | 9.0.0 | MIT | https://licenses.nuget.org/MIT                                            |" +
+            "\n| System.Text.Json | 9.0.0 | MIT | https://licenses.nuget.org/MIT                                            |" +
+            "\n| All Images(Flaticon) |            | Attribution | https://media.flaticon.com/license/license.pdf                            |"*/,
+            MessageBoxButton.OK, MessageBoxImage.None);
         }
 
         private void OutDirItem_Click(object sender, RoutedEventArgs e)
