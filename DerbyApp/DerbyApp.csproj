@@ -104,6 +104,7 @@
     <Resource Include="Images\Megaphone.png" />
     <Content Include="racecar.ico" />
     <ProjectReference Include="..\ClippySharp\ClippySharp.csproj" />
+    <ProjectReference Include="..\PiperSharp\PiperSharp.csproj" />
     <Resource Include="Images\OrderedList.png" />
     <Resource Include="Images\R.png" />
     <Resource Include="Images\Racer.png" />

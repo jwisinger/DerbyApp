@@ -12,10 +12,9 @@ using SharpCompress.Common;
 using SharpCompress.Readers;
 namespace PiperSharp
 {
-    public static class PiperDownloader
+    public static partial class PiperDownloader
     {
         private const string PIPER_REPO_URL = "https://github.com/rhasspy/piper";
-        private const string MODEL_REPO_URL = "https://huggingface.co/rhasspy/piper-voices";
         private const string MODEL_LIST_URL = "https://huggingface.co/rhasspy/piper-voices/raw/main/voices.json";
         private const string MODEL_DOWNLOAD_URL =
             "https://huggingface.co/rhasspy/piper-voices/resolve/main/MODEL_FILE_URL?download=true";
@@ -28,25 +27,13 @@ namespace PiperSharp
     
     
         private static Dictionary<string, VoiceModel>? _voiceModels;
-        private static Regex RemoveLastSlash = new Regex(@"\/$", RegexOptions.Compiled);
+        private static readonly Regex RemoveLastSlash = RemoveSlash();
 
         public static async Task<Stream> DownloadPiper(string version = "latest", string repo = PIPER_REPO_URL)
         {
             if (!Environment.Is64BitOperatingSystem)
                 throw new NotSupportedException();
-            var arch = typeof(object).Assembly.GetName().ProcessorArchitecture;
-            var os = Environment.OSVersion.Platform;
-            var fileName = os switch
-            {
-                PlatformID.Win32NT => "piper_windows_amd64.zip",
-                PlatformID.Unix => arch == ProcessorArchitecture.Arm
-                    ? "piper_linux_aarch64.tar.gz"
-                    : "piper_linux_x86_64.tar.gz",
-                PlatformID.MacOSX => arch == ProcessorArchitecture.Arm
-                    ? "piper_macos_aarch64.tar.gz"
-                    : "piper_macos_x64.tar.gz",
-                _ => throw new NotSupportedException()
-            };
+            var fileName = "piper_windows_amd64.zip";
             version = version == "latest" ? "latest/download" : $"download/{version}";
             var url = $"{RemoveLastSlash.Replace(repo, "")}/releases/{version}/{fileName}";
             var client = new HttpClient();
@@ -68,40 +55,38 @@ namespace PiperSharp
             }
             else
             {
-                using (var reader = ReaderFactory.Open(downloadStream))
+                using var reader = ReaderFactory.Open(downloadStream);
+                var piperPath = Path.Join(extractTo, "piper")!;
+                Queue<(string from, string to)> expectedSymlinks =
+                    new();
+                while (reader.MoveToNextEntry())
                 {
-                    var piperPath = Path.Join(extractTo, "piper")!;
-                    Queue<(string from, string to)> expectedSymlinks =
-                        new Queue<(string from, string to)>(); 
-                    while (reader.MoveToNextEntry())
+                    if (!reader.Entry.IsDirectory)
                     {
-                        if (!reader.Entry.IsDirectory)
+                        reader.WriteEntryToDirectory(extractTo, new ExtractionOptions()
                         {
-                            reader.WriteEntryToDirectory(extractTo, new ExtractionOptions()
+                            ExtractFullPath = true,
+                            Overwrite = true,
+                            WriteSymbolicLink = ((to, from) =>
                             {
-                                ExtractFullPath = true,
-                                Overwrite = true,
-                                WriteSymbolicLink = ((to, from) =>
-                                {
-                                    expectedSymlinks.Enqueue((from, Path.GetFileName(to)));
-                                })
-                            });
-                        }
+                                expectedSymlinks.Enqueue((from, Path.GetFileName(to)));
+                            })
+                        });
                     }
-                    while (expectedSymlinks.TryDequeue(out var link))
+                }
+                while (expectedSymlinks.TryDequeue(out var link))
+                {
+                    var fromPath = Path.Join(piperPath, link.from);
+                    var toPath = Path.Join(piperPath, link.to);
+                    if (File.Exists(fromPath))
                     {
-                        var fromPath = Path.Join(piperPath, link.from);
-                        var toPath = Path.Join(piperPath, link.to);
-                        if (File.Exists(fromPath))
-                        {
-                            File.Copy(fromPath, toPath);
-                            continue;
-                        }
-                        if (File.Exists(toPath)) continue;
-                        
-                        // Could not copy and file does not exist, back in queue
-                        expectedSymlinks.Enqueue(link);
+                        File.Copy(fromPath, toPath);
+                        continue;
                     }
+                    if (File.Exists(toPath)) continue;
+
+                    // Could not copy and file does not exist, back in queue
+                    expectedSymlinks.Enqueue(link);
                 }
             }
             return extractTo;
@@ -125,20 +110,14 @@ namespace PiperSharp
             var client = new HttpClient();
             var response = await client.GetAsync(MODEL_LIST_URL);
             if (!response.IsSuccessStatusCode) throw new HttpRequestException();
-            var data = await response.Content.ReadAsStringAsync();
-            if (data is null) throw new ApplicationException();
+            var data = await response.Content.ReadAsStringAsync() ?? throw new ApplicationException();
             _voiceModels = JsonSerializer.Deserialize<Dictionary<string, VoiceModel>>(data);
             return _voiceModels;
         }
 
         public static async Task<VoiceModel> DownloadModelByKey(string modelKey)
         {
-            var model = await GetModelByKey(modelKey);
-            if (model is null)
-            {
-                throw new ArgumentException($"Model {modelKey} does not exist!", nameof(modelKey));
-            }
-
+            var model = await GetModelByKey(modelKey) ?? throw new ArgumentException($"Model {modelKey} does not exist!", nameof(modelKey));
             return await model.DownloadModel();
         }
         public static Task<VoiceModel> DownloadModel(this VoiceModel model)
@@ -160,6 +139,7 @@ namespace PiperSharp
                 // Load Audio configuration from .onnx.json file
                 if (fileName.EndsWith(".onnx.json"))
                 {
+#warning BUG: There is some type of error here stopping downloading of complete voices
                     var ms = new MemoryStream();
                     await downloadStream.CopyToAsync(ms);
                     ms.Seek(0, SeekOrigin.Begin);
@@ -189,5 +169,8 @@ namespace PiperSharp
 
             return model;
         }
+
+        [GeneratedRegex(@"\/$", RegexOptions.Compiled)]
+        private static partial Regex RemoveSlash();
     }
 }

@@ -38,6 +38,7 @@ namespace DerbyApp
         public int MaxRaceTime = 10;
         private readonly Replay replay;
         private readonly string _databaseName;
+        private readonly Announcer _announcer;
 
         public string OutputFolderName;
         public RaceResults Results { get; set; }
@@ -145,9 +146,10 @@ namespace DerbyApp
             gridRaceResults.Columns.Add(new DataGridTextColumn() { Header = e.PropertyName, Binding = new System.Windows.Data.Binding(e.PropertyName) { StringFormat = "N3" } });
         }
 
-        public RaceTracker(RaceResults results, Database db, string databaseName, string outputFolderName)
+        public RaceTracker(RaceResults results, Database db, string databaseName, string outputFolderName, Announcer announcer)
         {
             InitializeComponent();
+            _announcer = announcer;
             Results = results;
             _db = db;
             Results.RaceFormat.UpdateDisplayedHeat(Results.CurrentHeatNumber, results.Racers);
@@ -291,7 +293,7 @@ namespace DerbyApp
             ButtonVisibility = Visibility.Collapsed;
             PreviousHeatEnabled = false;
             NextHeatEnabled = false;
-            //Announcer.StartRace(1);
+            _announcer.StartRace(1);
             //RaceCountDownString = "On Your Marks!";
             _ = StartHeat();
         }
@@ -418,12 +420,12 @@ namespace DerbyApp
         {
             if (_raceCountDownTime == MaxRaceTime)
             {
-                //Announcer.StartRace(2);
+                _announcer.StartRace(2);
                 //RaceCountDownString = "Get set!!";
             }
             else if (_raceCountDownTime == MaxRaceTime - 1)
             {
-                //Announcer.StartRace(3);
+                _announcer.StartRace(3);
                 //RaceCountDownString = "Go!!!";
                 RecordingVisibility = Visibility.Visible;
                 Replay.StartRecording(Path.Combine(OutputFolderName, Path.GetFileNameWithoutExtension(_databaseName), "videos"), Results.RaceName, Results.CurrentHeatNumber);

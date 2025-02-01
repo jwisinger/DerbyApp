@@ -6,7 +6,7 @@ namespace PiperSharp.Models
     {
         public string ExecutableLocation { get; set; } = PiperDownloader.DefaultPiperExecutableLocation;
         public string WorkingDirectory { get; set; } = PiperDownloader.DefaultPiperLocation;
-        public VoiceModel Model { get; set; }
+        public required VoiceModel Model { get; set; }
         public uint SpeakerId { get; set; }
         /// <summary>
         /// The speaking rate, lower value is faster, higher value is slower

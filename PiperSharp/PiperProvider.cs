@@ -6,20 +6,17 @@ using System.Threading;
 using System.Threading.Tasks;
 using NAudio.Wave;
 using PiperSharp.Models;
+
 namespace PiperSharp
 {
-    public class PiperProvider
+    public class PiperProvider(PiperConfiguration configuration)
     {
-        public PiperConfiguration Configuration { get; set; }
-        public PiperProvider(PiperConfiguration configuration)
-        {
-            Configuration = configuration;
-        }
+        public PiperConfiguration Configuration { get; set; } = configuration;
 
         public static Process ConfigureProcess(PiperConfiguration configuration)
         {
             if (configuration.Model is null)
-                throw new ArgumentNullException(nameof(PiperConfiguration.Model), "VoiceModel not configured!");
+                throw new ArgumentNullException(configuration.Model?.Name, "VoiceModel not configured!");
         
             return new Process()
             {
@@ -38,12 +35,12 @@ namespace PiperSharp
             };
         }
     
-        public async Task<byte[]> InferAsync(string text, AudioOutputType outputType = AudioOutputType.Wav, CancellationToken token = default(CancellationToken))
+        public async Task<byte[]> InferAsync(string text, AudioOutputType outputType = AudioOutputType.Wav, CancellationToken token = default)
         {
             var process = ConfigureProcess(Configuration);
             process.Start();
             await process.StandardInput.WriteLineAsync(text.ToUtf8());
-            await process.StandardInput.FlushAsync();
+            await process.StandardInput.FlushAsync(token);
             process.StandardInput.Close();
             using var ms = new MemoryStream();
             await process.StandardOutput.BaseStream.CopyToAsync(ms, token);
@@ -54,7 +51,7 @@ namespace PiperSharp
             return await ConvertToArray(fs, outputType, token);
         }
 
-        private async Task<byte[]> ConvertToArray(RawSourceWaveStream stream, AudioOutputType outputType, CancellationToken token)
+        private static async Task<byte[]> ConvertToArray(RawSourceWaveStream stream, AudioOutputType outputType, CancellationToken token)
         {
             using var output = new MemoryStream();
             switch (outputType)

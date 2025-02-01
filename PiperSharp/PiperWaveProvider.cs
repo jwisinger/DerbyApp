@@ -12,7 +12,7 @@ namespace PiperSharp
     {
         public PiperConfiguration Configuration { get; set; }
         public bool Started { get; private set; } = false;
-        private Process _process;
+        private readonly Process _process;
         private RawSourceWaveStream? _internalAudioStream;
 
         public PiperWaveProvider(PiperConfiguration configuration)
@@ -43,7 +43,7 @@ namespace PiperSharp
             Started = true;
         }
 
-        public Task WaitForExit(CancellationToken token = default(CancellationToken))
+        public Task WaitForExit(CancellationToken token = default)
         {
             return _process.WaitForExitAsync(token);
         }
@@ -54,7 +54,7 @@ namespace PiperSharp
             return _internalAudioStream!.Read(buffer, offset, count);
         }
 
-        public Task InferPlayback(string text, CancellationToken token = default(CancellationToken))
+        public Task InferPlayback(string text, CancellationToken token = default)
         {
             if (!Started) throw new ApplicationException("Piper process not initialized!");
             return _process.StandardInput.WriteLineAsync(text.ToUtf8().AsMemory(), token);

@@ -1,16 +1,23 @@
 ﻿using System.Collections.ObjectModel;
 using System.Speech.Synthesis;
+using System.Threading.Tasks;
 
 namespace DerbyApp.Assistant
 {
-    internal class Announcer
+    public class Announcer
     {
         public bool Muted = false;
         public SpeechSynthesizer Synth = new();
+        public VoiceInterface Voice = new();
+
+        public Announcer()
+        {
+            _ = Voice.Run();
+        }
 
         private void Speak(string s)
         {
-            if (!Muted) Synth.SpeakAsync(s);
+            if (!Muted) Voice.Speak(s);
         }
 
         public ReadOnlyCollection<InstalledVoice> GetVoices()
@@ -26,8 +33,6 @@ namespace DerbyApp.Assistant
 
         public void StartRace(int step)
         {
-            //Synth.SetOutputToDefaultAudioDevice();
-
             switch (step)
             {
                 case 1:

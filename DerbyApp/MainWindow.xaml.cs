@@ -265,7 +265,7 @@ namespace DerbyApp
             while (results.RaceFormat.HeatCount < heatCount) results.AddRunOffHeat(null);
             _db.LoadResultsTable(results);
 
-            _raceTracker = new RaceTracker(results, _db, _databaseName, _outputFolderName)
+            _raceTracker = new RaceTracker(results, _db, _databaseName, _outputFolderName, _announcer)
             {
                 DisplayPhotos = DisplayPhotosChecked ? Visibility.Visible : Visibility.Collapsed
             };

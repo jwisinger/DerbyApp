@@ -11,22 +11,22 @@ namespace PiperSharp.Models
     public class VoiceModel
     {
         [JsonPropertyName("key")]
-        public string Key { get; set; }
+        public required string Key { get; set; }
     
         [JsonPropertyName("name")]
-        public string Name { get; set; }
+        public required string Name { get; set; }
     
         [JsonPropertyName("num_speakers")]
         public int NumSpeakers { get; set; }
     
         [JsonPropertyName("speaker_id_map")]
-        public Dictionary<string, int> SpeakerIdMap { get; set; }
+        public required Dictionary<string, int> SpeakerIdMap { get; set; }
     
         [JsonPropertyName("files")]
-        public Dictionary<string, dynamic> Files { get; set; }
+        public required Dictionary<string, dynamic> Files { get; set; }
     
         [JsonPropertyName("language")]
-        public VoiceLanguage Language { get; set; }
+        public required VoiceLanguage Language { get; set; }
     
         [JsonPropertyName("audio")]  
         public VoiceAudio? Audio { get; set; }
@@ -50,8 +50,7 @@ namespace PiperSharp.Models
             var modelInfoFile = Path.Join(directory, "model.json");
             if (!File.Exists(modelInfoFile)) throw new FileNotFoundException("model.json file not found!");
             var fs = File.OpenRead(modelInfoFile);
-            var model = await JsonSerializer.DeserializeAsync<VoiceModel>(fs);
-            if (model is null) throw new ApplicationException("Could not parse model.json file!");
+            var model = await JsonSerializer.DeserializeAsync<VoiceModel>(fs) ?? throw new ApplicationException("Could not parse model.json file!");
             model.ModelLocation = directory;
             return model;
         }
