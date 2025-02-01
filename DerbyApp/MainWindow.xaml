@@ -11,6 +11,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="25"/>
             <RowDefinition Height="1*"/>
+            <RowDefinition Height="25"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Name="buttonColumn" Width="250"/>
@@ -123,6 +124,17 @@
                     </MenuItem.Header>
                     <MenuItem Header="_Help" Click="HelpItem_Click"/>
                     <MenuItem Header="_About" Click="AboutItem_Click"/>
+                </MenuItem>
+            </Menu>
+        </DockPanel>
+        <DockPanel Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="1">
+            <Menu DockPanel.Dock="Top" HorizontalAlignment="Right" Background="AliceBlue">
+                <MenuItem ToolTip="Track Connection Status">
+                    <MenuItem.Header>
+                        <StackPanel>
+                            <Image Width="20" Height="20" Source="{Binding TrackStatusIcon}" />
+                        </StackPanel>
+                    </MenuItem.Header>
                 </MenuItem>
             </Menu>
         </DockPanel>

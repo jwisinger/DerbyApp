@@ -24,6 +24,8 @@ using DerbyApp.Assistant;
 using ClippySharp;
 using System.Speech.Synthesis;
 using System.Windows.Interop;
+using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace DerbyApp
 {
@@ -34,6 +36,7 @@ namespace DerbyApp
         private string _eventName = "";
         private string _outputFolderName = "";
         private string _playSoundsIcon = "/Images/Sound.png";
+        private string _trackStatusIcon = "/Images/Disconnected.png";
         private string _timeBasedScoringIcon = "/Images/Timer.png";
         private string _cameraEnabledIcon = "/Images/CameraEnabled.png";
         private string _agentEnabledIcon = "/Images/DatabaseRoleError.png";
@@ -67,6 +70,15 @@ namespace DerbyApp
             {
                 _playSoundsChecked = value;
                 _announcer.Muted = !value;
+            }
+        }
+        public string TrackStatusIcon
+        {
+            get => _trackStatusIcon;
+            set
+            {
+                _trackStatusIcon = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(TrackStatusIcon)));
             }
         }
         public string PlaySoundsIcon
@@ -233,6 +245,7 @@ namespace DerbyApp
 
             mainFrame.Navigate(new Default());
             CreateMenu();
+            _ = TrackStatusCheck();
         }
 
         private void RaceTracker_HeatChanged(object sender, EventArgs e)
@@ -366,6 +379,25 @@ namespace DerbyApp
                 races.Add(results);
             }
             GenerateReport.Generate(_eventName, _db.EventFile, _outputFolderName, _db.GetAllRacers(), races, _timeBasedScoring);
+        }
+
+#warning TODO: Test this with a track
+        private async Task TrackStatusCheck()
+        {
+            try
+            {
+                using HttpClient client = new();
+                client.Timeout = TimeSpan.FromSeconds(5);
+                string response = await client.GetStringAsync(new Uri("http://192.168.0.1/ping"));
+                TrackStatusIcon = "/Images/Connected.png";
+                _raceTracker.TrackConnected = true;
+            }
+            catch (HttpRequestException)
+            {
+                TrackStatusIcon = "/Images/Disconnected.png";
+                _raceTracker.TrackConnected = false;
+            }
+            _ = Task.Delay(5000).ContinueWith(t => TrackStatusCheck());
         }
 
         private void ButtonMenuBar_Click(object sender, RoutedEventArgs e)

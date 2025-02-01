@@ -36,6 +36,7 @@ namespace DerbyApp
         private string _raceCountDownString = "";
         private int _raceCountDownTime = 0;
         public int MaxRaceTime = 10;
+        public bool TrackConnected = false;
         private readonly Replay replay;
         private readonly string _databaseName;
         private readonly Announcer _announcer;
@@ -229,6 +230,7 @@ namespace DerbyApp
             style2.Setters.Add(new Setter(Control.BackgroundProperty, new SolidColorBrush(Colors.Transparent)));
             gridRaceResults.Columns[Results.CurrentHeatNumber].HeaderStyle = style2;
             HeatChanged?.Invoke(this, null);
+            _announcer.SayNames(Results.RaceFormat.CurrentRacers);
         }
 
         private void ButtonPreviousHeat_Click(object sender, RoutedEventArgs e)
@@ -318,15 +320,18 @@ namespace DerbyApp
 
         private async Task StartHeat()
         {
-            try
+            if (TrackConnected)
             {
-                using HttpClient client2 = new();
-                client2.Timeout = TimeSpan.FromSeconds(5);
-                string reponse = await client2.GetStringAsync(new Uri("http://192.168.0.1/start"));
-            }
-            catch (HttpRequestException e)
-            {
-                MessageBox.Show(e.Message, "Track Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                try
+                {
+                    using HttpClient client = new();
+                    client.Timeout = TimeSpan.FromSeconds(5);
+                    string reponse = await client.GetStringAsync(new Uri("http://192.168.0.1/start"));
+                }
+                catch (HttpRequestException e)
+                {
+                    MessageBox.Show(e.Message, "Track Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
             }
             _raceCountDownTime = MaxRaceTime;
             _raceTimer.Start();
@@ -334,78 +339,82 @@ namespace DerbyApp
 
         private async Task GetTimes()
         {
-            try
+            if (TrackConnected)
             {
-                using HttpClient client2 = new();
-                client2.Timeout = TimeSpan.FromSeconds(5);
-                string reponse = await client2.GetStringAsync(new Uri("http://192.168.0.1/read"));
-                if (reponse.Contains("Times"))
+                try
                 {
-                    string[] times;
-                    try
+                    using HttpClient client2 = new();
+                    client2.Timeout = TimeSpan.FromSeconds(5);
+                    string reponse = await client2.GetStringAsync(new Uri("http://192.168.0.1/read"));
+                    if (reponse.Contains("Times"))
                     {
-                        times = reponse.Split(' ')[1].Split(',');
-                    }
-                    catch
-                    {
-                        MessageBox.Show("Received a bad response from track.", "Track Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                        return;
-                    }
-                    if (times.Length < 4)
-                    {
-                        MessageBox.Show("Received a bad response from track.", "Track Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                        return;
-                    }
-                    for (int i = 0; i < 4; i++)
-                    {
-                        if (!float.TryParse(times[i], out float result))
+                        string[] times;
+                        try
+                        {
+                            times = reponse.Split(' ')[1].Split(',');
+                        }
+                        catch
                         {
                             MessageBox.Show("Received a bad response from track.", "Track Error", MessageBoxButton.OK, MessageBoxImage.Error);
                             return;
                         }
-                        try
+                        if (times.Length < 4)
                         {
-                            DataRow dr = Results.ResultsTable.Rows.Find(Results.RaceFormat.CurrentRacers[i].Number);
-                            if (dr != null)
-                            {
-                                if (result < 0.1) result = 10.0F;
-                                dr["Heat " + Results.CurrentHeatNumber] = result;
-                                LdrBoard.CalculateResults(Results.ResultsTable);
-                                _db.UpdateResultsTable(Results.RaceName, dr);
-                            }
+                            MessageBox.Show("Received a bad response from track.", "Track Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                            return;
                         }
-                        catch { }
-                    }
-                    if (Results.CurrentHeatNumber < Results.RaceFormat.HeatCount)
-                    {
-                        ButtonNextHeat_Click(null, null);
-                    }
-                    else
-                    {
-                        int i = 3; // Start looking for tie in 3rd place
-                        while (i > 0)
+                        for (int i = 0; i < 4; i++)
                         {
-                            List<Racer> tiedRacers = LdrBoard.CheckForTie(i);
-                            if (tiedRacers.Count > 1)
+                            if (!float.TryParse(times[i], out float result))
                             {
-                                Results.AddRunOffHeat(tiedRacers);
-                                LdrBoard.AddRunOffHeat(Results.RaceFormat.HeatCount);
-                                _db.AddRunOffHeat(Results.RaceName, Results.RaceFormat.HeatCount);
-                                ButtonNextHeat_Click(null, null);
-                                break;
+                                MessageBox.Show("Received a bad response from track.", "Track Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                                return;
                             }
-                            else
+                            try
                             {
-                                i--;
+                                DataRow dr = Results.ResultsTable.Rows.Find(Results.RaceFormat.CurrentRacers[i].Number);
+                                if (dr != null)
+                                {
+                                    if (result < 0.1) result = 10.0F;
+                                    dr["Heat " + Results.CurrentHeatNumber] = result;
+                                    LdrBoard.CalculateResults(Results.ResultsTable);
+                                    _db.UpdateResultsTable(Results.RaceName, dr);
+                                }
+                            }
+                            catch { }
+                        }
+                        if (Results.CurrentHeatNumber < Results.RaceFormat.HeatCount)
+                        {
+                            ButtonNextHeat_Click(null, null);
+                        }
+                        else
+                        {
+                            int i = 3; // Start looking for tie in 3rd place
+                            while (i > 0)
+                            {
+                                List<Racer> tiedRacers = LdrBoard.CheckForTie(i);
+                                if (tiedRacers.Count > 1)
+                                {
+                                    Results.AddRunOffHeat(tiedRacers);
+                                    LdrBoard.AddRunOffHeat(Results.RaceFormat.HeatCount);
+                                    _db.AddRunOffHeat(Results.RaceName, Results.RaceFormat.HeatCount);
+                                    ButtonNextHeat_Click(null, null);
+                                    break;
+                                }
+                                else
+                                {
+                                    i--;
+                                }
                             }
                         }
                     }
                 }
+                catch (HttpRequestException e)
+                {
+                    MessageBox.Show(e.Message, "Track Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
             }
-            catch (HttpRequestException e)
-            {
-                MessageBox.Show(e.Message, "Track Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
+
             Replay.ShowReplay();
             RecordingVisibility = Visibility.Collapsed;
             CancelReplayEnabled = true;
