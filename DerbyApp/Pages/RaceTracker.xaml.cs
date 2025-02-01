@@ -1,4 +1,4 @@
-﻿#warning 1 FUN: When clicking "start heat", should the PC do the countdown (and remote control the lights) ... this would mean bypassing the embedded countdown?
+﻿#warning 0 FUN: When clicking "start heat", should the PC do the countdown (and remote control the lights) ... this would mean bypassing the embedded countdown?
 
 using DerbyApp.Assistant;
 using DerbyApp.Helpers;
@@ -10,7 +10,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.IO;
-using System.Linq;
 using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;

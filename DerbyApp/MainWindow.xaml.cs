@@ -3,8 +3,7 @@
 #warning 3 REPORT: Add an actual report page to give options for per racer, per race and maybe overall
 #warning 4 FUN: Could I somehow generate winners certificates along with "appearance" winners?
 #warning 5 HELP: Improve Help?
-#warning 6 APPEARANCE: Make menubar icons with sound enable, etc.
-#warning 7 APPEARANCE: Change "start race" button to just "race"?
+#warning 6 APPEARANCE: Clean up select race button
 
 using System.IO;
 using System.Windows;
@@ -24,7 +23,7 @@ using System.Windows.Input;
 using DerbyApp.Assistant;
 using ClippySharp;
 using System.Speech.Synthesis;
-using Emgu.CV;
+using System.Windows.Interop;
 
 namespace DerbyApp
 {
@@ -34,6 +33,13 @@ namespace DerbyApp
         private string _databaseName = "";
         private string _eventName = "";
         private string _outputFolderName = "";
+        private string _playSoundsIcon = "/Images/Sound.png";
+        private string _timeBasedScoringIcon = "/Images/Timer.png";
+        private string _cameraEnabledIcon = "/Images/CameraEnabled.png";
+        private string _agentEnabledIcon = "/Images/DatabaseRoleError.png";
+        private string _menuHideIcon = "/Images/TableFillLeft.png";
+        private string _timeBasedScoringText = "Time Based Scoring";
+
         private int _selectedCamera = 0;
         private EditRace _editRace;
         private RacerTableView _racerTableView;
@@ -41,7 +47,7 @@ namespace DerbyApp
         private readonly NewRacer _newRacer;
         private int _maxRaceTime = 10;
         private bool _displayPhotosChecked = true;
-        private bool _menuBarChecked = true;
+        private bool _menuBarChecked = false;
         private bool _playSoundsChecked = true;
         private bool _flipCameraChecked = false;
         private bool _timeBasedScoring = false;
@@ -63,7 +69,60 @@ namespace DerbyApp
                 _announcer.Muted = !value;
             }
         }
-
+        public string PlaySoundsIcon
+        {
+            get => _playSoundsIcon;
+            set
+            {
+                _playSoundsIcon = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(PlaySoundsIcon)));
+            }
+        }
+        public string CameraEnabledIcon
+        {
+            get => _cameraEnabledIcon;
+            set
+            {
+                _cameraEnabledIcon = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CameraEnabledIcon)));
+            }
+        }
+        public string AgentEnabledIcon
+        {
+            get => _agentEnabledIcon;
+            set
+            {
+                _agentEnabledIcon = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(AgentEnabledIcon)));
+            }
+        }
+        public string MenuHideIcon
+        {
+            get => _menuHideIcon;
+            set
+            {
+                _menuHideIcon = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(MenuHideIcon)));
+            }
+        }
+        public string TimeBasedScoringText
+        {
+            get => _timeBasedScoringText;
+            set
+            {
+                _timeBasedScoringText = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(TimeBasedScoringText)));
+            }
+        }
+        public string TimeBasedScoringIcon
+        {
+            get => _timeBasedScoringIcon;
+            set
+            {
+                _timeBasedScoringIcon = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(TimeBasedScoringIcon)));
+            }
+        }
         public bool DisplayPhotosChecked
         {
             get => _displayPhotosChecked;
@@ -94,17 +153,21 @@ namespace DerbyApp
 
         private void DisplayPhotos_Checked(object sender, RoutedEventArgs e)
         {
+            DisplayPhotosChecked = !DisplayPhotosChecked;
             if (DisplayPhotosChecked)
             {
                 _racerTableView.DisplayPhotos = Visibility.Visible;
                 _editRace.DisplayPhotos = Visibility.Visible;
                 _raceTracker.DisplayPhotos = Visibility.Visible;
+                CameraEnabledIcon ="/Images/CameraEnabled.png";
+
             }
             else
             {
                 _racerTableView.DisplayPhotos = Visibility.Collapsed;
                 _editRace.DisplayPhotos = Visibility.Collapsed;
                 _raceTracker.DisplayPhotos = Visibility.Collapsed;
+                CameraEnabledIcon = "/Images/CameraDisabled.png";
             }
         }
 
@@ -114,10 +177,20 @@ namespace DerbyApp
 
         private void PlaySounds_Checked(object sender, RoutedEventArgs e)
         {
+            PlaySoundsChecked = !PlaySoundsChecked;
+            if (PlaySoundsChecked)
+            {
+                PlaySoundsIcon = "/Images/Sound.png";
+            }
+            else
+            {
+                PlaySoundsIcon = "/Images/AudioMute.png";
+            }
         }
 
         private void FlipCameraBox_Checked(object sender, RoutedEventArgs e)
         {
+            FlipCameraChecked = !FlipCameraChecked;
             if (FlipCameraChecked)
             {
                 _newRacer.FlipImage = true;
@@ -141,7 +214,6 @@ namespace DerbyApp
                 _outputFolderName = Path.GetDirectoryName(databaseName);
             }
             InitializeComponent();
-            MenuItemScoring.IsChecked = _timeBasedScoring;
             this.Title = "Current Event = " + Path.GetFileNameWithoutExtension(databaseName);
             _db = new Database(databaseName);
             Database.StoreDatabaseRegistry(databaseName, activeRace, _outputFolderName, _timeBasedScoring, _maxRaceTime);
@@ -304,14 +376,16 @@ namespace DerbyApp
             };
             if (_menuBarChecked)
             {
+                MenuHideIcon = "/Images/TableFillLeft.png";
                 t.Tick += TimeTickExpand;
                 CollapsedVisibility = Visibility.Visible;
-                _menuBarChecked = true;
+                _menuBarChecked = false;
             }
             else
             {
+                MenuHideIcon = "/Images/TableFillRight.png";
                 t.Tick += TimeTickCollapse;
-                _menuBarChecked = false;
+                _menuBarChecked = true;
             }
             t.Start();
         }
@@ -371,8 +445,17 @@ namespace DerbyApp
 
         private void TimeBasedScoring_Click(object sender, RoutedEventArgs e)
         {
-            if ((sender as System.Windows.Controls.MenuItem).IsChecked) _timeBasedScoring = true;
-            else _timeBasedScoring = false;
+            _timeBasedScoring = !_timeBasedScoring;
+            if (_timeBasedScoring)
+            {
+                TimeBasedScoringIcon = "/Images/Timer.png";
+                TimeBasedScoringText = "Time Based Scoring";
+            }
+            else
+            {
+                TimeBasedScoringIcon = "/Images/OrderedList.png";
+                TimeBasedScoringText = "Order Based Scoring";
+            }
             _raceTracker.LdrBoard.TimeBasedScoring = _timeBasedScoring;
             _raceTracker.LdrBoard.CalculateResults(_raceTracker.Results.ResultsTable);
             Database.StoreDatabaseRegistry(_databaseName, _editRace.CurrentRaceName, _outputFolderName, _timeBasedScoring, _maxRaceTime);
@@ -388,27 +471,7 @@ namespace DerbyApp
 
         private void AboutItem_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("",
-                "Version: " + System.Reflection.Assembly.GetEntryAssembly().GetName().Version.ToString()
-            /*"The following open source libraries are used in this software:" +
-            "\n| Reference | Version | License Type | License |" +
-            "\n| ----------------------------------------------------------------------------------------------------------------------------------|" +
-            "\n| DirectShowLib.Standard | 2.1.0 | LGPL v2.      | https://www.nuget.org/packages/DirectShowLib.Standard/2.1.0/License       |" +
-            "\n| Emgu.CV | 4.9.0.5494 | GPL v3 | https://www.nuget.org/packages/Emgu.CV/4.9.0.5494/License                 |" +
-            "\n| Emgu.CV.Bitmap | 4.9.0.5494 | GPL v3 | https://www.nuget.org/packages/Emgu.CV.Bitmap/4.9.0.5494/License          |" +
-            "\n| Emgu.CV.runtime.windows | 4.9.0.5494 | GPL v3 | https://www.nuget.org/packages/Emgu.CV.runtime.windows/4.9.0.5494/License |" +
-            "\n| Emgu.CV.UI | 4.9.0.5494 | GPL v3 | https://www.nuget.org/packages/Emgu.CV.UI/4.9.0.5494/License              |" +
-            "\n| NETStandard.Library | 2.0.3 |               | https://github.com/dotnet/standard/blob/master/LICENSE.TXT                |" +
-            "\n| Newtonsoft.Json | 13.0.3 | MIT | https://licenses.nuget.org/MIT                                            |" +
-            "\n| PDFsharp - MigraDoc - GDI | 6.1.1 | MIT | https://licenses.nuget.org/MIT                                            |" +
-            "\n| System.Data.SqlClient | 4.9.0 | MIT | https://licenses.nuget.org/MIT                                            |" +
-            "\n| System.Data.SQLite | 1.0.119.0 | Public Domain | https://www.sqlite.org/copyright.html                                     |" +
-            "\n| System.Data.SQLite.Core | 1.0.119.0 | Public Domain | https://www.sqlite.org/copyright.html                                     |" +
-            "\n| System.Drawing.Common | 8.0.1 | MIT | https://licenses.nuget.org/MIT                                            |" +
-            "\n| System.Speech | 9.0.0 | MIT | https://licenses.nuget.org/MIT                                            |" +
-            "\n| System.Text.Json | 9.0.0 | MIT | https://licenses.nuget.org/MIT                                            |" +
-            "\n| All Images(Flaticon) |            | Attribution | https://media.flaticon.com/license/license.pdf                            |"*/,
-            MessageBoxButton.OK, MessageBoxImage.None);
+            new AboutWindow().ShowDialog();
         }
 
         private void OutDirItem_Click(object sender, RoutedEventArgs e)
@@ -460,6 +523,7 @@ namespace DerbyApp
         {
             if (e != "none")
             {
+                AgentEnabledIcon = "/Images/DatabaseRole.png";
                 string[][] sArray = AgentEnvironment.GetAgents();
                 foreach (string[] s in sArray)
                 {
@@ -471,7 +535,11 @@ namespace DerbyApp
                     }
                 }
             }
-            else agentImage.Visibility = Visibility.Collapsed;
+            else
+            {
+                AgentEnabledIcon = "/Images/DatabaseRoleError.png";
+                agentImage.Visibility = Visibility.Collapsed;
+            }
         }
 
         private void Item_VoiceChanged(object sender, string e)

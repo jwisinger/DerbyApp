@@ -1,0 +1,18 @@
+﻿<Window x:Class="DerbyApp.Windows.AboutWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:DerbyApp.Helpers" xmlns:racestats="clr-namespace:DerbyApp.RaceStats"
+        mc:Ignorable="d"
+        Height="350" Width="400">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="20"/>
+            <RowDefinition Height="10"/>
+        </Grid.RowDefinitions>
+        <TextBlock Grid.Row="0" Name="textBox" Text="{Binding Text}" />
+        <Button Grid.Row="1" Width="75" Content="OK" Click="OKButton_Click" HorizontalAlignment="Center" Margin="0,0,0,0" />
+    </Grid>
+</Window>

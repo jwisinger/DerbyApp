@@ -7,124 +7,120 @@
         xmlns:helpers="clr-namespace:DerbyApp.Helpers"
         mc:Ignorable="d"
         Title="MainWindow" Height="600" Width="859" Name="MainWindowName" Background="AliceBlue">
-    <Window.Resources>
-        <Style TargetType="{x:Type CheckBox}" x:Key="cameraCheckboxStyle">
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="{x:Type CheckBox}">
-                        <StackPanel Orientation="Horizontal">
-                            <Image x:Name="checkboxImage" Source="/Images/No Camera.png" Width="64"/>
-                            <ContentPresenter/>
-                        </StackPanel>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsChecked" Value="True">
-                                <Setter TargetName="checkboxImage" Property="Source" Value="/Images/Camera.png"/>
-                            </Trigger>
-                            <MultiTrigger>
-                                <MultiTrigger.Conditions>
-                                    <Condition Property="IsMouseOver" Value="True"/>
-                                    <Condition Property="IsChecked" Value="False"/>
-                                </MultiTrigger.Conditions>
-                                <Setter TargetName="checkboxImage" Property="Source" Value="/Images/No Camera2.png"/>
-                            </MultiTrigger>
-                            <MultiTrigger>
-                                <MultiTrigger.Conditions>
-                                    <Condition Property="IsMouseOver" Value="True"/>
-                                    <Condition Property="IsChecked" Value="True"/>
-                                </MultiTrigger.Conditions>
-                                <Setter TargetName="checkboxImage" Property="Source" Value="/Images/Camera2.png"/>
-                            </MultiTrigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-        <Style TargetType="{x:Type CheckBox}" x:Key="cameraFlipCheckboxStyle">
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="{x:Type CheckBox}">
-                        <StackPanel Orientation="Horizontal">
-                            <Image x:Name="checkboxImage" Source="/Images/CameraFlip.png" Width="64"/>
-                            <ContentPresenter/>
-                        </StackPanel>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsChecked" Value="True">
-                                <Setter TargetName="checkboxImage" Property="Source" Value="/Images/CameraFlip.png"/>
-                            </Trigger>
-                            <MultiTrigger>
-                                <MultiTrigger.Conditions>
-                                    <Condition Property="IsMouseOver" Value="True"/>
-                                    <Condition Property="IsChecked" Value="False"/>
-                                </MultiTrigger.Conditions>
-                                <Setter TargetName="checkboxImage" Property="Source" Value="/Images/CameraFlip2.png"/>
-                            </MultiTrigger>
-                            <MultiTrigger>
-                                <MultiTrigger.Conditions>
-                                    <Condition Property="IsMouseOver" Value="True"/>
-                                    <Condition Property="IsChecked" Value="True"/>
-                                </MultiTrigger.Conditions>
-                                <Setter TargetName="checkboxImage" Property="Source" Value="/Images/CameraFlip2.png"/>
-                            </MultiTrigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-    </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="20"/>
+            <RowDefinition Height="25"/>
             <RowDefinition Height="1*"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Name="buttonColumn" Width="250"/>
             <ColumnDefinition Width="1*"/>
         </Grid.ColumnDefinitions>
-        <DockPanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2">
-            <Menu DockPanel.Dock="Top" HorizontalAlignment="Left" Background="AliceBlue">
-                <MenuItem Header="_Settings">
-                    <!--<MenuItem Header="_Output Directory" Click="OutDirItem_Click"/>-->
-                    <MenuItem Header="_Race Name" Click="SetRaceName_Click"/>
-                    <MenuItem Header="_Select Camera" Click="SelectCamera_Click"/>
-                    <MenuItem Header="_Set Max Race Time" Click="SetMaxRaceTime_Click"/>
-                    <MenuItem Header="_Show Menu Bar" IsCheckable="True" IsChecked="{Binding MenuBarChecked, Mode=TwoWay}" Click="ButtonMenuBar_Click"/>
-                    <MenuItem Header="_Flip Camera" IsCheckable="True" IsChecked="{Binding FlipCameraChecked, Mode=TwoWay}" Click="FlipCameraBox_Checked"/>
-                    <MenuItem Header="_Time Based Scoring" IsCheckable="True" Click="TimeBasedScoring_Click" Name="MenuItemScoring"/>
-                    <MenuItem Header="_Enable Photos" IsCheckable="True" IsChecked="{Binding DisplayPhotosChecked, Mode=TwoWay}" Click="DisplayPhotos_Checked"/>
-                    <MenuItem Header="_Enable Sound" IsCheckable="True" IsChecked="{Binding PlaySoundsChecked, Mode=TwoWay}" Click="PlaySounds_Checked"/>
+        <DockPanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="1">
+            <Menu DockPanel.Dock="Top" HorizontalAlignment="Right" Background="AliceBlue">
+                <MenuItem Click="ButtonMenuBar_Click" ToolTip="Show/Hide Menu">
+                    <MenuItem.Header>
+                        <StackPanel>
+                            <Image Width="20" Height="20" Source="{Binding MenuHideIcon}" />
+                        </StackPanel>
+                    </MenuItem.Header>
                 </MenuItem>
-                <MenuItem Header="_Assistant">
-                    <!--<MenuItem Header="_Output Directory" Click="OutDirItem_Click"/>-->
-                    <MenuItem Header="_Character" ItemsSource="{Binding CharacterMenuItems}">
-                        <MenuItem.ItemContainerStyle>
-                            <Style TargetType="{x:Type MenuItem}">
-                                <Setter Property="Command" Value="{Binding Command}"/>
-                                <Setter Property="IsChecked" Value="{Binding IsChecked, Mode=TwoWay}"/>
-                                <Setter Property="IsCheckable" Value="True"/>
-                            </Style>
-                        </MenuItem.ItemContainerStyle>
-                        <MenuItem.ItemTemplate>
-                            <HierarchicalDataTemplate DataType="{x:Type helpers:MenuItemViewModel}" ItemsSource="{Binding Path=MenuItems}">
-                                <TextBlock Text="{Binding Header}"/>
-                            </HierarchicalDataTemplate>
-                        </MenuItem.ItemTemplate>
+            </Menu>
+        </DockPanel>
+        <DockPanel Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="1">
+            <Menu DockPanel.Dock="Top" HorizontalAlignment="Right" Background="AliceBlue">
+                <MenuItem ToolTip="Settings">
+                    <MenuItem.Header>
+                        <StackPanel>
+                            <Image Width="20" Height="20" Source="/Images/Settings.png" />
+                        </StackPanel>
+                    </MenuItem.Header>
+                    <MenuItem Click="SetRaceName_Click" Header="Race Name">
+                        <MenuItem.Icon>
+                            <Image Source="/Images/UIEditor.png"/>
+                        </MenuItem.Icon>
                     </MenuItem>
-                    <MenuItem Header="_Voice" ItemsSource="{Binding VoiceMenuItems}">
-                        <MenuItem.ItemContainerStyle>
-                            <Style TargetType="{x:Type MenuItem}">
-                                <Setter Property="Command" Value="{Binding Command}"/>
-                                <Setter Property="IsChecked" Value="{Binding IsChecked, Mode=TwoWay}"/>
-                                <Setter Property="IsCheckable" Value="True"/>
-                            </Style>
-                        </MenuItem.ItemContainerStyle>
-                        <MenuItem.ItemTemplate>
-                            <HierarchicalDataTemplate DataType="{x:Type helpers:MenuItemViewModel}" ItemsSource="{Binding Path=MenuItems}">
-                                <TextBlock Text="{Binding Header}"/>
-                            </HierarchicalDataTemplate>
-                        </MenuItem.ItemTemplate>
+                    <MenuItem Click="SelectCamera_Click" Header="Select Camera">
+                        <MenuItem.Icon>
+                            <Image Source="/Images/RectangularScreenshot.png"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    <MenuItem Click="SetMaxRaceTime_Click" Header="Set Max Race Time">
+                        <MenuItem.Icon>
+                            <Image Source="/Images/StopTime.png"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    <MenuItem Click="TimeBasedScoring_Click" Header="{Binding TimeBasedScoringText, Mode=TwoWay}">
+                        <MenuItem.Icon>
+                            <Image Source="{Binding TimeBasedScoringIcon, Mode=TwoWay}"/>
+                        </MenuItem.Icon>
                     </MenuItem>
                 </MenuItem>
-                <MenuItem Header="_Help">
+                <MenuItem ItemsSource="{Binding CharacterMenuItems}" ToolTip="Assitant">
+                    <MenuItem.Header>
+                        <StackPanel>
+                            <Image Width="20" Height="20" Source="{Binding AgentEnabledIcon}" />
+                        </StackPanel>
+                    </MenuItem.Header>
+                    <MenuItem.ItemContainerStyle>
+                        <Style TargetType="{x:Type MenuItem}">
+                            <Setter Property="Command" Value="{Binding Command}"/>
+                            <Setter Property="IsChecked" Value="{Binding IsChecked, Mode=TwoWay}"/>
+                            <Setter Property="IsCheckable" Value="True"/>
+                        </Style>
+                    </MenuItem.ItemContainerStyle>
+                    <MenuItem.ItemTemplate>
+                        <HierarchicalDataTemplate DataType="{x:Type helpers:MenuItemViewModel}" ItemsSource="{Binding Path=MenuItems}">
+                            <TextBlock Text="{Binding Header}"/>
+                        </HierarchicalDataTemplate>
+                    </MenuItem.ItemTemplate>
+                </MenuItem>
+                <MenuItem ItemsSource="{Binding VoiceMenuItems}" ToolTip="Announcer">
+                    <MenuItem.Header>
+                        <StackPanel>
+                            <Image Width="20" Height="20" Source="/Images/Megaphone.png" />
+                        </StackPanel>
+                    </MenuItem.Header>
+                    <MenuItem.ItemContainerStyle>
+                        <Style TargetType="{x:Type MenuItem}">
+                            <Setter Property="Command" Value="{Binding Command}"/>
+                            <Setter Property="IsChecked" Value="{Binding IsChecked, Mode=TwoWay}"/>
+                            <Setter Property="IsCheckable" Value="True"/>
+                        </Style>
+                    </MenuItem.ItemContainerStyle>
+                    <MenuItem.ItemTemplate>
+                        <HierarchicalDataTemplate DataType="{x:Type helpers:MenuItemViewModel}" ItemsSource="{Binding Path=MenuItems}">
+                            <TextBlock Text="{Binding Header}"/>
+                        </HierarchicalDataTemplate>
+                    </MenuItem.ItemTemplate>
+                </MenuItem>
+                <MenuItem Click="DisplayPhotos_Checked" ToolTip="Photos On/Off">
+                    <MenuItem.Header>
+                        <StackPanel>
+                            <Image Width="20" Height="20" Source="{Binding CameraEnabledIcon}" />
+                        </StackPanel>
+                    </MenuItem.Header>
+                </MenuItem>
+                <MenuItem Click="FlipCameraBox_Checked" ToolTip="Flip Camera">
+                    <MenuItem.Header>
+                        <StackPanel>
+                            <Image Width="20" Height="20" Source="/Images/ComparePerformanceReports.png" />
+                        </StackPanel>
+                    </MenuItem.Header>
+                </MenuItem>
+                <MenuItem Click="PlaySounds_Checked" ToolTip="Sound On/Off">
+                    <MenuItem.Header>
+                        <StackPanel>
+                            <Image Width="20" Height="20" Source="{Binding PlaySoundsIcon}" />
+                        </StackPanel>
+                    </MenuItem.Header>
+                </MenuItem>
+                <MenuItem ToolTip="Help">
+                    <MenuItem.Header>
+                        <StackPanel>
+                            <Image Width="20" Height="20" Source="/Images/Help.png" />
+                        </StackPanel>
+                    </MenuItem.Header>
                     <MenuItem Header="_Help" Click="HelpItem_Click"/>
                     <MenuItem Header="_About" Click="AboutItem_Click"/>
                 </MenuItem>
