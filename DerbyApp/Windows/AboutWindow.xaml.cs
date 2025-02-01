@@ -24,7 +24,7 @@ namespace DerbyApp.Windows
             hyperLink.RequestNavigate += Hyperlink_RequestNavigate;
             textBox.Inlines.Add(hyperLink);
 
-            textBox.Inlines.Add("Emgu.CV v4.9.0.5494 - ");
+            textBox.Inlines.Add("Emgu.CV v4.10.0.5680 - ");
             hyperLink = new()
             {
                 NavigateUri = new Uri("https://www.nuget.org/packages/Emgu.CV/4.9.0.5494/License")
@@ -33,7 +33,7 @@ namespace DerbyApp.Windows
             hyperLink.RequestNavigate += Hyperlink_RequestNavigate;
             textBox.Inlines.Add(hyperLink);
 
-            textBox.Inlines.Add("Emgu.CV.Bitmap v4.9.0.5494 - ");
+            textBox.Inlines.Add("Emgu.CV.Bitmap v4.10.0.5680 - ");
             hyperLink = new()
             {
                 NavigateUri = new Uri("https://www.nuget.org/packages/Emgu.CV.Bitmap/4.9.0.5494/License")
@@ -42,7 +42,7 @@ namespace DerbyApp.Windows
             hyperLink.RequestNavigate += Hyperlink_RequestNavigate;
             textBox.Inlines.Add(hyperLink);
 
-            textBox.Inlines.Add("Emgu.CV.runtime.windows v4.9.0.5494 - ");
+            textBox.Inlines.Add("Emgu.CV.runtime.windows v4.10.0.5680 - ");
             hyperLink = new()
             {
                 NavigateUri = new Uri("https://www.nuget.org/packages/Emgu.CV.runtime.windows/4.9.0.5494/License")
@@ -51,12 +51,39 @@ namespace DerbyApp.Windows
             hyperLink.RequestNavigate += Hyperlink_RequestNavigate;
             textBox.Inlines.Add(hyperLink);
 
-            textBox.Inlines.Add("Emgu.CV.UI v4.9.0.5494 - ");
+            textBox.Inlines.Add("Emgu.CV.UI v4.10.0.5680 - ");
             hyperLink = new()
             {
                 NavigateUri = new Uri("https://www.nuget.org/packages/Emgu.CV.UI/4.9.0.5494/License")
             };
             hyperLink.Inlines.Add("GPL v3\n");
+            hyperLink.RequestNavigate += Hyperlink_RequestNavigate;
+            textBox.Inlines.Add(hyperLink);
+
+            textBox.Inlines.Add("Emgu.CV.UI v4.10.0.5680 - ");
+            hyperLink = new()
+            {
+                NavigateUri = new Uri("https://www.nuget.org/packages/Emgu.CV.UI/4.9.0.5494/License")
+            };
+            hyperLink.Inlines.Add("GPL v3\n");
+            hyperLink.RequestNavigate += Hyperlink_RequestNavigate;
+            textBox.Inlines.Add(hyperLink);
+
+            textBox.Inlines.Add("ClippySharp 5-July-2020 - ");
+            hyperLink = new()
+            {
+                NavigateUri = new Uri("https://github.com/netonjm/ClippySharp/blob/master/LICENSE")
+            };
+            hyperLink.Inlines.Add("MIT\n");
+            hyperLink.RequestNavigate += Hyperlink_RequestNavigate;
+            textBox.Inlines.Add(hyperLink);
+
+            textBox.Inlines.Add("PiperSharp 12-September-2024 - ");
+            hyperLink = new()
+            {
+                NavigateUri = new Uri("https://github.com/Lyx52/PiperSharp/blob/master/LICENSE")
+            };
+            hyperLink.Inlines.Add("MIT\n");
             hyperLink.RequestNavigate += Hyperlink_RequestNavigate;
             textBox.Inlines.Add(hyperLink);
 
@@ -87,7 +114,7 @@ namespace DerbyApp.Windows
             hyperLink.RequestNavigate += Hyperlink_RequestNavigate;
             textBox.Inlines.Add(hyperLink);
 
-            textBox.Inlines.Add("System.Drawing.Common v8.0.1 - ");
+            textBox.Inlines.Add("System.Drawing.Common v9.0.1 - ");
             hyperLink = new()
             {
                 NavigateUri = new Uri("https://licenses.nuget.org/MIT")
@@ -96,7 +123,7 @@ namespace DerbyApp.Windows
             hyperLink.RequestNavigate += Hyperlink_RequestNavigate;
             textBox.Inlines.Add(hyperLink);
 
-            textBox.Inlines.Add("System.Speech v9.0.0 v8.0.1 - ");
+            textBox.Inlines.Add("System.Speech v9.0.1 - ");
             hyperLink = new()
             {
                 NavigateUri = new Uri("https://licenses.nuget.org/MIT")
@@ -105,12 +132,39 @@ namespace DerbyApp.Windows
             hyperLink.RequestNavigate += Hyperlink_RequestNavigate;
             textBox.Inlines.Add(hyperLink);
 
-            textBox.Inlines.Add("System.Text.Json v9.0.0 - ");
+            textBox.Inlines.Add("System.Text.Json v9.0.1 - ");
             hyperLink = new()
             {
                 NavigateUri = new Uri("https://licenses.nuget.org/MIT")
             };
             hyperLink.Inlines.Add("MIT\n");
+            hyperLink.RequestNavigate += Hyperlink_RequestNavigate;
+            textBox.Inlines.Add(hyperLink);
+
+            textBox.Inlines.Add("SharpCompress v0.39.0 - ");
+            hyperLink = new()
+            {
+                NavigateUri = new Uri("https://licenses.nuget.org/MIT")
+            };
+            hyperLink.Inlines.Add("MIT\n");
+            hyperLink.RequestNavigate += Hyperlink_RequestNavigate;
+            textBox.Inlines.Add(hyperLink);
+
+            textBox.Inlines.Add("NAudio.Core v2.2.1 - ");
+            hyperLink = new()
+            {
+                NavigateUri = new Uri("https://licenses.nuget.org/MIT")
+            };
+            hyperLink.Inlines.Add("MIT\n");
+            hyperLink.RequestNavigate += Hyperlink_RequestNavigate;
+            textBox.Inlines.Add(hyperLink);
+
+            textBox.Inlines.Add("NAudio v2.2.1 - ");
+            hyperLink = new()
+            {
+                NavigateUri = new Uri("https://www.nuget.org/packages/NAudio/2.2.1/License")
+            };
+            hyperLink.Inlines.Add("Custom\n");
             hyperLink.RequestNavigate += Hyperlink_RequestNavigate;
             textBox.Inlines.Add(hyperLink);
 
@@ -119,7 +173,7 @@ namespace DerbyApp.Windows
             {
                 NavigateUri = new Uri("https://github.com/dotnet/standard/blob/master/LICENSE.TXT")
             };
-            hyperLink.Inlines.Add("Public Domain\n");
+            hyperLink.Inlines.Add("Custom\n");
             hyperLink.RequestNavigate += Hyperlink_RequestNavigate;
             textBox.Inlines.Add(hyperLink);
 

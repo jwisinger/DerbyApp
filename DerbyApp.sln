@@ -11,6 +11,8 @@ Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "DerbyAppSetup", "DerbyAppSe
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClippySharp", "ClippySharp\ClippySharp.csproj", "{20FEAA59-D333-47C8-AEB9-0123931CC3C1}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PiperSharp", "PiperSharp\PiperSharp.csproj", "{5921FF32-D167-4965-B0A1-11D3E1C6BD15}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{20FEAA59-D333-47C8-AEB9-0123931CC3C1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{20FEAA59-D333-47C8-AEB9-0123931CC3C1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{20FEAA59-D333-47C8-AEB9-0123931CC3C1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5921FF32-D167-4965-B0A1-11D3E1C6BD15}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5921FF32-D167-4965-B0A1-11D3E1C6BD15}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5921FF32-D167-4965-B0A1-11D3E1C6BD15}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5921FF32-D167-4965-B0A1-11D3E1C6BD15}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <PackageId>PiperSharp</PackageId>
+        <ImplicitUsings>disable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <PackageLicenseFile>LICENSE</PackageLicenseFile>
+        <PackageIconUrl />
+        <Version>1.0.5</Version>
+        <RepositoryUrl>https://github.com/Lyx52/PiperSharp</RepositoryUrl>
+        <Description>Piper TTS Integration using C#</Description>
+        <Authors>Ikars Melnalksnis</Authors>
+        <TargetFrameworks>net8.0</TargetFrameworks>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="NAudio" Version="2.2.1" />
+      <PackageReference Include="NAudio.Core" Version="2.2.1" />
+      <PackageReference Include="SharpCompress" Version="0.39.0" />
+        <PackageReference Include="System.Text.Json" Version="9.0.1" />
+    </ItemGroup>
+
+</Project>
