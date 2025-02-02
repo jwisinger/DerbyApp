@@ -1,10 +1,4 @@
-﻿#warning 0 FUN: Have the PC do the countdown and remote control the lights
-#warning 1: Test all combinations of announcer with and without track attached
-#warning 2 FUN: Add a gesture right for instant replay
-#warning 3 REPORT: Add an actual report page to give options for per racer, per race and maybe overall
-#warning 4 FUN: Could I somehow generate winners certificates along with "appearance" winners?
-#warning 5 HELP: Improve Help?
-#warning 6 APPEARANCE: Clean up select race button
+﻿#warning FUN: Add a gesture right for instant replay
 
 using System.IO;
 using System.Windows;
@@ -15,9 +9,7 @@ using System.ComponentModel;
 using System.Windows.Threading;
 using System;
 using System.Linq;
-using System.Collections.Generic;
 using DerbyApp.Pages;
-using System.Collections.ObjectModel;
 using DerbyApp.Helpers;
 using Microsoft.Win32;
 using System.Windows.Input;
@@ -46,6 +38,7 @@ namespace DerbyApp
         private EditRace _editRace;
         private RacerTableView _racerTableView;
         private RaceTracker _raceTracker;
+        private Reports _reports;
         private readonly NewRacer _newRacer;
         private int _maxRaceTime = 10;
         private bool _displayPhotosChecked = true;
@@ -366,18 +359,9 @@ namespace DerbyApp
 
         private void ButtonReport_Click(object sender, RoutedEventArgs e)
         {
-            List<RaceResults> races = [];
+            _reports = new Reports(_db);
+            mainFrame.Navigate(_reports);
             _agentInterface.ReportAction();
-            foreach (string raceName in _db.GetListOfRaces())
-            {
-                (ObservableCollection<Racer> racers, int raceFormatIndex) = _db.GetRacers(raceName);
-                RaceResults results = new(raceName, racers, RaceFormats.Formats[raceFormatIndex].Clone());
-                int heatCount = _db.GetHeatCount(results.RaceName);
-                while (results.RaceFormat.HeatCount < heatCount) results.AddRunOffHeat(null);
-                _db.LoadResultsTable(results);
-                races.Add(results);
-            }
-            GenerateReport.Generate(_eventName, _db.EventFile, _outputFolderName, _db.GetAllRacers(), races, _timeBasedScoring);
         }
 
         private async Task TrackStatusCheck()

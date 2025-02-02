@@ -1,4 +1,8 @@
-﻿using DerbyApp.Assistant;
+﻿#warning TRACKER: Add 3 light controls then go
+#warning TRACKER: Test all combinations of announcer with and without track attached
+#warning TRACKER: have max race time start at "go"
+
+using DerbyApp.Assistant;
 using DerbyApp.Helpers;
 using DerbyApp.Pages;
 using DerbyApp.RacerDatabase;

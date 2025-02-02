@@ -26,6 +26,7 @@
     <None Remove="Images\Camera.png" />
     <None Remove="Images\CameraDisabled.png" />
     <None Remove="Images\CameraEnabled.png" />
+    <None Remove="Images\CheckerboardRound.png" />
     <None Remove="Images\ComparePerformanceReports.png" />
     <None Remove="Images\Connected.png" />
     <None Remove="Images\DatabaseRole.png" />
@@ -89,6 +90,7 @@
     <Resource Include="Images\Camera.png" />
     <Resource Include="Images\CameraDisabled.png" />
     <Resource Include="Images\CameraEnabled.png" />
+    <Resource Include="Images\CheckerboardRound.png" />
     <Resource Include="Images\ComparePerformanceReports.png" />
     <Resource Include="Images\Connected.png" />
     <Resource Include="Images\DatabaseRole.png" />
