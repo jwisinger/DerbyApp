@@ -1,6 +1,4 @@
-﻿#warning 0 FUN: When clicking "start heat", should the PC do the countdown (and remote control the lights) ... this would mean bypassing the embedded countdown?
-
-using DerbyApp.Assistant;
+﻿using DerbyApp.Assistant;
 using DerbyApp.Helpers;
 using DerbyApp.Pages;
 using DerbyApp.RacerDatabase;

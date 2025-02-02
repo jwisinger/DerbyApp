@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Net.Http;
-using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Text.Json;
 using System.Threading.Tasks;
 using PiperSharp.Models;
 using SharpCompress.Common;
 using SharpCompress.Readers;
+
 namespace PiperSharp
 {
     public static partial class PiperDownloader
@@ -24,10 +24,14 @@ namespace PiperSharp
         public static string DefaultPiperLocation => Path.Join(DefaultLocation, "piper");
         public static string DefaultPiperExecutableLocation => Path.Join(DefaultPiperLocation, PiperExecutable);
         public static string PiperExecutable => Environment.OSVersion.Platform == PlatformID.Win32NT ? "piper.exe" : "piper";
-    
-    
+
+
         private static Dictionary<string, VoiceModel>? _voiceModels;
         private static readonly Regex RemoveLastSlash = RemoveSlash();
+        private static readonly JsonSerializerOptions _jsonOptions = new()
+        {
+            WriteIndented = true
+        };
 
         public static async Task<Stream> DownloadPiper(string version = "latest", string repo = PIPER_REPO_URL)
         {
@@ -131,6 +135,7 @@ namespace PiperSharp
             }
 
             var client = new HttpClient();
+            if (model.Files == null) return model;
             foreach (var file in model.Files.Keys)
             {
                 var fileName = Path.GetFileName(file);
@@ -139,11 +144,10 @@ namespace PiperSharp
                 // Load Audio configuration from .onnx.json file
                 if (fileName.EndsWith(".onnx.json"))
                 {
-#warning BUG: There is some type of error here stopping downloading of complete voices
                     var ms = new MemoryStream();
                     await downloadStream.CopyToAsync(ms);
                     ms.Seek(0, SeekOrigin.Begin);
-                    var modelJson = await JsonSerializer.DeserializeAsync<VoiceModel>(ms);
+                    var modelJson = JsonSerializer.Deserialize<VoiceModel>(ms);
                     model.Audio = modelJson!.Audio;
                     ms.Seek(0, SeekOrigin.Begin);
                     await using var fs = File.OpenWrite(filePath);
@@ -161,10 +165,7 @@ namespace PiperSharp
         
             model.ModelLocation = path;
             await using var modelInfoFile = File.OpenWrite(Path.Join(path, "model.json"));
-            await JsonSerializer.SerializeAsync<VoiceModel>(modelInfoFile, model, new JsonSerializerOptions()
-            {
-                WriteIndented = true
-            });
+            await JsonSerializer.SerializeAsync<VoiceModel>(modelInfoFile, model, _jsonOptions);
             modelInfoFile.Close();
 
             return model;

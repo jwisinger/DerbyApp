@@ -11,22 +11,22 @@ namespace PiperSharp.Models
     public class VoiceModel
     {
         [JsonPropertyName("key")]
-        public required string Key { get; set; }
+        public string? Key { get; set; }
     
         [JsonPropertyName("name")]
-        public required string Name { get; set; }
+        public string? Name { get; set; }
     
         [JsonPropertyName("num_speakers")]
         public int NumSpeakers { get; set; }
     
         [JsonPropertyName("speaker_id_map")]
-        public required Dictionary<string, int> SpeakerIdMap { get; set; }
+        public Dictionary<string, int>? SpeakerIdMap { get; set; }
     
         [JsonPropertyName("files")]
-        public required Dictionary<string, dynamic> Files { get; set; }
+        public Dictionary<string, dynamic>? Files { get; set; }
     
         [JsonPropertyName("language")]
-        public required VoiceLanguage Language { get; set; }
+        public VoiceLanguage? Language { get; set; }
     
         [JsonPropertyName("audio")]  
         public VoiceAudio? Audio { get; set; }
@@ -37,6 +37,7 @@ namespace PiperSharp.Models
         public string GetModelLocation()
         {
             if (ModelLocation is null) throw new FileNotFoundException("Model not downloaded!");
+            if (Files is null) throw new FileNotFoundException("Model has no files!");
             var modelFileName = Path.GetFileName(Files.Keys.FirstOrDefault(f => f.EndsWith(".onnx")));
             return Path.Join(ModelLocation, modelFileName).AddPathQuotesIfRequired();
         }

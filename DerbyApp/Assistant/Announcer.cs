@@ -1,21 +1,47 @@
 ﻿using DerbyApp.Helpers;
 using DerbyApp.RaceStats;
-using System.Collections.ObjectModel;
-using System.Speech.Synthesis;
+using System.Collections.Generic;
 using System.Threading.Tasks;
-using System.Windows.Documents;
 
 namespace DerbyApp.Assistant
 {
     public class Announcer
     {
         public bool Muted = false;
-        public SpeechSynthesizer Synth = new();
         public VoiceInterface Voice = new();
+        public string CurrentVoiceName = "HFC Female";
+
+        private readonly Dictionary<string, string> _voices = new()
+        {
+            { "Amy", "en_US-amy-medium" },
+            { "Arctic", "en_US-arctic-medium"},
+            { "Bryce", "en_US-bryce-medium"},
+            { "Danny", "en_US-danny-low"},
+            { "Joe", "en_US-joe-medium"},
+            { "John", "en_US-john-medium"},
+            { "Kathleen", "en_US-kathleen-low"},
+            { "Kristin", "en_US-kristin-medium"},
+            { "Kusal", "en_US-kusal-medium"},
+            { "Norman", "en_US-norman-medium"},
+            { "Ryan", "en_US-ryan-high"},
+            { "HFC Female", "en_US-hfc_female-medium"},
+            { "HFC Male", "en_US-hfc_male-medium"},
+            { "L2 Arctic", "en_US-l2arctic-medium"},
+            { "Lessac", "en_US-lessac-high"},
+            { "LibriTTS", "en_US-libritts-high"},
+            { "LibriTTS R", "en_US-libritts_r-medium"},
+            { "LJ Speech", "en_US-ljspeech-high"}
+        };
 
         public Announcer()
         {
-            _ = Voice.Run();
+            _ = Init();
+        }
+
+        private async Task Init()
+        {
+            await Voice.Config(_voices[CurrentVoiceName]);
+            await Voice.Start();
         }
 
         private void Speak(string s)
@@ -23,15 +49,18 @@ namespace DerbyApp.Assistant
             if (!Muted) Voice.Speak(s);
         }
 
-        public ReadOnlyCollection<InstalledVoice> GetVoices()
+        public async Task<bool> SelectVoice(string voiceName)
         {
-            return Synth.GetInstalledVoices();
+            CurrentVoiceName = voiceName;
+            await Voice.Config(_voices[CurrentVoiceName]);
+            _ = Voice.Start();
+            Speak("The announcer is now " + CurrentVoiceName + ".");
+            return true;
         }
 
-        public void Introduction()
+        public List<string> GetVoiceNames()
         {
-            string s = "The announcer is now " + Synth.Voice.Name;
-            Speak(s);
+            return new List<string>(_voices.Keys); ;
         }
 
         public void SayNames(TrulyObservableCollection<Racer> Racers)

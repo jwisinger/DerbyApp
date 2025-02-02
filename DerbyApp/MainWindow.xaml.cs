@@ -1,5 +1,6 @@
-﻿#warning 1 FUN: Add a gesture right for instant replay
-#warning 2 FUN: Computer could announce racers via speech synthesis (Perhaps pop out racer images when announcer talks)
+﻿#warning 0 FUN: Have the PC do the countdown and remote control the lights
+#warning 1: Test all combinations of announcer with and without track attached
+#warning 2 FUN: Add a gesture right for instant replay
 #warning 3 REPORT: Add an actual report page to give options for per racer, per race and maybe overall
 #warning 4 FUN: Could I somehow generate winners certificates along with "appearance" winners?
 #warning 5 HELP: Improve Help?
@@ -22,8 +23,6 @@ using Microsoft.Win32;
 using System.Windows.Input;
 using DerbyApp.Assistant;
 using ClippySharp;
-using System.Speech.Synthesis;
-using System.Windows.Interop;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -381,21 +380,21 @@ namespace DerbyApp
             GenerateReport.Generate(_eventName, _db.EventFile, _outputFolderName, _db.GetAllRacers(), races, _timeBasedScoring);
         }
 
-#warning TODO: Test this with a track
         private async Task TrackStatusCheck()
         {
             try
             {
+                
                 using HttpClient client = new();
                 client.Timeout = TimeSpan.FromSeconds(5);
                 string response = await client.GetStringAsync(new Uri("http://192.168.0.1/ping"));
                 TrackStatusIcon = "/Images/Connected.png";
                 _raceTracker.TrackConnected = true;
             }
-            catch (HttpRequestException)
+            catch
             {
                 TrackStatusIcon = "/Images/Disconnected.png";
-                _raceTracker.TrackConnected = false;
+                if (_raceTracker != null) _raceTracker.TrackConnected = false;
             }
             _ = Task.Delay(5000).ContinueWith(t => TrackStatusCheck());
         }
@@ -540,9 +539,9 @@ namespace DerbyApp
                 CharacterMenuItems.Add(item);
             }
 
-            foreach (InstalledVoice voice in _announcer.GetVoices())
+            foreach (string s in _announcer.GetVoiceNames())
             {
-                item = new MenuItemViewModel { Header = voice.VoiceInfo.Name, ParentList = VoiceMenuItems };
+                item = new MenuItemViewModel { Header = s, ParentList = VoiceMenuItems };
                 item.SelectionChanged += Item_VoiceChanged;
                 VoiceMenuItems.Add(item);
             }
@@ -576,8 +575,7 @@ namespace DerbyApp
 
         private void Item_VoiceChanged(object sender, string e)
         {
-            _announcer.Synth.SelectVoice(e);
-            _announcer.Introduction();
+            _ = _announcer.SelectVoice(e);
         }
 
         private void AgentImage_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)

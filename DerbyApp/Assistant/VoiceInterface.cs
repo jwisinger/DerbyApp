@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using NAudio.Wave;
@@ -11,16 +12,16 @@ namespace DerbyApp.Assistant
     {
         PiperWaveProvider _provider;
 
-        public async Task Run()
+        public async Task Config(string ModelKey)
         {
-#warning TODO: Make this voice configurable
-            const string ModelKey = "en_US-amy-medium";
+            VoiceModel model;
+
             if (!File.Exists(PiperDownloader.DefaultPiperExecutableLocation))
             {
                 await PiperDownloader.DownloadPiper().ExtractPiper(PiperDownloader.DefaultLocation);
             }
             var modelPath = Path.Join(PiperDownloader.DefaultModelLocation, ModelKey);
-            VoiceModel model = null;
+
             if (Directory.Exists(modelPath))
             {
                 model = await VoiceModel.LoadModelByKey(ModelKey);
@@ -35,11 +36,13 @@ namespace DerbyApp.Assistant
                 Model = model,
                 UseCuda = false
             });
-            _provider.Start();
+        }
 
+        public async Task Start()
+        {
             var playbackThread = new Thread(PlaybackThread);
+            _provider.Start();
             playbackThread.Start();
-
             await _provider.WaitForExit();
         }
 
