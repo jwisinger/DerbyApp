@@ -1,4 +1,4 @@
-﻿#warning TRACKER: Test all combinations of announcer with and without track attached
+﻿#warning TEST: Test all combinations of announcer with and without track attached
 
 using DerbyApp.Assistant;
 using DerbyApp.Helpers;
@@ -323,7 +323,9 @@ namespace DerbyApp
 
         private void ButtonAnnounceNames_Click(object sender, RoutedEventArgs e)
         {
+            _announcer.SayNames(Results.RaceFormat.CurrentRacers);
         }
+
         private void ButtonSilenceAnnouncer_Click(object sender, RoutedEventArgs e)
         {
             _announcer.Silence();

@@ -13,17 +13,16 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Windows;
 using Image = MigraDoc.DocumentObjectModel.Shapes.Image;
 
-namespace DerbyApp
+namespace DerbyApp.RacerDatabase
 {
     internal class GenerateReport
     {
         public static void DefineStyles(Document document)
         {
             // Get the predefined style Normal.
-            MigraDoc.DocumentObjectModel.Style style = document.Styles["Normal"];
+            Style style = document.Styles["Normal"];
             // Because all styles are derived from Normal, the next line changes the
             // font of the whole document. Or, more exactly, it changes the font of
             // all styles and paragraphs that do not redefine the font.
@@ -48,7 +47,7 @@ namespace DerbyApp
             style.ParagraphFormat.SpaceAfter = 3;
         }
 
-        static Document CreateDocument(Racer r, List<RaceResults> races, String eventName, bool timeBasedScoring)
+        static Document CreateDocument(Racer r, List<RaceResults> races, string eventName, bool timeBasedScoring)
         {
             Document document = new();
             DefineStyles(document);
@@ -78,10 +77,10 @@ namespace DerbyApp
             Row row = table.AddRow();
             paragraph = row.Cells[0].AddParagraph();
             row.Cells[0].Format.Alignment = ParagraphAlignment.Center;
-            image = paragraph.AddImage(ImageHandler.LoadImageFromBytes(ImageHandler.ImageToByteArray(new Bitmap(r.Photo, new System.Drawing.Size(224, 168)))));
+            image = paragraph.AddImage(ImageHandler.LoadImageFromBytes(ImageHandler.ImageToByteArray(new Bitmap(r.Photo, new Size(224, 168)))));
 
             paragraph = row.Cells[1].AddParagraph();
-            row.Cells[1].VerticalAlignment = MigraDoc.DocumentObjectModel.Tables.VerticalAlignment.Top;
+            row.Cells[1].VerticalAlignment = VerticalAlignment.Top;
             paragraph.Format.Alignment = ParagraphAlignment.Right;
             paragraph.AddFormattedText("Name: " + r.RacerName + "\r\n", "Heading1");
             paragraph.AddFormattedText("Troop: " + r.Troop + "\r\n", "Heading2");
@@ -105,7 +104,7 @@ namespace DerbyApp
                     row = table.AddRow();
                     table.SetEdge(0, 0, table.Columns.Count, table.Rows.Count, Edge.Box, BorderStyle.Single, 2);
                     paragraph = row.Cells[0].AddParagraph();
-                    row.Cells[0].VerticalAlignment= MigraDoc.DocumentObjectModel.Tables.VerticalAlignment.Top;
+                    row.Cells[0].VerticalAlignment = VerticalAlignment.Top;
                     paragraph.AddFormattedText("Race Name: " + result.RaceName + "\r\n", "Heading3");
                     try
                     {
@@ -114,7 +113,7 @@ namespace DerbyApp
                         {
                             tie = true;
                         }
-                        paragraph.AddFormattedText("Overall Race Finish: " + (1 + racerPosition) + (tie?" (Tie)":"") + "\r\n", "Normal");
+                        paragraph.AddFormattedText("Overall Race Finish: " + (1 + racerPosition) + (tie ? " (Tie)" : "") + "\r\n", "Normal");
 
                         DataRow resultRow = result.ResultsTable.Select("Number = " + r.Number)[0];
                         DataRow scoreRow = ldr.RaceScoreTable.Select("Number = " + r.Number)[0];
@@ -167,7 +166,7 @@ namespace DerbyApp
             foreach (Racer r in racers)
             {
                 Document document = CreateDocument(r, races, eventName, timeBasedScoring);
-                 PdfDocumentRenderer pdfRenderer = new()
+                PdfDocumentRenderer pdfRenderer = new()
                 {
                     Document = document
                 };
