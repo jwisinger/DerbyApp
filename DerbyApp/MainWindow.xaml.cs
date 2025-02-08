@@ -359,7 +359,7 @@ namespace DerbyApp
 
         private void ButtonReport_Click(object sender, RoutedEventArgs e)
         {
-            _reports = new Reports(_db);
+            _reports = new Reports(_db, _timeBasedScoring, _eventName, _outputFolderName);
             mainFrame.Navigate(_reports);
             _agentInterface.ReportAction();
         }
@@ -373,7 +373,7 @@ namespace DerbyApp
                 client.Timeout = TimeSpan.FromSeconds(5);
                 string response = await client.GetStringAsync(new Uri("http://192.168.0.1/ping"));
                 TrackStatusIcon = "/Images/Connected.png";
-                _raceTracker.TrackConnected = true;
+                if (_raceTracker != null) _raceTracker.TrackConnected = true;
             }
             catch
             {

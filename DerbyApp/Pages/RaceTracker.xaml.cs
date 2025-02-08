@@ -1,6 +1,4 @@
-﻿#warning TRACKER: Add 3 light controls then go
-#warning TRACKER: Test all combinations of announcer with and without track attached
-#warning TRACKER: have max race time start at "go"
+﻿#warning TRACKER: Test all combinations of announcer with and without track attached
 
 using DerbyApp.Assistant;
 using DerbyApp.Helpers;
@@ -42,6 +40,9 @@ namespace DerbyApp
         private readonly Replay replay;
         private readonly string _databaseName;
         private readonly Announcer _announcer;
+
+        private readonly string[] _trackStrings = ["red", "yellow", "green", "go"];
+        private int _trackStepCounter = 0;
 
         public string OutputFolderName;
         public RaceResults Results { get; set; }
@@ -297,8 +298,8 @@ namespace DerbyApp
             ButtonVisibility = Visibility.Collapsed;
             PreviousHeatEnabled = false;
             NextHeatEnabled = false;
-            _announcer.StartRace(1);
-            //RaceCountDownString = "On Your Marks!";
+            _trackStepCounter = 0;
+            _announcer.StartRace(_trackStepCounter);
             _ = StartHeat();
         }
 
@@ -320,23 +321,37 @@ namespace DerbyApp
             Replay.Cancel();
         }
 
+        private void ButtonAnnounceNames_Click(object sender, RoutedEventArgs e)
+        {
+        }
+        private void ButtonSilenceAnnouncer_Click(object sender, RoutedEventArgs e)
+        {
+            _announcer.Silence();
+        }
+        
         private async Task StartHeat()
+        {
+            await TrackMessage(_trackStrings[_trackStepCounter++]);
+            _raceCountDownTime = MaxRaceTime;
+            _raceTimer.Start();
+        }
+
+        private async Task TrackMessage(string step)
         {
             if (TrackConnected)
             {
                 try
                 {
+                    await Task.Delay(200);
                     using HttpClient client = new();
                     client.Timeout = TimeSpan.FromSeconds(5);
-                    string reponse = await client.GetStringAsync(new Uri("http://192.168.0.1/start"));
+                    string reponse = await client.GetStringAsync(new Uri("http://192.168.0.1/" + step));
                 }
                 catch (HttpRequestException e)
                 {
                     MessageBox.Show(e.Message, "Track Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
-            _raceCountDownTime = MaxRaceTime;
-            _raceTimer.Start();
         }
 
         private async Task GetTimes()
@@ -429,29 +444,31 @@ namespace DerbyApp
 
         private void TimeTickRace(object sender, EventArgs e)
         {
-            if (_raceCountDownTime == MaxRaceTime)
+            if(_trackStepCounter < _trackStrings.Length)
             {
-                _announcer.StartRace(2);
-                //RaceCountDownString = "Get set!!";
-            }
-            else if (_raceCountDownTime == MaxRaceTime - 1)
-            {
-                _announcer.StartRace(3);
-                //RaceCountDownString = "Go!!!";
-                RecordingVisibility = Visibility.Visible;
-                Replay.StartRecording(Path.Combine(OutputFolderName, Path.GetFileNameWithoutExtension(_databaseName), "videos"), Results.RaceName, Results.CurrentHeatNumber);
-            }
-            else if (_raceCountDownTime == 0)
-            {
-                RaceCountDownString = "";
-                _raceTimer.Stop();
-                ButtonGetTimes_Click(sender, null);
+                _announcer.StartRace(_trackStepCounter);
+                _ = TrackMessage(_trackStrings[_trackStepCounter++]);
+                if (_trackStepCounter == _trackStrings.Length)
+                {
+                    RecordingVisibility = Visibility.Visible;
+                    Replay.StartRecording(Path.Combine(OutputFolderName, Path.GetFileNameWithoutExtension(_databaseName), "videos"), Results.RaceName, Results.CurrentHeatNumber);
+                }
+                RaceCountDownString = _raceCountDownTime.ToString() + " seconds remaining.";
             }
             else
             {
-                RaceCountDownString = _raceCountDownTime.ToString() + " seconds remaining.";
+                if (_raceCountDownTime == 0)
+                {
+                    RaceCountDownString = "";
+                    _raceTimer.Stop();
+                    ButtonGetTimes_Click(sender, null);
+                }
+                else
+                {
+                    RaceCountDownString = _raceCountDownTime.ToString() + " seconds remaining.";
+                }
+                _raceCountDownTime--;
             }
-            _raceCountDownTime--;
         }
 
         private void ZoomPicture(object sender, RoutedEventArgs e)

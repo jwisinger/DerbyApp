@@ -4,6 +4,7 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:DerbyApp.Pages"
+      xmlns:helpers="clr-namespace:DerbyApp.Helpers"
       mc:Ignorable="d" 
       d:DesignHeight="450" d:DesignWidth="800"
       Title="Reports">
@@ -12,15 +13,94 @@
         <Grid.Background>
             <ImageBrush Stretch="Uniform" ImageSource="/Images/GIRL.jpg" Opacity="0.1"/>
         </Grid.Background>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="1*"/>
-            <ColumnDefinition Width="1*"/>
-        </Grid.ColumnDefinitions>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="1*"/>
-            <RowDefinition Height="1*"/>
-        </Grid.RowDefinitions>
-        <ScrollViewer Grid.Row="0" Grid.Column="1"/>
-        <Button Content="Generate Reports" HorizontalAlignment="Left" Margin="152,75,0,0" Grid.Row="1" VerticalAlignment="Top" Height="45" Width="119" Click="ButtonReport_Click"/>
+        <Border Grid.Row="1" Margin="15,0,15,0">
+            <Grid Grid.Row="1" >
+                <Grid.Resources>
+                    <helpers:BindingProxy x:Key="proxy" Data="{Binding ElementName=raceTrackerWindow}" />
+                </Grid.Resources>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="30"/>
+                    <RowDefinition Height="1*"/>
+                    <RowDefinition Height="30"/>
+                    <RowDefinition Height="1*"/>
+                    <RowDefinition Height="30"/>
+                    <RowDefinition Height="1*"/>
+                    <RowDefinition Height="30"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1*"/>
+                    <ColumnDefinition Width="1*"/>
+                    <ColumnDefinition Width="1*"/>
+                    <ColumnDefinition Width="1*"/>
+                </Grid.ColumnDefinitions>
+                <Button Content="Generate Reports" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Height="25" Width="120" Click="ButtonReport_Click"/>
+                <Button Content="Slide Show" Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center" Height="25" Width="120" Click="SlideShow_Click"/>
+                <Border Grid.Row="1" Grid.Column="0" BorderThickness="1" BorderBrush="#FF688CAF">
+                    <Image Name="racer11Image" Height="225" Width="300" RenderOptions.BitmapScalingMode="Fant" Stretch="Uniform" Source="{Binding PhotoSource}" Visibility="{Binding Data.DisplayPhotos, Source={StaticResource proxy}, UpdateSourceTrigger=PropertyChanged}"/>
+                </Border>
+                <Border Grid.Row="2" Grid.Column="0" BorderThickness="1" BorderBrush="#FF688CAF">
+                    <TextBlock Name="racer11Name" Text="{Binding RacerName}" FontSize="20" VerticalAlignment="Center" HorizontalAlignment="Center" FontWeight="Bold"/>
+                </Border>
+                <Border Grid.Row="1" Grid.Column="1" BorderThickness="1" BorderBrush="#FF688CAF">
+                    <Image Name="racer12Image" Height="225" Width="300" RenderOptions.BitmapScalingMode="Fant" Stretch="Uniform" Source="{Binding PhotoSource}" Visibility="{Binding Data.DisplayPhotos, Source={StaticResource proxy}, UpdateSourceTrigger=PropertyChanged}"/>
+                </Border>
+                <Border Grid.Row="2" Grid.Column="1" BorderThickness="1" BorderBrush="#FF688CAF">
+                    <TextBlock Name="racer12Name" Text="{Binding RacerName}" FontSize="20" VerticalAlignment="Center" HorizontalAlignment="Center" FontWeight="Bold"/>
+                </Border>
+                <Border Grid.Row="1" Grid.Column="2" BorderThickness="1" BorderBrush="#FF688CAF">
+                    <Image Name="racer13Image" Height="225" Width="300" RenderOptions.BitmapScalingMode="Fant" Stretch="Uniform" Source="{Binding PhotoSource}" Visibility="{Binding Data.DisplayPhotos, Source={StaticResource proxy}, UpdateSourceTrigger=PropertyChanged}"/>
+                </Border>
+                <Border Grid.Row="2" Grid.Column="2" BorderThickness="1" BorderBrush="#FF688CAF">
+                    <TextBlock Name="racer13Name" Text="{Binding RacerName}" FontSize="20" VerticalAlignment="Center" HorizontalAlignment="Center" FontWeight="Bold"/>
+                </Border>
+                <Border Grid.Row="2" Grid.Column="3" BorderThickness="1" BorderBrush="#FF688CAF">
+                    <ComboBox Name="cbRace1" IsEditable="False" ItemsSource="{Binding Path=., Mode=TwoWay}" SelectionChanged="ComboBox_SelectionChanged"/>
+                </Border>
+
+                <Border Grid.Row="3" Grid.Column="0" BorderThickness="1" BorderBrush="#FF688CAF">
+                    <Image Name="racer21Image" Height="225" Width="300" RenderOptions.BitmapScalingMode="Fant" Stretch="Uniform" Source="{Binding PhotoSource}" Visibility="{Binding Data.DisplayPhotos, Source={StaticResource proxy}, UpdateSourceTrigger=PropertyChanged}"/>
+                </Border>
+                <Border Grid.Row="4" Grid.Column="0" BorderThickness="1" BorderBrush="#FF688CAF">
+                    <TextBlock Name="racer21Name" Text="{Binding RacerName}" FontSize="20" VerticalAlignment="Center" HorizontalAlignment="Center" FontWeight="Bold"/>
+                </Border>
+                <Border Grid.Row="3" Grid.Column="1" BorderThickness="1" BorderBrush="#FF688CAF">
+                    <Image Name="racer22Image" Height="225" Width="300" RenderOptions.BitmapScalingMode="Fant" Stretch="Uniform" Source="{Binding PhotoSource}" Visibility="{Binding Data.DisplayPhotos, Source={StaticResource proxy}, UpdateSourceTrigger=PropertyChanged}"/>
+                </Border>
+                <Border Grid.Row="4" Grid.Column="1" BorderThickness="1" BorderBrush="#FF688CAF">
+                    <TextBlock Name="racer22Name" Text="{Binding RacerName}" FontSize="20" VerticalAlignment="Center" HorizontalAlignment="Center" FontWeight="Bold"/>
+                </Border>
+                <Border Grid.Row="3" Grid.Column="2" BorderThickness="1" BorderBrush="#FF688CAF">
+                    <Image Name="racer23Image" Height="225" Width="300" RenderOptions.BitmapScalingMode="Fant" Stretch="Uniform" Source="{Binding PhotoSource}" Visibility="{Binding Data.DisplayPhotos, Source={StaticResource proxy}, UpdateSourceTrigger=PropertyChanged}"/>
+                </Border>
+                <Border Grid.Row="4" Grid.Column="2" BorderThickness="1" BorderBrush="#FF688CAF">
+                    <TextBlock Name="racer23Name" Text="{Binding RacerName}" FontSize="20" VerticalAlignment="Center" HorizontalAlignment="Center" FontWeight="Bold"/>
+                </Border>
+                <Border Grid.Row="4" Grid.Column="3" BorderThickness="1" BorderBrush="#FF688CAF">
+                    <ComboBox Name="cbRace2" IsEditable="False" ItemsSource="{Binding Path=., Mode=TwoWay}" SelectionChanged="ComboBox_SelectionChanged"/>
+                </Border>
+
+                <Border Grid.Row="5" Grid.Column="0" BorderThickness="1" BorderBrush="#FF688CAF">
+                    <Image Name="racer31Image" Height="225" Width="300" RenderOptions.BitmapScalingMode="Fant" Stretch="Uniform" Source="{Binding PhotoSource}" Visibility="{Binding Data.DisplayPhotos, Source={StaticResource proxy}, UpdateSourceTrigger=PropertyChanged}"/>
+                </Border>
+                <Border Grid.Row="6" Grid.Column="0" BorderThickness="1" BorderBrush="#FF688CAF">
+                    <TextBlock Name="racer31Name" Text="{Binding RacerName}" FontSize="20" VerticalAlignment="Center" HorizontalAlignment="Center" FontWeight="Bold"/>
+                </Border>
+                <Border Grid.Row="5" Grid.Column="1" BorderThickness="1" BorderBrush="#FF688CAF">
+                    <Image Name="racer32Image" Height="225" Width="300" RenderOptions.BitmapScalingMode="Fant" Stretch="Uniform" Source="{Binding PhotoSource}" Visibility="{Binding Data.DisplayPhotos, Source={StaticResource proxy}, UpdateSourceTrigger=PropertyChanged}"/>
+                </Border>
+                <Border Grid.Row="6" Grid.Column="1" BorderThickness="1" BorderBrush="#FF688CAF">
+                    <TextBlock Name="racer32Name" Text="{Binding RacerName}" FontSize="20" VerticalAlignment="Center" HorizontalAlignment="Center" FontWeight="Bold"/>
+                </Border>
+                <Border Grid.Row="5" Grid.Column="2" BorderThickness="1" BorderBrush="#FF688CAF">
+                    <Image Name="racer33Image" Height="225" Width="300" RenderOptions.BitmapScalingMode="Fant" Stretch="Uniform" Source="{Binding PhotoSource}" Visibility="{Binding Data.DisplayPhotos, Source={StaticResource proxy}, UpdateSourceTrigger=PropertyChanged}"/>
+                </Border>
+                <Border Grid.Row="6" Grid.Column="2" BorderThickness="1" BorderBrush="#FF688CAF">
+                    <TextBlock Name="racer33Name" Text="{Binding RacerName}" FontSize="20" VerticalAlignment="Center" HorizontalAlignment="Center" FontWeight="Bold"/>
+                </Border>
+                <Border Grid.Row="6" Grid.Column="3" BorderThickness="1" BorderBrush="#FF688CAF">
+                    <ComboBox Name="cbRace3" IsEditable="False" ItemsSource="{Binding Path=., Mode=TwoWay}" SelectionChanged="ComboBox_SelectionChanged"/>
+                </Border>
+            </Grid>
+        </Border>
     </Grid>
 </Page>

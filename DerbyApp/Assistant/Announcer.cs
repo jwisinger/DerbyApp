@@ -49,6 +49,11 @@ namespace DerbyApp.Assistant
             if (!Muted) Voice.Speak(s);
         }
 
+        public void Silence()
+        {
+            _ = Voice.Cancel();
+        }
+
         public async Task<bool> SelectVoice(string voiceName)
         {
             CurrentVoiceName = voiceName;
@@ -75,23 +80,25 @@ namespace DerbyApp.Assistant
         {
             switch (step)
             {
-                case 1:
-                    Speak("On your marks!");
+                case 0:
+                    Speak("Drivers ready!");
                     //Speak("Goonter!");
                     //Speak("Unos!");
-                    //Speak("Let it go!");
+                    break;
+                case 1:
+                    Speak("On your marks!");
+                    //Speak("Glieben!");
+                    //Speak("Dose!");
                     break;
                 case 2:
                     Speak("Get set!");
-                    //Speak("Glieben!");
-                    //Speak("Dose!");
-                    //Speak("Let it go!");
+                    //Speak("Glouken!");
+                    //Speak("Trace!");
                     break;
                 case 3:
                     Speak("Go!");
-                    //Speak("Glouken! Globen!");
-                    //Speak("Trace! Catursay!");
-                    //Speak("Can't hold it back anymore!");
+                    //Speak("Globen!");
+                    //Speak("Catursay!");
                     break;
             }
         }

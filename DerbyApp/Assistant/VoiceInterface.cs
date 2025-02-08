@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using NAudio.Wave;
@@ -11,6 +10,7 @@ namespace DerbyApp.Assistant
     public class VoiceInterface
     {
         PiperWaveProvider _provider;
+        CancellationTokenSource cancellationTokenSource = new();
 
         public async Task Config(string ModelKey)
         {
@@ -42,17 +42,30 @@ namespace DerbyApp.Assistant
         {
             var playbackThread = new Thread(PlaybackThread);
             _provider.Start();
-            playbackThread.Start();
-            await _provider.WaitForExit();
+            cancellationTokenSource = new();
+            playbackThread.Start(cancellationTokenSource.Token);
+            await _provider.WaitForExit(cancellationTokenSource.Token);
         }
 
-        public void PlaybackThread()
+        public async Task Cancel()
         {
+            await cancellationTokenSource.CancelAsync();
+            await Start();
+        }
+
+        public void PlaybackThread(object obj)
+        {
+            CancellationToken token = (CancellationToken)obj;
+
             using var outputDevice = new WaveOutEvent();
             outputDevice.Init(_provider);
             outputDevice.Play();
             while (outputDevice.PlaybackState == PlaybackState.Playing)
             {
+                if (token.IsCancellationRequested)
+                {
+                    outputDevice.Stop();
+                }
                 Thread.Sleep(500);
             }
         }

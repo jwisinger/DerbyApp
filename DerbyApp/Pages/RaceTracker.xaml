@@ -27,6 +27,7 @@
                 <RowDefinition Height="1*"/>
                 <RowDefinition Height="4*"/>
                 <RowDefinition Height="1*"/>
+                <RowDefinition Height="1*"/>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="3*"/>
@@ -53,7 +54,7 @@
                 </Button.Effect>
             </Button>
             <Button Grid.Column="0" Grid.Row="0" Content="Add Runoff" Visibility="{Binding ElementName=raceTrackerWindow, Path=ButtonVisibility, Mode=TwoWay}" HorizontalAlignment="Right" Margin="0,0,10,0" VerticalAlignment="Center" Height="35" Width="120" FontSize="18" Click="ButtonAddRunoff_Click"/>
-            <DataGrid FontSize="20" RowHeight="{Binding Path=Value, ElementName=_zoom}" BorderThickness="5,5,0,5" Name="gridRaceResults" SelectionMode="Single" SelectionUnit="Cell" ItemsSource="{Binding Path=., Mode=TwoWay, NotifyOnSourceUpdated=True, UpdateSourceTrigger=PropertyChanged}" Grid.Column="0" Grid.Row="1" Margin="0,0,0,0" CellEditEnding="GridRaceResults_CellEditEnding" CanUserAddRows="False" IsReadOnly="True" Background="Transparent" RowBackground="Transparent">
+            <DataGrid FontSize="20" RowHeight="{Binding Path=Value, ElementName=_zoom}" BorderThickness="5,5,0,5" Name="gridRaceResults" SelectionMode="Single" SelectionUnit="Cell" ItemsSource="{Binding Path=., Mode=TwoWay, NotifyOnSourceUpdated=True, UpdateSourceTrigger=PropertyChanged}" Grid.Column="0" Grid.Row="1" Margin="0,0,0,0" CellEditEnding="GridRaceResults_CellEditEnding" CanUserAddRows="False" IsReadOnly="False" Background="Transparent" RowBackground="Transparent">
                 <DataGrid.ColumnHeaderStyle>
                     <Style TargetType="{x:Type DataGridColumnHeader}">
                         <Setter Property="FontWeight" Value="Bold"/>
@@ -223,6 +224,18 @@
                 </Button.Effect>
             </Button>
             <Button Grid.Column="1" Grid.Row="4" Content="Next Heat" HorizontalAlignment="Right" Margin="0,0,10,0" VerticalAlignment="Center" Height="35" Width="150" FontSize="18" Click="ButtonNextHeat_Click" IsEnabled="{Binding ElementName=raceTrackerWindow, Path=NextHeatEnabled, Mode=TwoWay}"/>
+            <Button Grid.Column="1" Grid.Row="5" Content="" HorizontalAlignment="Right" Margin="0,0,245,0" VerticalAlignment="Center" Height="35" Width="160">
+                <Button.Effect>
+                    <DropShadowEffect/>
+                </Button.Effect>
+            </Button>
+            <Button Grid.Column="1" Grid.Row="5" Content="Slience Announcer" HorizontalAlignment="Right" Margin="0,0,245,0" VerticalAlignment="Center" Height="35" Width="160" FontSize="18" Click="ButtonSilenceAnnouncer_Click" IsEnabled="{Binding ElementName=raceTrackerWindow, Path=NextHeatEnabled, Mode=TwoWay}"/>
+            <Button Grid.Column="1" Grid.Row="5" Content="" HorizontalAlignment="Right" Margin="0,0,75,0" VerticalAlignment="Center" Height="35" Width="160">
+                <Button.Effect>
+                    <DropShadowEffect/>
+                </Button.Effect>
+            </Button>
+            <Button Grid.Column="1" Grid.Row="5" Content="Announce Names" HorizontalAlignment="Right" Margin="0,0,75,0" VerticalAlignment="Center" Height="35" Width="160" FontSize="18" Click="ButtonAnnounceNames_Click" IsEnabled="{Binding ElementName=raceTrackerWindow, Path=NextHeatEnabled, Mode=TwoWay}"/>
             <Slider Value="25" AutoToolTipPlacement="TopLeft" AutoToolTipPrecision="0" Grid.Row="4" Name="_zoom" Minimum="1" Maximum="100" VerticalAlignment="Bottom" Margin="5,0,5,5" />
         </Grid>
     </Viewbox>
