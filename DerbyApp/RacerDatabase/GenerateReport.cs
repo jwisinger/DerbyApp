@@ -161,7 +161,7 @@ namespace DerbyApp.RacerDatabase
 
         static public void Generate(string eventName, string eventFile, string outputFolderName, ObservableCollection<Racer> racers, List<RaceResults> races, bool timeBasedScoring)
         {
-            string eventPath = Path.Combine(outputFolderName, Path.GetFileNameWithoutExtension(eventFile));
+            string eventPath = Path.Combine(outputFolderName, Path.GetFileNameWithoutExtension(eventFile), "reports");
             Directory.CreateDirectory(eventPath);
             foreach (Racer r in racers)
             {

@@ -17,6 +17,7 @@ namespace DerbyApp
         private Visibility _displayPhotos = Visibility.Visible;
         public event PropertyChangedEventHandler PropertyChanged;
         public event EventHandler RacerRemoved;
+        public string OutputFolder = "";
 
         public Visibility DisplayPhotos
         {
@@ -28,12 +29,13 @@ namespace DerbyApp
             }
         }
 
-        public RacerTableView(Database db)
+        public RacerTableView(Database db, string outputFolder)
         {
             InitializeComponent();
             _db = db;
             _db.GetAllRacers(Racers);
             dataGridRacerTable.DataContext = Racers;
+            OutputFolder = outputFolder;
         }
 
         public void UpdateRacerList()
@@ -67,6 +69,15 @@ namespace DerbyApp
             }
         }
 
+        private void PrintLicense_OnClick(object sender, RoutedEventArgs e)
+        {
+            if (dataGridRacerTable.SelectedIndex < Racers.Count)
+            {
+                Racer r = Racers[dataGridRacerTable.SelectedIndex];
+                GenerateLicense.Generate(r, _db.EventFile, OutputFolder);
+            }
+        }
+        
         private void ZoomPicture(object sender, RoutedEventArgs e)
         {
             new ImageDisplay((sender as Image).Source).ShowDialog();

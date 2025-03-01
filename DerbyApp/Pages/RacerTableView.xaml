@@ -20,6 +20,7 @@
                 <DataGrid.ContextMenu>
                     <ContextMenu>
                         <MenuItem Header="Delete" Click="Delete_OnClick" CommandParameter="{Binding RelativeSource={RelativeSource Self}, Path=Parent}"/>
+                        <MenuItem Header="Print License" Click="PrintLicense_OnClick" CommandParameter="{Binding RelativeSource={RelativeSource Self}, Path=Parent}"/>
                     </ContextMenu>
                 </DataGrid.ContextMenu>
                 <DataGrid.Columns>

@@ -227,8 +227,8 @@ namespace DerbyApp
             {
                 CurrentRaceName = activeRace
             };
-            _racerTableView = new RacerTableView(_db);
-            _newRacer = new NewRacer();
+            _racerTableView = new RacerTableView(_db, _outputFolderName);
+            _newRacer = new NewRacer(_outputFolderName, _db.EventFile);
 
             _newRacer.RacerAdded += Racer_RacerAdded;
             _racerTableView.RacerRemoved += RacerTableView_RacerRemoved;
@@ -317,7 +317,9 @@ namespace DerbyApp
                 Database.StoreDatabaseRegistry(_databaseName, _editRace.CurrentRaceName, _outputFolderName, _timeBasedScoring, _maxRaceTime);
                 _db.LoadRaceSettings(out _eventName);
                 _editRace = new EditRace(_db);
-                _racerTableView = new RacerTableView(_db);
+                _racerTableView = new RacerTableView(_db, _outputFolderName);
+                _newRacer.OutputFolderName = _outputFolderName;
+                _newRacer.EventFile = _db.EventFile;
                 _racerTableView.RacerRemoved += RacerTableView_RacerRemoved;
                 _editRace.RaceChanged += EditRace_RaceChanged;
                 mainFrame.Navigate(new Default());
@@ -514,6 +516,7 @@ namespace DerbyApp
             {
                 _outputFolderName = folderDialog.FolderName;
                 _raceTracker.OutputFolderName = _outputFolderName;
+                _newRacer.OutputFolderName = _outputFolderName;
             }
         }
 

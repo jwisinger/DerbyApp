@@ -22,6 +22,8 @@ namespace DerbyApp
         public bool FlipImage = false;
         private VideoCapture _videoCapture = null;
         private int _selectedCamera = 0;
+        public string OutputFolderName = null;
+        public string EventFile = null;
 
         public int SelectedCamera
         {
@@ -33,7 +35,7 @@ namespace DerbyApp
             }
         }
 
-        public NewRacer()
+        public NewRacer(string outputFolderName, string eventFile)
         {
             InitializeComponent();
             tbName.DataContext = Racer;
@@ -41,6 +43,8 @@ namespace DerbyApp
             tbWeight.DataContext = Racer;
             tbEmail.DataContext = Racer;
             cbLevel.DataContext = Racer;
+            OutputFolderName = outputFolderName;
+            EventFile = eventFile;
             frameVideo.DataContext = this;
             GetCamera();
         }
@@ -108,6 +112,22 @@ namespace DerbyApp
             }
             RacerAdded?.Invoke(this, new EventArgs());
         }
+
+        private void ButtonPrintLicense_Click(object sender, EventArgs e)
+        {
+            if (Racer.RacerName == "")
+            {
+                MessageBox.Show("Name cannot be left blank.", "Invalid Entry", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+            if (Racer.Level == "")
+            {
+                MessageBox.Show("Level cannot be left blank.", "Invalid Entry", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+            GenerateLicense.Generate(Racer, EventFile, OutputFolderName);
+        }
+        
 
         [LibraryImport("gdi32.dll", EntryPoint = "DeleteObject")]
         [return: MarshalAs(UnmanagedType.Bool)]

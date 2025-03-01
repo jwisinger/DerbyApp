@@ -32,6 +32,7 @@
     <None Remove="Images\DatabaseRole.png" />
     <None Remove="Images\DatabaseRoleError.png" />
     <None Remove="Images\Disconnected.png" />
+    <None Remove="Images\DriversLicense.png" />
     <None Remove="Images\first.png" />
     <None Remove="Images\G.png" />
     <None Remove="Images\GIRL3.jpg" />
@@ -97,6 +98,7 @@
     <Resource Include="Images\DatabaseRole.png" />
     <Resource Include="Images\DatabaseRoleError.png" />
     <Resource Include="Images\Disconnected.png" />
+    <Resource Include="Images\DriversLicense.png" />
     <Resource Include="Images\first.png" />
     <Resource Include="Images\G.png" />
     <Resource Include="Images\Girl-Scout-Logo.png" />
