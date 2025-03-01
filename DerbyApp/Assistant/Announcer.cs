@@ -30,7 +30,7 @@ namespace DerbyApp.Assistant
             { "Lessac", "en_US-lessac-high"},
             { "LibriTTS", "en_US-libritts-high"},
             { "LibriTTS R", "en_US-libritts_r-medium"},
-            { "LJ Speech", "en_US-ljspeech-high"}
+            { "LJ Speech", "en_US-ljspeech-high"},
         };
 
         public Announcer()
@@ -44,7 +44,7 @@ namespace DerbyApp.Assistant
             await Voice.Start();
         }
 
-        private void Speak(string s)
+        public void Speak(string s)
         {
             if (!Muted) Voice.Speak(s);
         }

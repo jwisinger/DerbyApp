@@ -405,6 +405,16 @@ namespace DerbyApp
             t.Start();
         }
 
+        private void MakeAnnouncement_Click(object sender, RoutedEventArgs e)
+        {
+            string announcement = "";
+
+            InputBox ib = new("Please enter an annoucement:", announcement);
+
+            if ((bool)ib.ShowDialog()) announcement = ib.Input;
+            _announcer.Speak(announcement);
+        }
+
         void TimeTickCollapse(object sender, EventArgs e)
         {
             buttonColumn.Width = new GridLength(buttonColumn.Width.Value - 2);

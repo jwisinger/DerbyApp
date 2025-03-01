@@ -39,6 +39,7 @@
     <None Remove="Images\I.png" />
     <None Remove="Images\L.png" />
     <None Remove="Images\Megaphone.png" />
+    <None Remove="Images\MicrophoneTalking.png" />
     <None Remove="Images\OrderedList.png" />
     <None Remove="Images\R.png" />
     <None Remove="Images\racecar.ico" />
@@ -111,6 +112,7 @@
     <Content Include="racecar.ico" />
     <ProjectReference Include="..\ClippySharp\ClippySharp.csproj" />
     <ProjectReference Include="..\PiperSharp\PiperSharp.csproj" />
+    <Resource Include="Images\MicrophoneTalking.png" />
     <Resource Include="Images\OrderedList.png" />
     <Resource Include="Images\R.png" />
     <Resource Include="Images\Racer.png" />

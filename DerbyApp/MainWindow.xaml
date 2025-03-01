@@ -102,6 +102,12 @@
                         </HierarchicalDataTemplate>
                     </MenuItem.ItemTemplate>
                 </MenuItem>
+                <MenuItem ToolTip="Make Announcement" Click="MakeAnnouncement_Click" >
+                    <MenuItem.Header>
+                        <StackPanel>
+                            <Image Width="20" Height="20" Source="/Images/MicrophoneTalking.png" />
+                        </StackPanel>
+                    </MenuItem.Header>                </MenuItem>
                 <MenuItem Click="DisplayPhotos_Checked" ToolTip="Photos On/Off">
                     <MenuItem.Header>
                         <StackPanel>

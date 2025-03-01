@@ -1,6 +1,4 @@
-﻿#warning TEST: Test all combinations of announcer with and without track attached
-
-using DerbyApp.Assistant;
+﻿using DerbyApp.Assistant;
 using DerbyApp.Helpers;
 using DerbyApp.Pages;
 using DerbyApp.RacerDatabase;
