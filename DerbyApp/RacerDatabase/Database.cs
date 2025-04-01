@@ -176,7 +176,7 @@ namespace DerbyApp.RacerDatabase
                     sql += "[Heat " + (i - 1) + "]=" + num + ", ";
                 }
             }
-            sql = sql.Remove(sql.Length - 2);
+            sql = sql[..^2];
             sql += " WHERE [Number]=" + (int)row["Number"];
             command = new SQLiteCommand(sql, SqliteConn);
             command.ExecuteNonQuery();
@@ -264,8 +264,8 @@ namespace DerbyApp.RacerDatabase
                     sda.Fill(ds);
                     if (ds.Tables[0].Rows.Count > 0)
                     {
-                        string[] columnNames = (from dc in ds.Tables[0].Columns.Cast<DataColumn>()
-                                                select dc.ColumnName).ToArray();
+                        string[] columnNames = [.. (from dc in ds.Tables[0].Columns.Cast<DataColumn>()
+                                                select dc.ColumnName)];
                         retVal = columnNames.Where(x => x.Contains("Heat")).Count();
                     }
                 }

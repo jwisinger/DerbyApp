@@ -65,7 +65,7 @@ namespace DerbyApp.Assistant
 
         public List<string> GetVoiceNames()
         {
-            return new List<string>(_voices.Keys); ;
+            return [.. _voices.Keys]; ;
         }
 
         public void SayNames(TrulyObservableCollection<Racer> Racers)

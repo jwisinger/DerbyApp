@@ -43,7 +43,7 @@ namespace DerbyApp.RaceStats
 
         public List<Racer> CheckForTie(int positionToCheck)
         {
-            return Board.Where(x => x.Score == Board[positionToCheck].Score).ToList();
+            return [.. Board.Where(x => x.Score == Board[positionToCheck].Score)];
         }
 
         public void AddRunOffHeat(int heatCount)
