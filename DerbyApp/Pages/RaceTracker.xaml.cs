@@ -28,6 +28,8 @@ namespace DerbyApp
         private bool _cancelReplayEnabled = false;
         private bool _nextHeatEnabled = true;
         private Visibility _buttonVisibility = Visibility.Visible;
+        private Visibility _cancelButtonVisibility = Visibility.Visible;
+        private string _enableBoxButtonText = "Enable Manual Control";
         private string _currentHeatLabelString = "Current Heat (1)";
         private readonly Database _db = null;
         private readonly DispatcherTimer _raceTimer;
@@ -38,6 +40,7 @@ namespace DerbyApp
         private readonly Replay replay;
         private readonly string _databaseName;
         private readonly Announcer _announcer;
+        private bool _manualControlEnabled = false;
 
         private readonly string[] _trackStrings = ["red", "yellow", "green", "go"];
         private int _trackStepCounter = 0;
@@ -100,6 +103,25 @@ namespace DerbyApp
                 NotifyPropertyChanged();
             }
         }
+        public Visibility CancelButtonVisibility
+        {
+            get => _cancelButtonVisibility;
+            set
+            {
+                _cancelButtonVisibility = value;
+                NotifyPropertyChanged();
+            }
+        }
+        public string EnableBoxButtonText
+        {
+            get => _enableBoxButtonText;
+            set
+            {
+                _enableBoxButtonText = value;
+                NotifyPropertyChanged();
+            }
+        }
+
         public string RaceCountDownString
         {
             get
@@ -202,6 +224,9 @@ namespace DerbyApp
         public void ReplayEnded(object sender, EventArgs e)
         {
             ButtonVisibility = Visibility.Visible;
+            CancelButtonVisibility = Visibility.Visible;
+            _manualControlEnabled = false;
+            EnableBoxButtonText = "Enable Manual Control";
             CancelReplayEnabled = false;
         }
 
@@ -301,9 +326,79 @@ namespace DerbyApp
             _ = StartHeat();
         }
 
+        async void CheckSwitch(object sender, EventArgs e)
+        {
+            if (_manualControlEnabled)
+            {
+                string response = await TrackMessage("switch");
+                if (response != null)
+                {
+                    string[] responseArray = response.Replace("Switch ", "").Replace("\r\n", "").Split(",");
+                    if (responseArray.Length == 3)
+                    {
+                        if ((_trackStepCounter == 1) && (responseArray[2] == "0"))
+                        {
+                            TimeTickRace(null, null);
+                        }
+                        else if ((_trackStepCounter == 2) && (responseArray[1] == "0"))
+                        {
+                            TimeTickRace(null, null);
+                        }
+                        else if ((_trackStepCounter == 3) && (responseArray[0] == "0"))
+                        {
+                            (sender as DispatcherTimer).Stop();
+                            TimeTickRace(null, null);
+                            _raceTimer.Start();
+                        }
+                    }
+                }
+            }
+            else
+            {
+                (sender as DispatcherTimer).Stop();
+            }
+        }
+
+        private void ButtonEnable_Click(object sender, RoutedEventArgs e)
+        {
+            if (_manualControlEnabled)
+            {
+                _manualControlEnabled = false;
+                EnableBoxButtonText = "Enable Manual Control";
+                _ = TrackMessage("cancel");
+                ButtonVisibility = Visibility.Visible;
+                if (Results.CurrentHeatNumber >= Results.RaceFormat.HeatCount) NextHeatEnabled = false;
+                else NextHeatEnabled = true;
+                if (Results.CurrentHeatNumber <= 1) PreviousHeatEnabled = false;
+                else PreviousHeatEnabled = true;
+            }
+            else
+            {
+                _manualControlEnabled = true;
+                EnableBoxButtonText = "Cancel";
+                PreviousHeatEnabled = false;
+                NextHeatEnabled = false;
+                DispatcherTimer t = new()
+                {
+                    Interval = TimeSpan.FromMilliseconds(250)
+                };
+                t.Tick += CheckSwitch;
+                t.Start();
+
+                ButtonVisibility = Visibility.Collapsed;
+                PreviousHeatEnabled = false;
+                NextHeatEnabled = false;
+                _trackStepCounter = 0;
+                _raceCountDownTime = MaxRaceTime;
+                _announcer.StartRace(_trackStepCounter);
+                _ = TrackMessage(_trackStrings[_trackStepCounter++]);
+            }
+        }
+
         private void ButtonGetTimes_Click(object sender, RoutedEventArgs e)
         {
             ButtonVisibility = Visibility.Collapsed;
+            CancelButtonVisibility = Visibility.Collapsed;
             _ = GetTimes();
         }
 
@@ -336,7 +431,7 @@ namespace DerbyApp
             _raceTimer.Start();
         }
 
-        private async Task TrackMessage(string step)
+        private async Task<string> TrackMessage(string step)
         {
             if (TrackConnected)
             {
@@ -345,13 +440,15 @@ namespace DerbyApp
                     await Task.Delay(200);
                     using HttpClient client = new();
                     client.Timeout = TimeSpan.FromSeconds(5);
-                    string reponse = await client.GetStringAsync(new Uri("http://192.168.0.1/" + step));
+                    string response = await client.GetStringAsync(new Uri("http://192.168.0.1/" + step));
+                    return response;
                 }
                 catch (HttpRequestException e)
                 {
                     MessageBox.Show(e.Message, "Track Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
+            return null;
         }
 
         private async Task GetTimes()
@@ -431,8 +528,11 @@ namespace DerbyApp
                     MessageBox.Show(e.Message, "Track Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
-
-            Replay.ShowReplay();
+            try
+            {
+                Replay.ShowReplay();
+            }
+            catch { }
             RecordingVisibility = Visibility.Collapsed;
             CancelReplayEnabled = true;
             RaceCountDownString = "";
@@ -466,6 +566,7 @@ namespace DerbyApp
                 else
                 {
                     RaceCountDownString = _raceCountDownTime.ToString() + " seconds remaining.";
+                    CancelButtonVisibility = Visibility.Collapsed;
                 }
                 _raceCountDownTime--;
             }

@@ -35,19 +35,25 @@
             </Grid.ColumnDefinitions>
             <Label Grid.Column="0" Grid.Row="2" Content="{Binding Path=CurrentHeatLabelString, Mode=TwoWay}" Name="CurrentHeatLabel" HorizontalAlignment="Center" Margin="0,0,0,0" VerticalAlignment="Center" FontSize="28" FontWeight="Bold"/>
             <Label Grid.Column="1" Grid.Row="0" Content="Leader Board" HorizontalAlignment="Center" Margin="0,0,0,0" VerticalAlignment="Center" FontSize="28" Background="{x:Null}" FontWeight="Bold"/>
-            <Button Grid.Column="0" Grid.Row="0" Content="" Visibility="{Binding ElementName=raceTrackerWindow, Path=ButtonVisibility, Mode=TwoWay}" HorizontalAlignment="Left" Margin="0,0,10,0" VerticalAlignment="Center" Height="35" Width="120">
+            <TextBlock Grid.Column="0" Grid.Row="0" Text="{Binding ElementName=raceTrackerWindow, Path=RaceCountDownString, Mode=TwoWay}" HorizontalAlignment="Left" Margin="500,0,10,0" VerticalAlignment="Center" Height="35" Width="300" FontSize="28"/>
+            <Button Grid.Column="0" Grid.Row="0" Content="" Visibility="{Binding ElementName=raceTrackerWindow, Path=CancelButtonVisibility, Mode=TwoWay}" HorizontalAlignment="Left" Margin="0,0,10,0" VerticalAlignment="Center" Height="35" Width="220">
                 <Button.Effect>
                     <DropShadowEffect/>
                 </Button.Effect>
             </Button>
-            <TextBlock Grid.Column="0" Grid.Row="0" Text="{Binding ElementName=raceTrackerWindow, Path=RaceCountDownString, Mode=TwoWay}" HorizontalAlignment="Left" Margin="0,0,10,0" VerticalAlignment="Center" Height="35" Width="300" FontSize="28"/>
-            <Button Grid.Column="0" Grid.Row="0" Content="Start Heat" Visibility="{Binding ElementName=raceTrackerWindow, Path=ButtonVisibility, Mode=TwoWay}" HorizontalAlignment="Left" Margin="0,0,10,0" VerticalAlignment="Center" Height="35" Width="120" FontSize="18" Click="ButtonStart_Click"/>
-            <Button Grid.Column="0" Grid.Row="0" Content="" Visibility="{Binding ElementName=raceTrackerWindow, Path=ButtonVisibility, Mode=TwoWay}" HorizontalAlignment="Left" Margin="130,0,0,0" VerticalAlignment="Center" Height="35" Width="120">
+            <Button Grid.Column="0" Grid.Row="0" Content="{Binding ElementName=raceTrackerWindow, Path=EnableBoxButtonText, Mode=TwoWay}" Visibility="{Binding ElementName=raceTrackerWindow, Path=CancelButtonVisibility, Mode=TwoWay}" HorizontalAlignment="Left" Margin="0,0,10,0" VerticalAlignment="Center" Height="35" Width="220" FontSize="18" Click="ButtonEnable_Click"/>
+            <Button Grid.Column="0" Grid.Row="0" Content="" Visibility="{Binding ElementName=raceTrackerWindow, Path=ButtonVisibility, Mode=TwoWay}" HorizontalAlignment="Left" Margin="230,0,0,0" VerticalAlignment="Center" Height="35" Width="120">
                 <Button.Effect>
                     <DropShadowEffect/>
                 </Button.Effect>
             </Button>
-            <Button Grid.Column="0" Grid.Row="0" Content="Get Times" Visibility="{Binding ElementName=raceTrackerWindow, Path=ButtonVisibility, Mode=TwoWay}" HorizontalAlignment="Left" Margin="130,0,0,0" VerticalAlignment="Center" Height="35" Width="120" FontSize="18" Click="ButtonGetTimes_Click"/>
+            <Button Grid.Column="0" Grid.Row="0" Content="Start Heat" Visibility="{Binding ElementName=raceTrackerWindow, Path=ButtonVisibility, Mode=TwoWay}" HorizontalAlignment="Left" Margin="230,0,10,0" VerticalAlignment="Center" Height="35" Width="120" FontSize="18" Click="ButtonStart_Click"/>
+            <Button Grid.Column="0" Grid.Row="0" Content="" Visibility="{Binding ElementName=raceTrackerWindow, Path=ButtonVisibility, Mode=TwoWay}" HorizontalAlignment="Left" Margin="360,0,0,0" VerticalAlignment="Center" Height="35" Width="120">
+                <Button.Effect>
+                    <DropShadowEffect/>
+                </Button.Effect>
+            </Button>
+            <Button Grid.Column="0" Grid.Row="0" Content="Get Times" Visibility="{Binding ElementName=raceTrackerWindow, Path=ButtonVisibility, Mode=TwoWay}" HorizontalAlignment="Left" Margin="360,0,0,0" VerticalAlignment="Center" Height="35" Width="120" FontSize="18" Click="ButtonGetTimes_Click"/>
             <Button Grid.Column="0" Grid.Row="0" Content="" Visibility="{Binding ElementName=raceTrackerWindow, Path=ButtonVisibility, Mode=TwoWay}" HorizontalAlignment="Right" Margin="0,0,10,0" VerticalAlignment="Center" Height="35" Width="120">
                 <Button.Effect>
                     <DropShadowEffect/>
