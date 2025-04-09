@@ -93,7 +93,8 @@ namespace DerbyApp.Assistant
         {
             if (_isVisible)
             {
-#warning TODO: Add an agent action here
+                Agent.Stop();
+                Agent.Play("Congratulate");
             }
         }
 

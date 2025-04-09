@@ -73,7 +73,7 @@ namespace DerbyApp.Helpers
 
         public void Disconnect()
         {
-            if (scale.IsConnected)
+            if (scale != null && scale.IsConnected)
             {
                 scale.CloseDevice();
                 scale.Dispose();
@@ -94,7 +94,7 @@ namespace DerbyApp.Helpers
             decimal weightInOz = 0;
             bool isStable = false;
 
-            if (scale.IsConnected)
+            if (scale != null && scale.IsConnected)
             {
                 inData = scale.Read(250);
                 // Byte 0 == Report ID?

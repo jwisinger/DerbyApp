@@ -1,6 +1,4 @@
-﻿#warning FUN: Add a gesture right for instant replay
-
-using System.IO;
+﻿using System.IO;
 using System.Windows;
 using DerbyApp.RacerDatabase;
 using DerbyApp.RaceStats;
