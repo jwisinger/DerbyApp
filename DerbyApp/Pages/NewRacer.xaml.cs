@@ -10,6 +10,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using Emgu.CV;
 using System.Threading;
+using DerbyApp.Helpers;
 
 namespace DerbyApp
 {
@@ -22,8 +23,10 @@ namespace DerbyApp
         public bool FlipImage = false;
         private VideoCapture _videoCapture = null;
         private int _selectedCamera = 0;
+        private readonly USBScale _scale = null;
         public string OutputFolderName = null;
         public string EventFile = null;
+        private readonly DispatcherTimer _scaleTimer;
 
         public int SelectedCamera
         {
@@ -43,10 +46,24 @@ namespace DerbyApp
             tbWeight.DataContext = Racer;
             tbEmail.DataContext = Racer;
             cbLevel.DataContext = Racer;
+            _scale = new USBScale();
             OutputFolderName = outputFolderName;
             EventFile = eventFile;
             frameVideo.DataContext = this;
             GetCamera();
+            _scaleTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
+            _scaleTimer.Tick += ReadScale;
+            _scaleTimer.Start();
+        }
+
+        private void ReadScale(object sender, EventArgs e)
+        {
+            if (!_scale.IsConnected)
+            {
+                _scale.Connect();
+            }
+            Racer.Weight = _scale.GetWeight();
+            _scale.Disconnect();
         }
 
         public void GetCamera()
