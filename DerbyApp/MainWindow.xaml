@@ -64,7 +64,7 @@
                         </MenuItem.Icon>
                     </MenuItem>
                 </MenuItem>
-                <MenuItem ItemsSource="{Binding CharacterMenuItems}" ToolTip="Assitant">
+                <MenuItem ItemsSource="{Binding CharacterMenuItems}" ToolTip="Assistant">
                     <MenuItem.Header>
                         <StackPanel>
                             <Image Width="20" Height="20" Source="{Binding AgentEnabledIcon}" />
@@ -126,6 +126,20 @@
                     <MenuItem.Header>
                         <StackPanel>
                             <Image Width="20" Height="20" Source="{Binding PlaySoundsIcon}" />
+                        </StackPanel>
+                    </MenuItem.Header>
+                </MenuItem>
+                <MenuItem Click="Item_PrinterChanged" ToolTip="Select Printer">
+                    <MenuItem.Header>
+                        <StackPanel>
+                            <Image Width="20" Height="20" Source="/Images/Print.png" />
+                        </StackPanel>
+                    </MenuItem.Header>
+                </MenuItem>
+                <MenuItem Click="QRCodeClicked" ToolTip="Set QR Code">
+                    <MenuItem.Header>
+                        <StackPanel>
+                            <Image Width="20" Height="20" Source="/Images/QR-code-icon.png" />
                         </StackPanel>
                     </MenuItem.Header>
                 </MenuItem>

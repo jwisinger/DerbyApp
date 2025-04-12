@@ -24,7 +24,8 @@ namespace DerbyApp.Windows
                 AddExtension = true,
                 CheckPathExists = true,
                 FileName = "MyEvent",
-                ValidateNames = true
+                ValidateNames = true,
+                CheckFileExists = false
             };
 
             Nullable<bool> result = dlg.ShowDialog();

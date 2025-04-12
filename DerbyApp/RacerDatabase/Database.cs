@@ -48,6 +48,9 @@ namespace DerbyApp.RacerDatabase
             string sql = "CREATE TABLE IF NOT EXISTS [" + _racerTableName + "] ([Number] INTEGER PRIMARY KEY AUTOINCREMENT, [Name] VARCHAR(50), [Weight(oz)] DECIMAL(5, 3), [Troop] VARCHAR(10), [Level] VARCHAR(20), [Email] VARCHAR(100), [Image] MEDIUMBLOB)";
             SQLiteCommand command = new(sql, SqliteConn);
             command.ExecuteNonQuery();
+            sql = "CREATE TABLE IF NOT EXISTS [" + _settingsTableName + "] ([Number] INTEGER PRIMARY KEY, [Name] VARCHAR(500))";
+            command = new(sql, SqliteConn);
+            command.ExecuteNonQuery();
         }
 
         public void StoreRaceSettings(string eventName)
@@ -321,7 +324,7 @@ namespace DerbyApp.RacerDatabase
             command.ExecuteNonQuery();
         }
 
-        public static void StoreDatabaseRegistry(string database, string activeRace, string outputFolderName, bool timeBasedScoring, int maxRaceTime)
+        public static void StoreDatabaseRegistry(string database, string activeRace, string outputFolderName, bool timeBasedScoring, int maxRaceTime, string qrCodeLink, string qrPrinterName, string licensePrinterName)
         {
             RegistryKey key = Registry.CurrentUser.CreateSubKey(@"SOFTWARE\DerbyApp");
             if (database != null)
@@ -331,15 +334,21 @@ namespace DerbyApp.RacerDatabase
                 key.SetValue("outputFolderName", outputFolderName);
                 key.SetValue("timeBasedScoring", timeBasedScoring);
                 key.SetValue("maxRaceTime", maxRaceTime);
+                key.SetValue("qrCodeLink", qrCodeLink);
+                key.SetValue("qrPrinterName", qrPrinterName);
+                key.SetValue("licensePrinterName", licensePrinterName);
             }
             key.Close();
         }
 
-        public static bool GetDatabaseRegistry(out string database, out string activeRace, out string outputFolderName, out bool timeBasedScoring, out int maxRaceTime)
+        public static bool GetDatabaseRegistry(out string database, out string activeRace, out string outputFolderName, out bool timeBasedScoring, out int maxRaceTime, out string qrCodeLink, out string qrPrinterName, out string licensePrinterName)
         {
             database = "";
             activeRace = "";
             outputFolderName = "";
+            qrCodeLink = "";
+            qrPrinterName = "";
+            licensePrinterName = "";
             timeBasedScoring = false;
             maxRaceTime = 10;
             RegistryKey key = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\DerbyApp");
@@ -350,6 +359,9 @@ namespace DerbyApp.RacerDatabase
                 if (key.GetValue("outputFolderName") is string s3) outputFolderName = s3;
                 if (key.GetValue("timeBasedScoring") is string s4) if (bool.TryParse(s4, out bool b)) timeBasedScoring = b;
                 if (key.GetValue("maxRaceTime") is int s5) maxRaceTime = s5;
+                if (key.GetValue("qrCodeLink") is string s6) qrCodeLink = s6;
+                if (key.GetValue("qrPrinterName") is string s7) qrPrinterName = s7;
+                if (key.GetValue("licensePrinterName") is string s8) licensePrinterName = s8;
                 return true;
             }
             return false;

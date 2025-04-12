@@ -127,7 +127,7 @@ namespace DerbyApp.Helpers
             }
 
             if (isStable) return weightInOz;
-            else return (decimal)10.0;
+            else return (decimal)99999.0;
         }
     }
 }

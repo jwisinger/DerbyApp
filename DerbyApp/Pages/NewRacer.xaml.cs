@@ -9,7 +9,6 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using Emgu.CV;
-using System.Threading;
 using DerbyApp.Helpers;
 
 namespace DerbyApp
@@ -26,6 +25,9 @@ namespace DerbyApp
         private readonly USBScale _scale = null;
         public string OutputFolderName = null;
         public string EventFile = null;
+        public string QrPrinterName = null;
+        public string LicensePrinterName = null;
+        public string QrCodeLink = null;
         private readonly DispatcherTimer _scaleTimer;
 
         public int SelectedCamera
@@ -142,7 +144,7 @@ namespace DerbyApp
                 MessageBox.Show("Level cannot be left blank.", "Invalid Entry", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
-            GenerateLicense.Generate(Racer, EventFile, OutputFolderName);
+            GenerateLicense.Generate(Racer, EventFile, OutputFolderName, QrCodeLink, LicensePrinterName, QrPrinterName);
         }
         
 

@@ -1,17 +1,13 @@
 ﻿using DerbyApp.Helpers;
-using DerbyApp.RaceStats;
+using GemBox.Pdf;
 using MigraDoc.DocumentObjectModel;
 using MigraDoc.DocumentObjectModel.Shapes;
 using MigraDoc.DocumentObjectModel.Tables;
 using MigraDoc.Rendering;
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Data;
+using QRCoder;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
-using System.Linq;
 using System.Text;
 using Image = MigraDoc.DocumentObjectModel.Shapes.Image;
 
@@ -19,7 +15,33 @@ namespace DerbyApp.RaceStats
 {
     internal class GenerateLicense
     {
-        static Document CreateDocument(Racer r)
+        static Document CreateQrCode(QRCode qr)
+        {
+            Document document = new();
+
+            Section section = document.AddSection();
+            section.PageSetup.PageHeight = Unit.FromInch(1);
+            section.PageSetup.PageWidth = Unit.FromInch(2);
+            section.PageSetup.TopMargin = Unit.FromInch(0.1);
+            section.PageSetup.BottomMargin = Unit.FromInch(0.1);
+            section.PageSetup.LeftMargin = Unit.FromInch(0.1);
+            section.PageSetup.RightMargin = Unit.FromInch(0.1);
+
+            Table table = section.AddTable();
+            table.AddColumn(Unit.FromInch(2));
+
+            Row row = table.AddRow();
+            Paragraph paragraph = row.Cells[0].AddParagraph();
+            row.Cells[0].Format.Alignment = ParagraphAlignment.Center;
+            row.Cells[0].VerticalAlignment = VerticalAlignment.Center;
+            Image image = paragraph.AddImage(ImageHandler.LoadImageFromBytes(ImageHandler.ImageToByteArray(qr.GetGraphic(20))));
+            image.Width = Unit.FromInch(0.75);
+            image.LockAspectRatio = true;
+
+            return document;
+        }
+
+        static Document CreateLicense(Racer r)
         {
             Document document = new();
             
@@ -70,23 +92,31 @@ namespace DerbyApp.RaceStats
             return document;
         }
 
-        static public void Generate(Racer racer, string eventFile, string outputFolderName)
+        static public void Generate(Racer racer, string eventFile, string outputFolderName, string qrCodeLink, string licensePrinter, string qrPrinter)
         {
             string eventPath = Path.Combine(outputFolderName, Path.GetFileNameWithoutExtension(eventFile), "licenses");
             Directory.CreateDirectory(eventPath);
+            ComponentInfo.SetLicense("FREE-LIMITED-KEY");
 
-            Document document = CreateDocument(racer);
-            PdfDocumentRenderer pdfRenderer = new()
-            {
-                Document = document
-            };
+            Document document = CreateLicense(racer);
+            PdfDocumentRenderer pdfRenderer = new() { Document = document };
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             pdfRenderer.RenderDocument();
-
             pdfRenderer.PdfDocument.Save(Path.Combine(eventPath, racer.RacerName + ".pdf"));
+            using var pdfDoc = PdfDocument.Load(Path.Combine(eventPath, racer.RacerName + ".pdf"));
+            pdfDoc.Print(licensePrinter);
+
+            document = CreateQrCode(new(new QRCodeGenerator().CreateQrCode(qrCodeLink, QRCodeGenerator.ECCLevel.M)));
+            pdfRenderer = new() { Document = document };
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+            pdfRenderer.RenderDocument();
+            pdfRenderer.PdfDocument.Save(Path.Combine(eventPath, "qr.pdf"));
+            using var pdfDoc2 = PdfDocument.Load(Path.Combine(eventPath, "qr.pdf"));
+            pdfDoc2.Print(qrPrinter);
+
             var p = new Process
             {
-                StartInfo = new ProcessStartInfo(Path.Combine(eventPath, racer.RacerName + ".pdf"))
+                StartInfo = new ProcessStartInfo(Path.Combine(eventPath, /*racer.RacerName + "*/"qr.pdf"))
                 {
                     UseShellExecute = true
                 }

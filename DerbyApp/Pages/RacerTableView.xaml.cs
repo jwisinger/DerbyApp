@@ -18,6 +18,9 @@ namespace DerbyApp
         public event PropertyChangedEventHandler PropertyChanged;
         public event EventHandler RacerRemoved;
         public string OutputFolder = "";
+        public string LicensePrinterName = "";
+        public string QrPrinterName = "";
+        public string QrCodeLink = "";
 
         public Visibility DisplayPhotos
         {
@@ -74,7 +77,7 @@ namespace DerbyApp
             if (dataGridRacerTable.SelectedIndex < Racers.Count)
             {
                 Racer r = Racers[dataGridRacerTable.SelectedIndex];
-                GenerateLicense.Generate(r, _db.EventFile, OutputFolder);
+                GenerateLicense.Generate(r, _db.EventFile, OutputFolder, QrCodeLink, LicensePrinterName, QrPrinterName);
             }
         }
         
