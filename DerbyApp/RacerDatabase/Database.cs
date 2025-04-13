@@ -8,6 +8,7 @@ using System.Data.SQLite;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using System.Windows;
 
 namespace DerbyApp.RacerDatabase
 {
@@ -26,7 +27,7 @@ namespace DerbyApp.RacerDatabase
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                MessageBox.Show(ex.Message);
             }
             return SqliteConn;
         }

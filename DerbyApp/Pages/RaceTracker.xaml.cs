@@ -576,5 +576,11 @@ namespace DerbyApp
         {
             new ImageDisplay((sender as Image).Source).ShowDialog();
         }
+
+        public void Shutdown()
+        {
+            Replay.Cancel();
+            _ = _announcer.Voice.Cancel();
+        }
     }
 }

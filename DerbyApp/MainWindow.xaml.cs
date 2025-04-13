@@ -303,6 +303,7 @@ namespace DerbyApp
             _raceTracker.LdrBoard.TimeBasedScoring = _timeBasedScoring;
             _raceTracker.LdrBoard.CalculateResults(_raceTracker.Results.ResultsTable);
             _raceTracker.MaxRaceTime = _maxRaceTime;
+            _raceTracker.Replay.SelectedCamera = _selectedCamera;
         }
 
         private void RacerTableView_RacerRemoved(object sender, EventArgs e)
@@ -485,7 +486,7 @@ namespace DerbyApp
             {
                 _selectedCamera = sc.GetSelectedCamera();
                 _newRacer.SelectedCamera = _selectedCamera;
-                _raceTracker.Replay.SelectedCamera = _selectedCamera;
+                if(_raceTracker != null) _raceTracker.Replay.SelectedCamera = _selectedCamera;
             }
         }
 
@@ -619,6 +620,12 @@ namespace DerbyApp
         private void AgentImage_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             _agentInterface.ClickAgent();
+        }
+
+        private void MainWindowName_Closed(object sender, EventArgs e)
+        {
+            _raceTracker?.Shutdown();
+            _newRacer?.ReleaseCamera();
         }
     }
 }

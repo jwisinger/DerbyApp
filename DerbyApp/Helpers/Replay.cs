@@ -135,7 +135,7 @@ namespace DerbyApp.Helpers
                 _videoCapture.Retrieve(_currentFrame);
                 try
                 {
-                    Application.Current.Dispatcher.BeginInvoke(new Action(() =>
+                    Application.Current?.Dispatcher.BeginInvoke(new Action(() =>
                     {
                         Bitmap bMap = _currentFrame.ToImage<Emgu.CV.Structure.Bgr, byte>().ToBitmap();
                         if (FlipImage) bMap.RotateFlip(RotateFlipType.Rotate180FlipNone);

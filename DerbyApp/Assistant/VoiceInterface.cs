@@ -47,10 +47,15 @@ namespace DerbyApp.Assistant
             await _provider.WaitForExit(cancellationTokenSource.Token);
         }
 
-        public async Task Cancel()
+        public async Task Restart()
         {
             await cancellationTokenSource.CancelAsync();
             await Start();
+        }
+
+        public async Task Cancel()
+        {
+            await cancellationTokenSource.CancelAsync();
         }
 
         public void PlaybackThread(object obj)

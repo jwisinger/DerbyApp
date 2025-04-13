@@ -51,7 +51,7 @@ namespace DerbyApp.Assistant
 
         public void Silence()
         {
-            _ = Voice.Cancel();
+            _ = Voice.Restart();
         }
 
         public async Task<bool> SelectVoice(string voiceName)

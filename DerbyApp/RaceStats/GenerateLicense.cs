@@ -43,33 +43,41 @@ namespace DerbyApp.RaceStats
 
         static Document CreateLicense(Racer r)
         {
+            Image image;
             Document document = new();
-            
+
+            Style style = document.Styles["Normal"];
+            style.Font.Size = 8;
+            style = document.Styles["Heading1"];
+            style.Font.Size = 10;
+            style.Font.Bold = true;
+
             Section section = document.AddSection();
-            section.PageSetup.PageHeight = Unit.FromInch(2.125);
-            section.PageSetup.PageWidth = Unit.FromInch(4.0);
+            section.PageSetup.PageHeight = Unit.FromInch(2.0);
+            section.PageSetup.PageWidth = Unit.FromInch(3.5);
             section.PageSetup.TopMargin = Unit.FromInch(0.2);
-            section.PageSetup.BottomMargin = Unit.FromInch(0.2);
-            section.PageSetup.LeftMargin = Unit.FromInch(0.2);
-            section.PageSetup.RightMargin = Unit.FromInch(0.2);
+            section.PageSetup.LeftMargin = Unit.FromInch(0.45);
 
             Table table = section.AddTable();
-            table.AddColumn(Unit.FromInch(1.75));
-            table.AddColumn(Unit.FromInch(1.95));
+            table.AddColumn(Unit.FromInch(1.5));
+            table.AddColumn(Unit.FromInch(1.5));
             table.Borders.Width = 0;
 
             Row row = table.AddRow();
             Paragraph paragraph = row.Cells[0].AddParagraph();
-            paragraph.AddFormattedText("Driver License\r\n", TextFormat.Bold);
+            paragraph.AddFormattedText("Driver License\r\n", "Heading1");
             row.Cells[0].Format.Alignment = ParagraphAlignment.Center;
             row.Cells[0].VerticalAlignment = VerticalAlignment.Center;
             paragraph = row.Cells[0].AddParagraph();
-            paragraph.AddImage(ImageHandler.LoadImageFromBytes(ImageHandler.ImageToByteArray(new Bitmap(r.Photo, new Size(168, 126)))));
+            image = paragraph.AddImage(ImageHandler.LoadImageFromBytes(ImageHandler.ImageToByteArray(new Bitmap(r.Photo, new Size(168, 126)))));
+            image.Width = Unit.FromInch(1.48);
+            image.LockAspectRatio = true;
+            image.Top = ShapePosition.Top;
+            image.Left = ShapePosition.Center;
 
-            Image image;
             paragraph = row.Cells[1].AddParagraph();
             image = paragraph.AddImage(ImageHandler.LoadImageFromBytes(ImageHandler.ImageToByteArray(new Bitmap(Properties.Resources.GIRL3))));
-            image.Width = Unit.FromInch(1.8);
+            image.Width = Unit.FromInch(1.35);
             image.LockAspectRatio = true;
             image.RelativeVertical = RelativeVertical.Line;
             image.RelativeHorizontal = RelativeHorizontal.Margin;
@@ -80,11 +88,11 @@ namespace DerbyApp.RaceStats
             paragraph = row.Cells[1].AddParagraph();
             row.Cells[1].VerticalAlignment = VerticalAlignment.Top;
             paragraph.Format.Alignment = ParagraphAlignment.Left;
-            paragraph.AddFormattedText("Name:\r\n", TextFormat.Bold);
+            paragraph.AddFormattedText("Name:\r\n", "Heading1");
             paragraph.AddFormattedText(r.RacerName + "\r\n", "Normal");
-            paragraph.AddFormattedText("Troop:\r\n", TextFormat.Bold);
+            paragraph.AddFormattedText("Troop:\r\n", "Heading1");
             paragraph.AddFormattedText(r.Troop + "\r\n", "Normal");
-            paragraph.AddFormattedText("Level:\r\n", TextFormat.Bold);
+            paragraph.AddFormattedText("Level:\r\n", "Heading1");
             paragraph.AddFormattedText(r.Level + "\r\n", "Normal");
             table.SetEdge(0, 0, 1, 1, Edge.Box, BorderStyle.Single, 2);
             table.SetEdge(0, 0, 2, 1, Edge.Box, BorderStyle.Single, 2);
@@ -114,14 +122,14 @@ namespace DerbyApp.RaceStats
             using var pdfDoc2 = PdfDocument.Load(Path.Combine(eventPath, "qr.pdf"));
             pdfDoc2.Print(qrPrinter);
 
-            var p = new Process
+            /*var p = new Process
             {
-                StartInfo = new ProcessStartInfo(Path.Combine(eventPath, /*racer.RacerName + "*/"qr.pdf"))
+                StartInfo = new ProcessStartInfo(Path.Combine(eventPath, racer.RacerName + ".pdf"))
                 {
                     UseShellExecute = true
                 }
             };
-            p.Start();
+            p.Start();*/
         }
     }
 }

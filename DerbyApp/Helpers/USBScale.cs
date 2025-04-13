@@ -84,7 +84,7 @@ namespace DerbyApp.Helpers
         {
             for (int i = 0; i < inData.Data.Length; ++i)
             {
-                Console.WriteLine("Byte {0}: {1}", i, inData.Data[i]);
+                //Console.WriteLine("Byte {0}: {1}", i, inData.Data[i]);
             }
         }
 

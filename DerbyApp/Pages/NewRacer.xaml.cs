@@ -70,6 +70,7 @@ namespace DerbyApp
 
         public void GetCamera()
         {
+            if (_videoCapture != null) ReleaseCamera();
             _videoCapture = new VideoCapture(SelectedCamera, VideoCapture.API.DShow);
             CurrentFrame = new Mat();
             _videoCapture.ImageGrabbed += VideoCapture_NewFrame;
@@ -98,7 +99,7 @@ namespace DerbyApp
             _videoCapture.Retrieve(CurrentFrame);
             try
             {
-                Application.Current.Dispatcher.BeginInvoke(new Action(() =>
+                Application.Current?.Dispatcher.BeginInvoke(new Action(() =>
                 {
                     Bitmap bMap = CurrentFrame.ToImage<Emgu.CV.Structure.Bgr, byte>().ToBitmap();
                     if (FlipImage) bMap.RotateFlip(RotateFlipType.Rotate180FlipNone);
