@@ -30,6 +30,15 @@
             </Menu>
         </DockPanel>
         <DockPanel Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2">
+            <Menu HorizontalAlignment="Left">
+                <MenuItem IsEnabled="False" ToolTip="Track Connection Status">
+                    <MenuItem.Header>
+                        <StackPanel>
+                            <Image Width="20" Height="20" Source="{Binding TrackStatusIcon}" />
+                        </StackPanel>
+                    </MenuItem.Header>
+                </MenuItem>
+            </Menu>
             <Menu DockPanel.Dock="Top" HorizontalAlignment="Right" Background="AliceBlue">
                 <MenuItem Click="ButtonChangeDatabase_Click" ToolTip="Select New Event">
                     <MenuItem.Header>
@@ -153,17 +162,6 @@
                     </MenuItem.Header>
                     <MenuItem Header="_Help" Click="HelpItem_Click"/>
                     <MenuItem Header="_About" Click="AboutItem_Click"/>
-                </MenuItem>
-            </Menu>
-        </DockPanel>
-        <DockPanel Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Margin="0,534,0,0" Grid.RowSpan="2">
-            <Menu DockPanel.Dock="Top" HorizontalAlignment="Right" Background="AliceBlue">
-                <MenuItem ToolTip="Track Connection Status">
-                    <MenuItem.Header>
-                        <StackPanel>
-                            <Image Width="20" Height="20" Source="{Binding TrackStatusIcon}" />
-                        </StackPanel>
-                    </MenuItem.Header>
                 </MenuItem>
             </Menu>
         </DockPanel>

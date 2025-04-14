@@ -23,9 +23,9 @@
             </Grid.Background>
             <Grid.RowDefinitions>
                 <RowDefinition Height="1*"/>
-                <RowDefinition Height="4*"/>
+                <RowDefinition Height="9*"/>
                 <RowDefinition Height="1*"/>
-                <RowDefinition Height="4*"/>
+                <RowDefinition Height="1*"/>
                 <RowDefinition Height="1*"/>
                 <RowDefinition Height="1*"/>
             </Grid.RowDefinitions>
@@ -78,8 +78,8 @@
                 </Grid.Resources>
                 <Border Grid.Row="1" BorderThickness="5" BorderBrush="#FF688CAF">
                     <Grid Visibility="{Binding Data.DisplayPhotos, Source={StaticResource proxy}, UpdateSourceTrigger=PropertyChanged}" Grid.Row="1" Background="LightSlateGray">
-                        <Image Name="frameVideo" VerticalAlignment="Top" RenderOptions.BitmapScalingMode="Fant" Width="515" Stretch="Uniform"/>
-                        <Image Name="recordingImage" VerticalAlignment="Top" HorizontalAlignment="Right" RenderOptions.BitmapScalingMode="Fant" Width="32" Stretch="Uniform" Source="/Images/Record.png" Visibility="{Binding ElementName=raceTrackerWindow, Path=RecordingVisibility, Mode=TwoWay}"/>
+                        <Image Name="frameVideo" VerticalAlignment="Bottom" RenderOptions.BitmapScalingMode="Fant" Width="515" Stretch="Uniform"/>
+                        <Image Name="recordingImage" VerticalAlignment="Bottom" HorizontalAlignment="Right" RenderOptions.BitmapScalingMode="Fant" Width="32" Stretch="Uniform" Source="/Images/Record.png" Visibility="{Binding ElementName=raceTrackerWindow, Path=RecordingVisibility, Mode=TwoWay}"/>
                     </Grid>
                 </Border>
             </Grid>
