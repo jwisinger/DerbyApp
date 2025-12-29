@@ -1,25 +1,24 @@
 ﻿using DerbyApp.Helpers;
 using DerbyApp.RaceStats;
+using Microsoft.Data.Sqlite;
 using Microsoft.Win32;
 using System;
 using System.Collections.ObjectModel;
 using System.Data;
-using System.Data.SQLite;
 using System.Drawing.Imaging;
 using System.IO;
-using System.Linq;
 using System.Windows;
 
 namespace DerbyApp.RacerDatabase
 {
     public class Database
     {
-        public readonly SQLiteConnection SqliteConn;
+        public readonly SqliteConnection SqliteConn;
         public readonly string EventFile = "";
         private readonly string _racerTableName = "raceTable";
         private readonly string _settingsTableName = "settingsTable";
 
-        private SQLiteConnection CreateConnection()
+        private SqliteConnection CreateConnection()
         {
             try
             {
@@ -35,11 +34,7 @@ namespace DerbyApp.RacerDatabase
         public Database(string databaseFile)
         {
             EventFile = databaseFile;
-            if (!File.Exists(databaseFile))
-            {
-                SQLiteConnection.CreateFile(databaseFile);
-            }
-            SqliteConn = new SQLiteConnection("Data Source = " + databaseFile);
+            SqliteConn = new SqliteConnection("Data Source = " + databaseFile);
             CreateConnection();
             CreateRacerTable();
         }
@@ -47,7 +42,7 @@ namespace DerbyApp.RacerDatabase
         private void CreateRacerTable()
         {
             string sql = "CREATE TABLE IF NOT EXISTS [" + _racerTableName + "] ([Number] INTEGER PRIMARY KEY AUTOINCREMENT, [Name] VARCHAR(50), [Weight(oz)] DECIMAL(5, 3), [Troop] VARCHAR(10), [Level] VARCHAR(20), [Email] VARCHAR(100), [Image] MEDIUMBLOB)";
-            SQLiteCommand command = new(sql, SqliteConn);
+            SqliteCommand command = new(sql, SqliteConn);
             command.ExecuteNonQuery();
             sql = "CREATE TABLE IF NOT EXISTS [" + _settingsTableName + "] ([Number] INTEGER PRIMARY KEY, [Name] VARCHAR(500))";
             command = new(sql, SqliteConn);
@@ -57,19 +52,19 @@ namespace DerbyApp.RacerDatabase
         public void StoreRaceSettings(string eventName)
         {
             string sql = "CREATE TABLE IF NOT EXISTS [" + _settingsTableName + "] ([Number] INTEGER PRIMARY KEY, [Name] VARCHAR(500))";
-            SQLiteCommand command = new(sql, SqliteConn);
+            SqliteCommand command = new(sql, SqliteConn);
             command.ExecuteNonQuery();
 
             sql = "REPLACE INTO [" + _settingsTableName + "] ([Number], [Name]) VALUES (@Number, @Name)";
-            command = new SQLiteCommand(sql, SqliteConn);
-            command.Parameters.Add("@Number", DbType.Int64).Value = 1;
-            command.Parameters.Add("@Name", DbType.String).Value = eventName;
+            command = new SqliteCommand(sql, SqliteConn);
+            command.Parameters.Add("@Number", SqliteType.Integer).Value = 1;
+            command.Parameters.Add("@Name", SqliteType.Text).Value = eventName;
             command.ExecuteNonQuery();
         }
 
         public void LoadRaceSettings(out string eventName)
         {
-            SQLiteCommand command = new("SELECT * FROM [" + _settingsTableName + "] ORDER BY ROWID ASC LIMIT 1", SqliteConn);
+            SqliteCommand command = new("SELECT * FROM [" + _settingsTableName + "] ORDER BY ROWID ASC LIMIT 1", SqliteConn);
 
             using var reader = command.ExecuteReader();
             if (reader.HasRows)
@@ -89,15 +84,15 @@ namespace DerbyApp.RacerDatabase
             try
             {
                 if (results.RaceName == "") return;
-                SQLiteCommand cmd = new("SELECT *  FROM [" + _racerTableName + "] INNER JOIN [" + results.RaceName + "] ON [" + results.RaceName + "].number = [" + _racerTableName + "].Number", SqliteConn);
-                SQLiteDataAdapter sda = new(cmd);
-                DataSet ds = new();
-                sda.Fill(ds);
-                if (ds.Tables[0].Rows.Count > 0)
+                SqliteCommand cmd = new("SELECT *  FROM [" + _racerTableName + "] INNER JOIN [" + results.RaceName + "] ON [" + results.RaceName + "].number = [" + _racerTableName + "].Number", SqliteConn);
+                SqliteDataReader r = cmd.ExecuteReader();
+                DataTable dt = new();
+                dt.Load(r);
+                if (dt.Rows.Count > 0)
                 {
                     results.InProgress = true;
                     results.ResultsTable.Clear();
-                    foreach (DataRow row in ds.Tables[0].Rows)
+                    foreach (DataRow row in dt.Rows)
                     {
                         results.ResultsTable.ImportRow(row);
                     }
@@ -109,12 +104,12 @@ namespace DerbyApp.RacerDatabase
         public void DeleteResultsTable(string raceName)
         {
             string sql;
-            SQLiteCommand command;
+            SqliteCommand command;
 
             try
             {
                 sql = "DROP TABLE [" + raceName + "]";
-                command = new SQLiteCommand(sql, SqliteConn);
+                command = new SqliteCommand(sql, SqliteConn);
                 command.ExecuteNonQuery();
             }
             catch { }
@@ -124,12 +119,12 @@ namespace DerbyApp.RacerDatabase
         {
             int racerCount = 0;
             string sql;
-            SQLiteCommand command;
+            SqliteCommand command;
 
             try
             {
                 sql = "DELETE FROM [" + raceName + "]";
-                command = new SQLiteCommand(sql, SqliteConn);
+                command = new SqliteCommand(sql, SqliteConn);
                 command.ExecuteNonQuery();
             }
             catch
@@ -137,14 +132,14 @@ namespace DerbyApp.RacerDatabase
                 sql = "CREATE TABLE IF NOT EXISTS [" + raceName + "] ([RacePosition] INTEGER PRIMARY KEY AUTOINCREMENT, [Number] INTEGER, [RaceFormat] INTEGER";
                 for (int i = 0; i < heatCount; i++) sql += ", [Heat " + (i + 1) + "] DOUBLE";
                 sql += ")";
-                command = new SQLiteCommand(sql, SqliteConn);
+                command = new SqliteCommand(sql, SqliteConn);
                 command.ExecuteNonQuery();
             }
 
             try
             {
                 sql = "DELETE FROM sqlite_sequence WHERE NAME=[" + raceName + "]";
-                command = new SQLiteCommand(sql, SqliteConn);
+                command = new SqliteCommand(sql, SqliteConn);
                 command.ExecuteNonQuery();
             }
             catch { }
@@ -152,9 +147,9 @@ namespace DerbyApp.RacerDatabase
             foreach (Racer r in racers)
             {
                 sql = "INSERT INTO [" + raceName + "] ([Number], [RaceFormat]) VALUES (@Number, @RaceFormat)";
-                command = new SQLiteCommand(sql, SqliteConn);
-                command.Parameters.Add("@Number", DbType.Int64).Value = r.Number;
-                command.Parameters.Add("@RaceFormat", DbType.Int64).Value = raceFormat;
+                command = new SqliteCommand(sql, SqliteConn);
+                command.Parameters.Add("@Number", SqliteType.Integer).Value = r.Number;
+                command.Parameters.Add("@RaceFormat", SqliteType.Integer).Value = raceFormat;
                 racerCount += command.ExecuteNonQuery();
             }
         }
@@ -162,7 +157,7 @@ namespace DerbyApp.RacerDatabase
         public void AddRunOffHeat(string raceName, int heatCount)
         {
             string sql = "ALTER TABLE [" + raceName + "] ADD [Heat " + heatCount + "] DOUBLE";
-            SQLiteCommand command = new(sql, SqliteConn);
+            SqliteCommand command = new(sql, SqliteConn);
             try { command.ExecuteNonQuery(); }
             catch { }
         }
@@ -170,7 +165,7 @@ namespace DerbyApp.RacerDatabase
         public void UpdateResultsTable(string raceName, DataRow row)
         {
             string sql = "UPDATE [" + raceName + "] SET ";
-            SQLiteCommand command;
+            SqliteCommand command;
 
             for (int i = 2; i < row.ItemArray.Length; i++)
             {
@@ -182,34 +177,30 @@ namespace DerbyApp.RacerDatabase
             }
             sql = sql[..^2];
             sql += " WHERE [Number]=" + (int)row["Number"];
-            command = new SQLiteCommand(sql, SqliteConn);
+            command = new SqliteCommand(sql, SqliteConn);
             command.ExecuteNonQuery();
         }
 
         public ObservableCollection<Racer> GetAllRacers(ObservableCollection<Racer> Racers = null)
         {
-            SQLiteCommand cmd = new("SELECT * FROM [" + _racerTableName + "]", SqliteConn);
-            SQLiteDataAdapter sda = new(cmd);
+            SqliteCommand cmd = new("SELECT * FROM [" + _racerTableName + "]", SqliteConn);
+            SqliteDataReader r = cmd.ExecuteReader();
             DataSet ds = new();
             if (Racers == null) Racers = [];
             else Racers.Clear();
-            sda.Fill(ds);
-            if (ds.Tables[0].Rows.Count > 0)
+            while (r.Read())
             {
-                foreach (DataRow dataRow in ds.Tables[0].Rows)
+                try
                 {
-                    try
-                    {
-                        Racers.Add(new Racer((Int64)dataRow[0],
-                                         (string)dataRow[1],
-                                         (decimal)dataRow[2],
-                                         (string)dataRow[3],
-                                         (string)dataRow[4],
-                                         (string)dataRow[5],
-                                         ImageHandler.ByteArrayToImage((byte[])dataRow[6])));
-                    }
-                    catch { }
+                    Racers.Add(new Racer((Int64)r["number"],
+                                     (string)r["name"],
+                                     Convert.ToDecimal(r["weight(oz)"]),
+                                     (string)r["troop"],
+                                     (string)r["level"],
+                                     (string)r["email"],
+                                     ImageHandler.ByteArrayToImage((byte[])r["image"])));
                 }
+                catch { }
             }
 
             return Racers;
@@ -222,33 +213,30 @@ namespace DerbyApp.RacerDatabase
             int raceFormatIndex = -1;
             if (raceName != "")
             {
-                string sql = "SELECT *  FROM [" + _racerTableName + "] INNER JOIN [" + raceName + "] ON [" + raceName + "].number = [" + _racerTableName + "].Number ORDER BY [" + raceName + "].RacePosition";
-                SQLiteCommand cmd = new(sql, SqliteConn);
-                SQLiteDataAdapter sda = new(cmd);
-                DataSet ds = new();
                 try
                 {
-                    sda.Fill(ds);
-                    if (ds.Tables[0].Rows.Count > 0)
+
+                    string sql = "SELECT *  FROM [" + _racerTableName + "] INNER JOIN [" + raceName + "] ON [" + raceName + "].number = [" + _racerTableName + "].Number ORDER BY [" + raceName + "].RacePosition";
+                    SqliteCommand cmd = new(sql, SqliteConn);
+                    SqliteDataReader r = cmd.ExecuteReader();
+                    DataSet ds = new();
+                    while (r.Read())
                     {
-                        foreach (DataRow dataRow in ds.Tables[0].Rows)
+                        try
                         {
-                            try
-                            {
-                                Racers.Add(new Racer((Int64)dataRow[0],
-                                                 (string)dataRow[1],
-                                                 (decimal)dataRow[2],
-                                                 (string)dataRow[3],
-                                                 (string)dataRow[4],
-                                                 (string)dataRow[5],
-                                                 ImageHandler.ByteArrayToImage((byte[])dataRow[6])));
-                                raceFormatIndex = (int)((Int64)dataRow[9]);
-                            }
-                            catch { }
+                            Racers.Add(new Racer((Int64)r["number"],
+                                             (string)r["name"],
+                                             Convert.ToDecimal(r["weight(oz)"]),
+                                             (string)r["troop"],
+                                             (string)r["level"],
+                                             (string)r["email"],
+                                             ImageHandler.ByteArrayToImage((byte[])r["image"])));
+                            raceFormatIndex = (int)(Int64)r[9];
                         }
+                        catch { }
                     }
                 }
-                catch { /* invalid race name stored in registry */ }
+                catch { }
             }
 
             return (Racers, raceFormatIndex);
@@ -259,18 +247,16 @@ namespace DerbyApp.RacerDatabase
             int retVal = -1;
             if (raceName != "")
             {
-                string sql = "SELECT * FROM [" + raceName + "] LIMIT 1";
-                SQLiteCommand cmd = new(sql, SqliteConn);
-                SQLiteDataAdapter sda = new(cmd);
-                DataSet ds = new();
                 try
                 {
-                    sda.Fill(ds);
-                    if (ds.Tables[0].Rows.Count > 0)
+
+                    string sql = "SELECT * FROM [" + raceName + "] LIMIT 1";
+                    SqliteCommand cmd = new(sql, SqliteConn);
+                    SqliteDataReader r = cmd.ExecuteReader();
+                    retVal = 0;
+                    for (int i = 0; i < r.FieldCount; i++)
                     {
-                        string[] columnNames = [.. (from dc in ds.Tables[0].Columns.Cast<DataColumn>()
-                                                select dc.ColumnName)];
-                        retVal = columnNames.Where(x => x.Contains("Heat")).Count();
+                            if (r.GetName(i).Contains("Heat")) retVal++;
                     }
                 }
                 catch { }
@@ -283,8 +269,8 @@ namespace DerbyApp.RacerDatabase
         {
             ObservableCollection<string> retVal = [];
             string sql = "SELECT name FROM sqlite_schema WHERE type ='table' AND (name NOT LIKE 'sqlite_%') AND (name NOT LIKE 'settings%');";
-            SQLiteCommand command = new(sql, SqliteConn);
-            SQLiteDataReader r = command.ExecuteReader();
+            SqliteCommand command = new(sql, SqliteConn);
+            SqliteDataReader r = command.ExecuteReader();
             while (r.Read()) retVal.Add(Convert.ToString(r["name"]));
             retVal.Remove(_racerTableName);
             return retVal;
@@ -301,27 +287,27 @@ namespace DerbyApp.RacerDatabase
             {
                 sql = "REPLACE INTO [" + _racerTableName + "] ([Number], [Name], [Weight(oz)], [Troop], [Level], [Email], [Image]) VALUES (@Number, @Name, @Weight, @Troop, @Level, @Email, @Image)";
             }
-            SQLiteCommand command = new(sql, SqliteConn);
+            SqliteCommand command = new(sql, SqliteConn);
             MemoryStream ms = new();
             racer.Photo.Save(ms, ImageFormat.Jpeg);
             ms.Position = 0;
             byte[] photo = ms.ToArray();
 
-            command.Parameters.Add("@Number", DbType.Int64).Value = racer.Number;
-            command.Parameters.Add("@Name", DbType.String).Value = racer.RacerName;
-            command.Parameters.Add("@Weight", DbType.Decimal).Value = racer.Weight;
-            command.Parameters.Add("@Troop", DbType.String).Value = racer.Troop;
-            command.Parameters.Add("@Level", DbType.String).Value = racer.Level;
-            command.Parameters.Add("@Email", DbType.String).Value = racer.Email;
-            command.Parameters.Add("@Image", DbType.Binary).Value = photo;
+            command.Parameters.Add("@Number", SqliteType.Integer).Value = racer.Number;
+            command.Parameters.Add("@Name", SqliteType.Text).Value = racer.RacerName;
+            command.Parameters.Add("@Weight", SqliteType.Real).Value = racer.Weight;
+            command.Parameters.Add("@Troop", SqliteType.Text).Value = racer.Troop;
+            command.Parameters.Add("@Level", SqliteType.Text).Value = racer.Level;
+            command.Parameters.Add("@Email", SqliteType.Text).Value = racer.Email;
+            command.Parameters.Add("@Image", SqliteType.Blob).Value = photo;
             command.ExecuteNonQuery();
         }
 
         public void RemoveRacerFromRacerTable(Racer racer)
         {
             string sql = "DELETE FROM [" + _racerTableName + "] WHERE [Number]=@Number";
-            SQLiteCommand command = new(sql, SqliteConn);
-            command.Parameters.Add("@Number", DbType.Int64).Value = racer.Number;
+            SqliteCommand command = new(sql, SqliteConn);
+            command.Parameters.Add("@Number", SqliteType.Integer).Value = racer.Number;
             command.ExecuteNonQuery();
         }
 

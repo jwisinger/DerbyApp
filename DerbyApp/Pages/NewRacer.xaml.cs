@@ -64,8 +64,11 @@ namespace DerbyApp
             {
                 _scale.Connect();
             }
-            Racer.Weight = _scale.GetWeight();
-            _scale.Disconnect();
+            if(_scale.IsConnected)
+            {
+                Racer.Weight = _scale.GetWeight();
+                _scale.Disconnect();
+            }
         }
 
         public void GetCamera()

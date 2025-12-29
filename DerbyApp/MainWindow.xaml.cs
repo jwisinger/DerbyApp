@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿#warning TODO: Update licenses
+using System.IO;
 using System.Windows;
 using DerbyApp.RacerDatabase;
 using DerbyApp.RaceStats;
@@ -15,8 +16,6 @@ using DerbyApp.Assistant;
 using ClippySharp;
 using System.Net.Http;
 using System.Threading.Tasks;
-using System.Drawing.Printing;
-using static System.Windows.Forms.LinkLabel;
 
 namespace DerbyApp
 {
