@@ -170,7 +170,7 @@ namespace DerbyApp
             gridRaceResults.Columns.Add(new DataGridTextColumn() { Header = e.PropertyName, Binding = new System.Windows.Data.Binding(e.PropertyName) { StringFormat = "N3" } });
         }
 
-        public RaceTracker(RaceResults results, Database db, string databaseName, string outputFolderName, Announcer announcer)
+        public RaceTracker(RaceResults results, Database db, string databaseName, string outputFolderName, Announcer announcer, Credentials credentials)
         {
             InitializeComponent();
             _announcer = announcer;
@@ -190,8 +190,9 @@ namespace DerbyApp
             _databaseName = databaseName;
             OutputFolderName = outputFolderName;
 
-            replay = new Replay(frameVideo);
+            replay = new Replay(frameVideo, credentials);
             replay.ReplayEnded += ReplayEnded;
+            replay.VideoUploaded += VideoUploaded;
         }
 
         private void CurrentRacers_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
@@ -228,6 +229,11 @@ namespace DerbyApp
             _manualControlEnabled = false;
             EnableBoxButtonText = "Enable Manual Control";
             CancelReplayEnabled = false;
+        }
+
+        public void VideoUploaded(object sender, VideoUploadedEventArgs e)
+        {
+            _db.AddVideoToTable(e);
         }
 
         private void ButtonNextHeat_Click(object sender, RoutedEventArgs e)

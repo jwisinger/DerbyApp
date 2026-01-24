@@ -2,12 +2,15 @@
 using System;
 using System.Drawing;
 using System.IO;
+using System.Net.Http;
+using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 
 namespace DerbyApp.Helpers
 {
-    internal class Replay(System.Windows.Controls.Image i)
+    internal class Replay(System.Windows.Controls.Image i, Credentials credentials)
     {
         public enum VideoMethod
         {
@@ -16,19 +19,29 @@ namespace DerbyApp.Helpers
             None
         };
 
+        public class VideoLink
+        {
+            public string Id { get; set; }
+            public string Url { get; set; }
+        }
+
         private VideoCapture _videoCapture;
         private readonly Mat _currentFrame = new();
         private readonly System.Windows.Controls.Image _imageBox = i;
         private VideoWriter _videoWriter;
         private VideoMethod _currentState = VideoMethod.None;
         public event EventHandler ReplayEnded;
+        public event VideoUploadedEventHandler VideoUploaded;
         public bool FlipImage = false;
         private double _frameRate = 0;
         private int _totalFrames = 0;
         private string _lastWrittenFile;
+        private string _lastRaceName;
+        private int _lastHeatNumber;
         private const double FRAME_RATE = 15.0;
         private int _selectedCamera = 0;
         private bool _loaded = false;
+        private readonly Credentials _credentials = credentials;
 
         public int SelectedCamera
         {
@@ -66,14 +79,47 @@ namespace DerbyApp.Helpers
             _loaded = true;
         }
 
+        private async Task UploadVideo()
+        {
+            string webhookUrl = "https://api.retool.com/v1/workflows/5e126bc0-067c-45f8-a4be-cea4aec7f395/startTrigger";
+            
+            Byte[] bytes = File.ReadAllBytes(_lastWrittenFile);
+            String file = Convert.ToBase64String(bytes);
+
+            var payload = new
+            {
+                filename = Path.GetFileName(_lastWrittenFile),
+                data = file
+            };
+
+            string jsonPayload = System.Text.Json.JsonSerializer.Serialize(payload);
+            var content = new StringContent(jsonPayload, Encoding.UTF8, "application/json");
+
+            using HttpClient client = new();
+            client.DefaultRequestHeaders.Add("X-Workflow-Api-Key", _credentials.FileUploaderApiKey);
+
+            try
+            {
+                HttpResponseMessage response = await client.PostAsync(webhookUrl, content);
+                if (response.IsSuccessStatusCode)
+                {
+                    string responseBody = await response.Content.ReadAsStringAsync();
+                    VideoUploaded?.Invoke(this, new VideoUploadedEventArgs(System.Text.Json.JsonSerializer.Deserialize<VideoLink>(responseBody).Url,
+                                                                           _lastRaceName, _lastHeatNumber));
+                }
+            }
+            catch { }
+
+        }
+
         public void ShowReplay()
         {
-#warning 1: When recording is finished, need to trigger a remote write if needed
             _videoWriter?.Dispose();
             _videoCapture?.Dispose();
             _currentState = VideoMethod.Viewing;
             if (File.Exists(_lastWrittenFile))
             {
+                _ = UploadVideo();
                 _videoCapture = new VideoCapture(_lastWrittenFile);
                 _videoCapture.ImageGrabbed += VideoCapture_NewFrame;
                 _frameRate = _videoCapture.Get(Emgu.CV.CvEnum.CapProp.Fps);
@@ -88,6 +134,8 @@ namespace DerbyApp.Helpers
             {
                 _lastWrittenFile = string.Join("_", raceName.Split(Path.GetInvalidFileNameChars()));
                 _lastWrittenFile = Path.Combine(path, _lastWrittenFile + "_" + heatNumber + ".mp4");
+                _lastRaceName = raceName;
+                _lastHeatNumber = heatNumber;
                 if (!Directory.Exists(path)) Directory.CreateDirectory(path);
                 _videoWriter = new VideoWriter(_lastWrittenFile, -1, FRAME_RATE,
                     new System.Drawing.Size(_videoCapture.Width, _videoCapture.Height), true);

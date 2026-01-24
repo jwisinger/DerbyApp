@@ -12,6 +12,7 @@ namespace DerbyApp.Helpers
     {
         public string DatabaseUsername;
         public string DatabasePassword;
+        public string FileUploaderApiKey;
 
         public Credentials()
         {
@@ -30,6 +31,13 @@ namespace DerbyApp.Helpers
                 {
                     DatabaseUsername = matchingEntries.First().Strings.ReadSafe("UserName");
                     DatabasePassword= matchingEntries.First().Strings.ReadSafe("Password");
+                }
+                matchingEntries = from entry in database.RootGroup.GetEntries(true)
+                                      where entry.Strings.ReadSafe("Title") == "RetoolFileUploader"
+                                  select entry;
+                if (matchingEntries.Any())
+                {
+                    FileUploaderApiKey = matchingEntries.First().Strings.ReadSafe("Password");
                 }
 
                 database.Close();

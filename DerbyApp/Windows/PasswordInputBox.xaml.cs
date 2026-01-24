@@ -1,4 +1,5 @@
 ﻿using System.Windows;
+using System.Windows.Input;
 
 namespace DerbyApp.Windows
 {
@@ -12,6 +13,8 @@ namespace DerbyApp.Windows
         public PasswordInputBox()
         {
             InitializeComponent();
+            FocusManager.SetFocusedElement(this, passwordBox);
+            Keyboard.Focus(passwordBox);
         }
 
         private void LoginButton_Click(object sender, RoutedEventArgs e)

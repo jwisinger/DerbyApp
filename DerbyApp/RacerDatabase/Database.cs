@@ -16,6 +16,7 @@ namespace DerbyApp.RacerDatabase
     {
         private readonly DatabaseGeneric _databaseGeneric;
         private readonly string _racerTableName = "raceTable";
+        private readonly string _videoTableName = "videoTable";
         private readonly string _settingsTableName = "settingsTable";
         private readonly bool _sqlite;
         public bool IsSynced = true;
@@ -29,6 +30,7 @@ namespace DerbyApp.RacerDatabase
             if (_databaseGeneric.InitGood)
             {
                 CreateRacerTable();
+                CreateVideoTable();
                 InitGood = true;
             }
         }
@@ -36,6 +38,20 @@ namespace DerbyApp.RacerDatabase
         public string GetName()
         {
             return _databaseGeneric.GetDataBaseName();
+        }
+
+        private void CreateVideoTable()
+        {
+            string sql;
+            if (_sqlite)    // These differ because of how autoincrement is different between postgres and sqlite
+            {
+                sql = "CREATE TABLE IF NOT EXISTS [" + _videoTableName + "] ([Number] INTEGER PRIMARY KEY AUTOINCREMENT, [RaceName] VARCHAR(50), [HeatNumber] INTEGER, [Url] VARCHAR(200), UNIQUE ([RaceName], [HeatNumber]))";
+            }
+            else
+            {
+                sql = "CREATE TABLE IF NOT EXISTS [" + _videoTableName + "] ([Number] INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY, [RaceName] VARCHAR(50), [HeatNumber] INTEGER, [Url] VARCHAR(200), UNIQUE ([RaceName], [HeatNumber]))";
+            }
+            _databaseGeneric.ExecuteNonQuery(sql);
         }
 
         private void CreateRacerTable()
@@ -195,6 +211,26 @@ namespace DerbyApp.RacerDatabase
             catch
             {
                 IsSynced = false;
+            }
+        }
+
+        public void AddVideoToTable(VideoUploadedEventArgs e)
+        {
+            string sql = "INSERT INTO [" + _videoTableName + "] ([Url], [HeatNumber], [RaceName]) VALUES (@url, @heatnumber, @racename) ON CONFLICT ([HeatNumber], [RaceName]) DO UPDATE SET [Url] = EXCLUDED.[Url]";
+
+            List<DatabaseGeneric.SqlParameter> param =
+            [
+                new DatabaseGeneric.SqlParameter { name = "@url", type = DatabaseGeneric.DataType.Text, value = e.Url },
+                new DatabaseGeneric.SqlParameter { name = "@heatnumber", type = DatabaseGeneric.DataType.Integer, value = e.HeatNumber },
+                new DatabaseGeneric.SqlParameter { name = "@racename", type = DatabaseGeneric.DataType.Text, value = e.RaceName },
+            ];
+
+            try
+            {
+                _databaseGeneric.ExecuteNonQueryWithParams(sql, param);
+            }
+            catch
+            {
             }
         }
 
