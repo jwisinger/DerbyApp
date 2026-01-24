@@ -1,0 +1,244 @@
+﻿using DerbyApp.Helpers;
+using Npgsql;
+using NpgsqlTypes;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Data;
+using System.Linq;
+using System.Windows;
+
+namespace DerbyApp.RacerDatabase
+{
+    public class DatabasePostgres : DatabaseGeneric
+    {
+        public readonly string EventName = "";
+        public NpgsqlConnection PostgresConn;
+        private NpgsqlDataReader _reader;
+        private readonly Credentials _credentials;
+        private static readonly string[] _defaultDatabaseNames = ["postgres", "retool", "template0", "template1"];
+
+        private static NpgsqlDbType GetPostgresType(DataType type)
+        {
+            return type switch
+            {
+                DataType.Integer => NpgsqlDbType.Bigint,
+                DataType.Real => NpgsqlDbType.Real,
+                DataType.Text => NpgsqlDbType.Text,
+                DataType.Blob => NpgsqlDbType.Bytea,
+                _ => NpgsqlDbType.Text,
+            };
+        }
+
+        private bool ConnectToRootDatabase(bool showErrorMessage)
+        {
+            try
+            {
+                PostgresConn?.Close();
+                PostgresConn = new("Host=" + Host + "; Username=" + _credentials.DatabaseUsername + ";Password=" + _credentials.DatabasePassword.ToString() + ";Database=postgres");
+                PostgresConn.Open();
+            }
+            catch (Exception ex)
+            {
+                if (showErrorMessage) MessageBox.Show(ex.Message, "Database Connection Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return false;
+            }
+
+            return true;
+        }
+
+        public bool AddNewDatabase(string databaseName)
+        {
+            try
+            {
+                string sql = "SELECT EXISTS(SELECT datname FROM pg_catalog.pg_database WHERE lower(datname) = lower('" + databaseName + "'));";
+                ExecuteReader(sql);
+                _reader.Read();
+                if (_reader.GetBoolean(0))
+                {
+                    MessageBox.Show("An event with that name already exists.", "Event Exists", MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
+                {
+                    sql = "CREATE DATABASE " + databaseName.Replace("\"", null);
+                    ExecuteNonQuery(sql);
+                }
+            }
+            catch
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        private bool SwitchToDatabase(string databaseName)
+        {
+            try
+            {
+                string sql = "SELECT EXISTS(SELECT datname FROM pg_catalog.pg_database WHERE lower(datname) = lower('" + databaseName + "'));";
+                ExecuteReader(sql);
+                _reader.Read();
+                if (!_reader.GetBoolean(0))
+                {
+                    sql = "CREATE DATABASE " + databaseName.Replace("\"", null);
+                    ExecuteNonQuery(sql);
+                }
+
+                PostgresConn.Close();
+                PostgresConn = new("Host=" + Host + "; Username=" + _credentials.DatabaseUsername + ";Password=" + _credentials.DatabasePassword + ";Database=" + databaseName.ToLower());
+                PostgresConn.Open();
+            }
+            catch
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        public DatabasePostgres(string databaseName, Credentials credentials)
+        {
+            EventName = databaseName;
+            _credentials = credentials;
+
+            try
+            {
+                if(ConnectToRootDatabase(false))
+                {
+                    if (SwitchToDatabase(databaseName))
+                    {
+                        InitGood = true;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        public override int ExecuteNonQuery(string sql)
+        {
+            if (PostgresConn.State == ConnectionState.Closed)
+            {
+                try
+                {
+                    PostgresConn = new("Host=" + Host + "; Username=" + _credentials.DatabaseUsername + ";Password=" + _credentials.DatabasePassword + ";Database=" + EventName.ToLower());
+                    PostgresConn.Open();
+                }
+                catch
+                {
+                    return -1;
+                }
+            }
+            try
+            {
+                NpgsqlCommand command = new(sql.Replace('[', '"').Replace(']', '"'), PostgresConn);
+                _reader?.Close();
+                return command.ExecuteNonQuery();
+            }
+            catch
+            {
+                return -1;
+            }
+        }
+
+        public override int ExecuteNonQueryWithParams(string sql, List<SqlParameter> parameters)
+        {
+            if (PostgresConn.State == ConnectionState.Closed)
+            {
+                try
+                {
+                    PostgresConn = new("Host=" + Host + "; Username=" + _credentials.DatabaseUsername + ";Password=" + _credentials.DatabasePassword + ";Database=" + EventName.ToLower());
+                    PostgresConn.Open();
+                }
+                catch
+                {
+                    return -1;
+                }
+            }
+            NpgsqlCommand command = new(sql.Replace('[', '"').Replace(']', '"'), PostgresConn);
+            _reader?.Close();
+            foreach (SqlParameter param in parameters)
+            {
+                if (param.type == DataType.Real) command.Parameters.Add(param.name, GetPostgresType(param.type)).Value = Convert.ToDouble(param.value);
+                else command.Parameters.Add(param.name, GetPostgresType(param.type)).Value = param.value;
+            }
+            return command.ExecuteNonQuery();
+        }
+
+        public override void ExecuteReader(string sql)
+        {
+            if (PostgresConn.State == ConnectionState.Closed)
+            {
+                try
+                {
+                    PostgresConn = new("Host=" + Host + "; Username=" + _credentials.DatabaseUsername + ";Password=" + _credentials.DatabasePassword + ";Database=" + EventName.ToLower());
+                    PostgresConn.Open();
+                }
+                catch
+                {
+                    return;
+                }
+            }
+            NpgsqlCommand command = new(sql.Replace('[', '"').Replace(']', '"'), PostgresConn);
+            _reader?.Close();
+            _reader = command.ExecuteReader();
+        }
+#warning TODO: All of these accesses to _reader should have a check to see if it's null
+        public override bool Read()
+        {
+            if (!_reader.IsClosed) return _reader.Read();
+            else return false;
+        }
+
+        public override object GetReadValue(string name)
+        {
+            if (!_reader.IsClosed) return _reader.GetValue(name);
+            else return null;
+        }
+
+        public override int GetReadFieldCount()
+        {
+            if (!_reader.IsClosed) return _reader.FieldCount;
+            else return 0;
+        }
+
+        public override string GetReadFieldName(int column)
+        {
+            if (!_reader.IsClosed) return _reader.GetName(column);
+            else return "";
+        }
+
+        public override IDataReader GetDataReader()
+        {
+            return _reader;
+        }
+
+        public override string GetDataBaseName()
+        {
+            return EventName;
+        }
+
+        public ObservableCollection<string> GetEventList()
+        {
+            ObservableCollection<string> retVal = [];
+            ConnectToRootDatabase(true);
+            try
+            {
+                string sql = "SELECT datname FROM pg_database;";
+                ExecuteReader(sql);
+                while (_reader.Read())
+                {
+                    string s = (string)_reader.GetValue(0);
+                    
+                    if (!_defaultDatabaseNames.Any(s.Contains)) retVal.Add(s);
+                }
+            }
+            catch { }
+
+            return retVal;
+        }
+
+    }
+}

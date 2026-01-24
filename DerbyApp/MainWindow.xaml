@@ -38,6 +38,13 @@
                         </StackPanel>
                     </MenuItem.Header>
                 </MenuItem>
+                <MenuItem IsEnabled="False" ToolTip="Database Connection Status">
+                    <MenuItem.Header>
+                        <StackPanel>
+                            <Image Width="20" Height="20" Source="{Binding DatabaseStatusIcon}" />
+                        </StackPanel>
+                    </MenuItem.Header>
+                </MenuItem>
             </Menu>
             <Menu DockPanel.Dock="Top" HorizontalAlignment="Right" Background="AliceBlue">
                 <MenuItem Click="ButtonChangeDatabase_Click" ToolTip="Select New Event">

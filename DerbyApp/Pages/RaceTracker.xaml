@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:DerbyApp"
         xmlns:helpers="clr-namespace:DerbyApp.Helpers"
         mc:Ignorable="d"
-        Title="RaceTracker" Name="raceTrackerWindow" Loaded="RaceTrackerWindow_Loaded">
+        Title="RaceTracker" Name="raceTrackerWindow" Loaded="RaceTrackerWindow_Loaded" Unloaded="RaceTrackerWindow_Unloaded">
     <Viewbox Stretch="Uniform">
         <Grid MinHeight="900" MinWidth="800">
             <Grid.Background>

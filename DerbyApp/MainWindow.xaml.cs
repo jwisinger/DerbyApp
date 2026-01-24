@@ -1,21 +1,28 @@
-﻿#warning TODO: Update licenses
-using System.IO;
-using System.Windows;
+﻿#warning TEST: What happens if I lose database connection when adding a racer
+#warning TEST: Test adding racers with 2 computers
+#warning TEST: Test complete run of race with Postgres
+#warning TEST: Test complete run of race with Sqlite
+#warning TEST: Test running race on one computer while someone is adding racers from another PC
+#warning TODO: Force a periodic refresh of lists that might need it
+#warning TODO: Update software licenses
+#warning TODO: Allow changing picture?
+using ClippySharp;
+using DerbyApp.Assistant;
+using DerbyApp.Helpers;
+using DerbyApp.Pages;
 using DerbyApp.RacerDatabase;
 using DerbyApp.RaceStats;
 using DerbyApp.Windows;
-using System.ComponentModel;
-using System.Windows.Threading;
-using System;
-using System.Linq;
-using DerbyApp.Pages;
-using DerbyApp.Helpers;
 using Microsoft.Win32;
-using System.Windows.Input;
-using DerbyApp.Assistant;
-using ClippySharp;
+using System;
+using System.ComponentModel;
+using System.IO;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Input;
+using System.Windows.Threading;
 
 namespace DerbyApp
 {
@@ -27,6 +34,7 @@ namespace DerbyApp
         private string _outputFolderName = "";
         private string _playSoundsIcon = "/Images/Sound.png";
         private string _trackStatusIcon = "/Images/Disconnected.png";
+        private string _databaseStatusIcon = "/Images/DatabaseStop.png";
         private string _timeBasedScoringIcon = "/Images/Timer.png";
         private string _cameraEnabledIcon = "/Images/CameraEnabled.png";
         private string _agentEnabledIcon = "/Images/DatabaseRoleError.png";
@@ -48,6 +56,7 @@ namespace DerbyApp
         private Visibility _collapsedVisibility = Visibility.Visible;
         private AgentInterface _agentInterface;
         private readonly Announcer _announcer = new();
+        private readonly Credentials _credentials;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -70,6 +79,15 @@ namespace DerbyApp
             {
                 _trackStatusIcon = value;
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(TrackStatusIcon)));
+            }
+        }
+        public string DatabaseStatusIcon
+        {
+            get => _databaseStatusIcon;
+            set
+            {
+                _databaseStatusIcon = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(DatabaseStatusIcon)));
             }
         }
         public string PlaySoundsIcon
@@ -220,43 +238,30 @@ namespace DerbyApp
 
         public MainWindow()
         {
-            Database.GetDatabaseRegistry(out string databaseName, out string activeRace, out _outputFolderName, out _timeBasedScoring, out _maxRaceTime, out string qrCodeLink, out string qrPrinterName, out string licensePrinterName);
-            if (!File.Exists(databaseName))
-            {
-                DatabaseCreator dbc = new();
-                if (!(bool)dbc.ShowDialog()) this.Close();
-                databaseName = dbc.DatabaseFile;
-                _outputFolderName = Path.GetDirectoryName(databaseName);
-            }
+            bool sqlite = false;
             InitializeComponent();
-            this.Title = "Current Event = " + Path.GetFileNameWithoutExtension(databaseName);
-            _db = new Database(databaseName);
-            Database.StoreDatabaseRegistry(databaseName, activeRace, _outputFolderName, _timeBasedScoring, _maxRaceTime, qrCodeLink, qrPrinterName, licensePrinterName);
-            _databaseName = databaseName;
-            _db.LoadRaceSettings(out _eventName);
-            _editRace = new EditRace(_db)
-            {
-                CurrentRaceName = activeRace
-            };
-            _racerTableView = new RacerTableView(_db, _outputFolderName)
-            {
-                QrCodeLink = qrCodeLink,
-                QrPrinterName = qrPrinterName,
-                LicensePrinterName = licensePrinterName
-            };
-            _newRacer = new NewRacer(_outputFolderName, _db.EventFile)
-            {
-                QrCodeLink = qrCodeLink,
-                QrPrinterName = qrPrinterName,
-                LicensePrinterName = licensePrinterName
-            };
 
+            Database.GetDatabaseRegistry(out _databaseName, out string activeRace, out _outputFolderName, out _timeBasedScoring, out _maxRaceTime, out string qrCodeLink, out string qrPrinterName, out string licensePrinterName);
+#warning TEST: Check that everything stores correctly in the registry (look at the list above)
+            _newRacer = new NewRacer(_outputFolderName, _databaseName)
+            {
+                QrCodeLink = qrCodeLink,
+                QrPrinterName = qrPrinterName,
+                LicensePrinterName = licensePrinterName
+            };
             _newRacer.RacerAdded += Racer_RacerAdded;
-            _racerTableView.RacerRemoved += RacerTableView_RacerRemoved;
-            _editRace.RaceChanged += EditRace_RaceChanged;
-            _editRace.RaceChanging += EditRace_RaceChanging;
+            if (_databaseName.Contains(':')) sqlite = true;
 
-            mainFrame.Navigate(new Default());
+            _credentials = new Credentials();
+            _db = new Database(_databaseName, sqlite, _credentials);
+            if (!_db.InitGood)
+            {
+#warning TEST: Do a local database and confirm all settings continue after a close and re-open (including which event and which race)
+#warning TEST: Do a remote database and confirm all settings continue after a close and re-open (including which event and which race)
+                sqlite = SelectDatabase();
+            }
+
+            ChangeDatabase(activeRace);
             CreateMenu();
             _ = TrackStatusCheck();
         }
@@ -320,37 +325,55 @@ namespace DerbyApp
             _newRacer.ClearRacer();
         }
 
+        private void ChangeDatabase(string activeRace)
+        {
+            Title = "Current Event = " + Path.GetFileNameWithoutExtension(_databaseName);
+            _db.LoadRaceSettings(out _eventName);
+            _editRace = new EditRace(_db);
+            if (activeRace != null) _editRace.CurrentRaceName = activeRace;
+            _editRace.RaceChanged += EditRace_RaceChanged;
+            _editRace.RaceChanging += EditRace_RaceChanging;
+            _newRacer.OutputFolderName = _outputFolderName;
+            _newRacer.EventFile = _db.GetName();
+            _racerTableView = new RacerTableView(_db, _outputFolderName)
+            {
+                QrCodeLink = _newRacer.QrCodeLink,
+                QrPrinterName = _newRacer.QrPrinterName,
+                LicensePrinterName = _newRacer.LicensePrinterName
+            };
+            _racerTableView.RacerRemoved += RacerTableView_RacerRemoved;
+            Database.StoreDatabaseRegistry(_databaseName, _editRace.CurrentRaceName, _outputFolderName, _timeBasedScoring, _maxRaceTime, _newRacer.QrCodeLink, _newRacer.QrPrinterName, _newRacer.LicensePrinterName);
+            mainFrame.Navigate(new Default());
+        }
+
+        private bool SelectDatabase()
+        {
+            bool retVal = false;
+            DatabaseSelector dbs = new(_credentials);
+            if ((bool)dbs.ShowDialog())
+            {
+                if (dbs.Sqlite)
+                {
+                    _databaseName = dbs.DatabaseFile;
+                    _outputFolderName = Path.GetDirectoryName(_databaseName);
+                    retVal = true;
+                }
+                else
+                {
+                    _databaseName = dbs.EventName;
+                    _outputFolderName = "C:\\temp";
+                }
+
+                _db = new Database(_databaseName, dbs.Sqlite, _credentials);
+                ChangeDatabase(null);
+            }
+
+            return retVal;
+        }
+        
         private void ButtonChangeDatabase_Click(object sender, RoutedEventArgs e)
         {
-            OpenFileDialog dialog = new()
-            {
-                CheckFileExists = false,
-                DefaultExt = "sqlite",
-                FileName = "MyEvent",
-                Filter = "SQLite files | *.sqlite",
-                Title = "Choose Event Database"
-            };
-            if ((bool)dialog.ShowDialog())
-            {
-                _databaseName = dialog.FileName;
-                this.Title = "Current Event = " + Path.GetFileNameWithoutExtension(_databaseName);
-                _db = new Database(_databaseName);
-                _outputFolderName = Path.GetDirectoryName(_databaseName);
-                Database.StoreDatabaseRegistry(_databaseName, _editRace.CurrentRaceName, _outputFolderName, _timeBasedScoring, _maxRaceTime, _newRacer.QrCodeLink, _newRacer.QrPrinterName, _newRacer.LicensePrinterName);
-                _db.LoadRaceSettings(out _eventName);
-                _editRace = new EditRace(_db);
-                _racerTableView = new RacerTableView(_db, _outputFolderName)
-                {
-                    QrCodeLink = _newRacer.QrCodeLink,
-                    QrPrinterName = _newRacer.QrPrinterName,
-                    LicensePrinterName = _newRacer.LicensePrinterName
-                };
-                _newRacer.OutputFolderName = _outputFolderName;
-                _newRacer.EventFile = _db.EventFile;
-                _racerTableView.RacerRemoved += RacerTableView_RacerRemoved;
-                _editRace.RaceChanged += EditRace_RaceChanged;
-                mainFrame.Navigate(new Default());
-            }
+            SelectDatabase();
         }
 
         private void ButtonAddRacer_Click(object sender, RoutedEventArgs e)
@@ -397,7 +420,6 @@ namespace DerbyApp
         {
             try
             {
-                
                 using HttpClient client = new();
                 client.Timeout = TimeSpan.FromSeconds(5);
                 string response = await client.GetStringAsync(new Uri("http://192.168.0.1/ping"));
@@ -409,6 +431,10 @@ namespace DerbyApp
                 TrackStatusIcon = "/Images/Disconnected.png";
                 if (_raceTracker != null) _raceTracker.TrackConnected = false;
             }
+            Database temp = new(_databaseName, false, _credentials);
+            if (temp.InitGood) DatabaseStatusIcon = "/Images/DatabaseRun.png";
+            else DatabaseStatusIcon = "/Images/DatabaseStop.png";
+
             _ = Task.Delay(5000).ContinueWith(t => TrackStatusCheck());
         }
 

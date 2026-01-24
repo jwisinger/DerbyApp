@@ -77,7 +77,7 @@ namespace DerbyApp
             if (dataGridRacerTable.SelectedIndex < Racers.Count)
             {
                 Racer r = Racers[dataGridRacerTable.SelectedIndex];
-                GenerateLicense.Generate(r, _db.EventFile, OutputFolder, QrCodeLink, LicensePrinterName, QrPrinterName);
+                GenerateLicense.Generate(r, _db.GetName(), OutputFolder, QrCodeLink, LicensePrinterName, QrPrinterName);
             }
         }
         

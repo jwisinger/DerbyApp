@@ -31,6 +31,8 @@
     <None Remove="Images\Connected.png" />
     <None Remove="Images\DatabaseRole.png" />
     <None Remove="Images\DatabaseRoleError.png" />
+    <None Remove="Images\DatabaseRun.png" />
+    <None Remove="Images\DatabaseStop.png" />
     <None Remove="Images\Disconnected.png" />
     <None Remove="Images\DriversLicense.png" />
     <None Remove="Images\first.png" />
@@ -70,6 +72,7 @@
     <None Remove="Images\ViewRacers2.png" />
     <None Remove="Images\ViewReport.png" />
     <None Remove="Images\ViewReport2.png" />
+    <None Remove="RacerDatabase\KeePassDatabase.kdbx" />
     <None Remove="STEM.jpg" />
   </ItemGroup>
 
@@ -81,7 +84,9 @@
     <PackageReference Include="Emgu.CV.UI" Version="4.12.0.5764" />
     <PackageReference Include="GemBox.Pdf" Version="2025.12.101" />
     <PackageReference Include="hidlibrary" Version="3.3.40" />
+    <PackageReference Include="KeePassLib.Standard" Version="2.57.1" />
     <PackageReference Include="Microsoft.Data.Sqlite" Version="10.0.1" />
+    <PackageReference Include="Npgsql" Version="10.0.1" />
     <PackageReference Include="PDFsharp-MigraDoc-GDI" Version="6.2.3" />
     <PackageReference Include="QRCoder" Version="1.7.0" />
     <PackageReference Include="System.Data.SqlClient" Version="4.9.0" />
@@ -101,6 +106,8 @@
     <Resource Include="Images\Connected.png" />
     <Resource Include="Images\DatabaseRole.png" />
     <Resource Include="Images\DatabaseRoleError.png" />
+    <Resource Include="Images\DatabaseRun.png" />
+    <Resource Include="Images\DatabaseStop.png" />
     <Resource Include="Images\Disconnected.png" />
     <Resource Include="Images\DriversLicense.png" />
     <Resource Include="Images\first.png" />
@@ -116,6 +123,9 @@
     <Resource Include="Images\L.png" />
     <Resource Include="Images\Megaphone.png" />
     <Content Include="racecar.ico" />
+    <Content Include="KeePassDatabase.kdbx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <ProjectReference Include="..\ClippySharp\ClippySharp.csproj" />
     <ProjectReference Include="..\PiperSharp\PiperSharp.csproj" />
     <Resource Include="Images\MicrophoneTalking.png" />

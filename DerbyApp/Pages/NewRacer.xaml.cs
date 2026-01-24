@@ -52,10 +52,8 @@ namespace DerbyApp
             OutputFolderName = outputFolderName;
             EventFile = eventFile;
             frameVideo.DataContext = this;
-            GetCamera();
             _scaleTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
             _scaleTimer.Tick += ReadScale;
-            _scaleTimer.Start();
         }
 
         private void ReadScale(object sender, EventArgs e)
@@ -173,6 +171,18 @@ namespace DerbyApp
             Racer.Weight = 0;
             Racer.Email = "";
             Racer.Number = 0;
+        }
+
+        private void NewRacerPage_Unloaded(object sender, RoutedEventArgs e)
+        {
+            _scaleTimer.Stop();
+            ReleaseCamera();
+        }
+
+        private void NewRacerPage_Loaded(object sender, RoutedEventArgs e)
+        {
+            _scaleTimer.Start();
+            GetCamera();
         }
     }
 }

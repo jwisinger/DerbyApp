@@ -7,7 +7,7 @@ using System.Windows;
 
 namespace DerbyApp.Helpers
 {
-    internal class Replay
+    internal class Replay(System.Windows.Controls.Image i)
     {
         public enum VideoMethod
         {
@@ -17,8 +17,8 @@ namespace DerbyApp.Helpers
         };
 
         private VideoCapture _videoCapture;
-        private readonly Mat _currentFrame;
-        private readonly System.Windows.Controls.Image _imageBox;
+        private readonly Mat _currentFrame = new();
+        private readonly System.Windows.Controls.Image _imageBox = i;
         private VideoWriter _videoWriter;
         private VideoMethod _currentState = VideoMethod.None;
         public event EventHandler ReplayEnded;
@@ -28,6 +28,7 @@ namespace DerbyApp.Helpers
         private string _lastWrittenFile;
         private const double FRAME_RATE = 15.0;
         private int _selectedCamera = 0;
+        private bool _loaded = false;
 
         public int SelectedCamera
         {
@@ -35,39 +36,41 @@ namespace DerbyApp.Helpers
             set
             {
                 _selectedCamera = value;
-                _videoCapture.Dispose();
-                Start();
+                _videoCapture?.Dispose();
+                if (_loaded) Start();
             }
-        }
-
-        public Replay(System.Windows.Controls.Image i)
-        {
-            _imageBox = i;
-            _currentFrame = new Mat();
-            Start();
         }
 
         public void Cancel()
         {
-            _videoCapture.Dispose();
+            _videoCapture?.Dispose();
             ReplayEnded?.Invoke(this, null);
             _currentState = VideoMethod.None;
-            Start();
+            if (_loaded) Start();
         }
 
-        private void Start()
+        public void Stop()
+        {
+            _videoCapture?.Dispose();
+            _currentState = VideoMethod.None;
+            _loaded = false;
+        }
+
+        public void Start()
         {
             _videoCapture = new VideoCapture(SelectedCamera, VideoCapture.API.DShow);
             _videoCapture.ImageGrabbed += VideoCapture_NewFrame;
             _videoCapture.Set(Emgu.CV.CvEnum.CapProp.Fps, FRAME_RATE);
             _currentState = VideoMethod.None;
             _videoCapture.Start();
+            _loaded = true;
         }
 
         public void ShowReplay()
         {
-            _videoWriter.Dispose();
-            _videoCapture.Dispose();
+#warning 1: When recording is finished, need to trigger a remote write if needed
+            _videoWriter?.Dispose();
+            _videoCapture?.Dispose();
             _currentState = VideoMethod.Viewing;
             if (File.Exists(_lastWrittenFile))
             {
@@ -114,7 +117,7 @@ namespace DerbyApp.Helpers
                             _videoCapture.Set(Emgu.CV.CvEnum.CapProp.PosFrames, framenumber);
                             _videoCapture.Dispose();
                             ReplayEnded?.Invoke(this, null);
-                            Start();
+                            if (_loaded) Start();
                         }
                     }
                 }

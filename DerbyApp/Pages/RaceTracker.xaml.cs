@@ -290,7 +290,7 @@ namespace DerbyApp
         {
             Results.UpdateResults((e.EditingElement as System.Windows.Controls.TextBox).Text, e.Column.DisplayIndex, e.Row.GetIndex());
             LdrBoard.CalculateResults(Results.ResultsTable);
-            _db.UpdateResultsTable(Results.RaceName, Results.ResultsTable.Rows[e.Row.GetIndex()]);
+            _db.UpdateResultsTable(Results.RaceName, Results.ResultsTable, OutputFolderName);
         }
 
         private void RaceTrackerWindow_Loaded(object sender, RoutedEventArgs e)
@@ -309,6 +309,7 @@ namespace DerbyApp
             style.Setters.Add(new Setter(System.Windows.Controls.Control.FontWeightProperty, FontWeights.Bold));
             style.Setters.Add(new Setter(System.Windows.Controls.Control.BackgroundProperty, new SolidColorBrush(Colors.LightGreen)));
             gridRaceResults.Columns[Results.CurrentHeatNumber + 1].HeaderStyle = style;
+            Replay.Start();
         }
 
         public void CheckBox_Checked()
@@ -492,7 +493,7 @@ namespace DerbyApp
                                     if (result < 0.1) result = 10.0F;
                                     dr["Heat " + Results.CurrentHeatNumber] = result;
                                     LdrBoard.CalculateResults(Results.ResultsTable);
-                                    _db.UpdateResultsTable(Results.RaceName, dr);
+                                    _db.UpdateResultsTable(Results.RaceName, Results.ResultsTable, OutputFolderName);
                                 }
                             }
                             catch { }
@@ -581,6 +582,11 @@ namespace DerbyApp
         {
             Replay.Cancel();
             _ = _announcer.Voice.Cancel();
+        }
+
+        private void RaceTrackerWindow_Unloaded(object sender, RoutedEventArgs e)
+        {
+            Replay.Stop();
         }
     }
 }

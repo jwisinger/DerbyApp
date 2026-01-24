@@ -10,12 +10,14 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Threading;
 
 namespace DerbyApp.Pages
 {
     public partial class EditRace : Page, INotifyPropertyChanged
     {
         private readonly Database _db;
+        private string _currentRaceName;
         private int _raceFormatIndex = 0;
         public ObservableCollection<string> Races;
         public ObservableCollection<Racer> Racers = [];
@@ -41,11 +43,11 @@ namespace DerbyApp.Pages
 
         public string CurrentRaceName
         {
-            get => (string)cbName.SelectedValue;
+            get => _currentRaceName;
             set
             {
                 cbName.SelectedValue = value;
-
+                _currentRaceName = value;
                 (Racers, int raceFormat) = _db.GetRacers((string)cbName.SelectedValue, Racers);
                 if (raceFormat >= 0) RaceFormatIndex = raceFormat;
                 int order = 1;
@@ -95,6 +97,20 @@ namespace DerbyApp.Pages
 
         private void ComboBoxRaceName_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            if (!_db.IsSynced)
+            {
+                _db.ModifyResultsTable(Racers, cbName.Text, RaceFormats.Formats[RaceFormatIndex].HeatCount, RaceFormatIndex);
+                if (!_db.IsSynced)
+                {
+                    if(MessageBoxResult.Cancel == MessageBox.Show("Connection to the database has been lost. If you continue, any results from this race will be lost.",
+                                    "Database Connection Lost", MessageBoxButton.OKCancel, MessageBoxImage.Warning))
+                    {
+                        cbName.SelectedValue = CurrentRaceName;
+                        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(cbName.SelectedValue)));
+                        return;
+                    }
+                }
+            }
             CurrentRaceName = cbName.SelectedValue as string;
             try
             {

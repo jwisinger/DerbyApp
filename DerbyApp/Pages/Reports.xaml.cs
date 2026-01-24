@@ -51,7 +51,7 @@ namespace DerbyApp.Pages
 
         private void ButtonReport_Click(object sender, RoutedEventArgs e)
         {
-            GenerateReport.Generate(_eventName, _db.EventFile, _outputFolderName, _db.GetAllRacers(), _races, _timeBasedScoring);
+            GenerateReport.Generate(_eventName, _db.GetName(), _outputFolderName, _db.GetAllRacers(), _races, _timeBasedScoring);
         }
 
         private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)

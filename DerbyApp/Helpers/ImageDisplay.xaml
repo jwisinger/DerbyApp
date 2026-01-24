@@ -7,9 +7,6 @@
         mc:Ignorable="d"
         Title="Image Zoom" Height="340" Width="340">
     <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition/>
-        </Grid.ColumnDefinitions>
         <Image Name="Picture" Margin="10,10,10,10" Grid.ColumnSpan="2"/>
     </Grid>
 </Window>

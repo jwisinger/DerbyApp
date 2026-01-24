@@ -5,7 +5,7 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:DerbyApp"
       xmlns:racestats="clr-namespace:DerbyApp.RaceStats"
-      Title="NewRacer" Name="newRacerPage">
+      Title="NewRacer" Name="newRacerPage" Unloaded="NewRacerPage_Unloaded" Loaded="NewRacerPage_Loaded">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition/>
