@@ -5,7 +5,6 @@
 #warning TEST: Test running race on one computer while someone is adding racers from another PC
 #warning TEST: Test network loss with auto-write from track
 #warning TODO: Force a periodic refresh of lists (like racers) that might need it
-#warning FUTURE: Remove initial password entry
 #warning FUTURE: Update software licenses
 #warning FUTURE: Allow changing picture?
 using ClippySharp;
@@ -220,7 +219,7 @@ namespace DerbyApp
             if ((bool)ib.ShowDialog()) link = ib.Input;
             _newRacer.QrCodeLink = link;
             _racerTableView.QrCodeLink = link;
-            Database.StoreDatabaseRegistry(_databaseName, _editRace.CurrentRaceName, _outputFolderName, _timeBasedScoring, _maxRaceTime, _newRacer.QrCodeLink, _newRacer.QrPrinterName, _newRacer.LicensePrinterName);
+            Database.StoreDatabaseRegistry(_databaseName, _editRace.CurrentRaceName, _outputFolderName, _timeBasedScoring, _maxRaceTime, _newRacer.QrCodeLink, _newRacer.QrPrinterName, _newRacer.LicensePrinterName, _credentials.Password);
         }
 
         private void FlipCameraBox_Checked(object sender, RoutedEventArgs e)
@@ -243,7 +242,7 @@ namespace DerbyApp
             bool sqlite = false;
             InitializeComponent();
 
-            Database.GetDatabaseRegistry(out _databaseName, out string activeRace, out _outputFolderName, out _timeBasedScoring, out _maxRaceTime, out string qrCodeLink, out string qrPrinterName, out string licensePrinterName);
+            Database.GetDatabaseRegistry(out _databaseName, out string activeRace, out _outputFolderName, out _timeBasedScoring, out _maxRaceTime, out string qrCodeLink, out string qrPrinterName, out string licensePrinterName, out string password);
 #warning TEST: Check that everything stores correctly in the registry (look at the list above)
             _newRacer = new NewRacer(_outputFolderName, _databaseName)
             {
@@ -254,7 +253,7 @@ namespace DerbyApp
             _newRacer.RacerAdded += Racer_RacerAdded;
             if (_databaseName.Contains(':')) sqlite = true;
 
-            _credentials = new Credentials();
+            _credentials = new Credentials(password);
             _db = new Database(_databaseName, sqlite, _credentials);
             if (!_db.InitGood)
             {
@@ -345,7 +344,7 @@ namespace DerbyApp
                 LicensePrinterName = _newRacer.LicensePrinterName
             };
             _racerTableView.RacerRemoved += RacerTableView_RacerRemoved;
-            Database.StoreDatabaseRegistry(_databaseName, _editRace.CurrentRaceName, _outputFolderName, _timeBasedScoring, _maxRaceTime, _newRacer.QrCodeLink, _newRacer.QrPrinterName, _newRacer.LicensePrinterName);
+            Database.StoreDatabaseRegistry(_databaseName, _editRace.CurrentRaceName, _outputFolderName, _timeBasedScoring, _maxRaceTime, _newRacer.QrCodeLink, _newRacer.QrPrinterName, _newRacer.LicensePrinterName, _credentials.Password);
             mainFrame.Navigate(new Default());
         }
 
@@ -409,7 +408,7 @@ namespace DerbyApp
                 mainFrame.Navigate(new Default());
                 MessageBox.Show("Your currently selected race " + _editRace.CurrentRaceName + " has no racers in it.");
             }
-            Database.StoreDatabaseRegistry(_databaseName, _editRace.CurrentRaceName, _outputFolderName, _timeBasedScoring, _maxRaceTime, _newRacer.QrCodeLink, _newRacer.QrPrinterName, _newRacer.LicensePrinterName);
+            Database.StoreDatabaseRegistry(_databaseName, _editRace.CurrentRaceName, _outputFolderName, _timeBasedScoring, _maxRaceTime, _newRacer.QrCodeLink, _newRacer.QrPrinterName, _newRacer.LicensePrinterName, _credentials.Password);
         }
 
         private void ButtonReport_Click(object sender, RoutedEventArgs e)
@@ -523,7 +522,7 @@ namespace DerbyApp
             NumericInput input = new("Enter the max race time in seconds", _maxRaceTime);
             if ((bool)input.ShowDialog()) _maxRaceTime = input.Input;
             _raceTracker.MaxRaceTime = _maxRaceTime;
-            Database.StoreDatabaseRegistry(_databaseName, _editRace.CurrentRaceName, _outputFolderName, _timeBasedScoring, _maxRaceTime, _newRacer.QrCodeLink, _newRacer.QrPrinterName, _newRacer.LicensePrinterName);
+            Database.StoreDatabaseRegistry(_databaseName, _editRace.CurrentRaceName, _outputFolderName, _timeBasedScoring, _maxRaceTime, _newRacer.QrCodeLink, _newRacer.QrPrinterName, _newRacer.LicensePrinterName, _credentials.Password);
         }
 
         private void TimeBasedScoring_Click(object sender, RoutedEventArgs e)
@@ -541,7 +540,7 @@ namespace DerbyApp
             }
             _raceTracker.LdrBoard.TimeBasedScoring = _timeBasedScoring;
             _raceTracker.LdrBoard.CalculateResults(_raceTracker.Results.ResultsTable);
-            Database.StoreDatabaseRegistry(_databaseName, _editRace.CurrentRaceName, _outputFolderName, _timeBasedScoring, _maxRaceTime, _newRacer.QrCodeLink, _newRacer.QrPrinterName, _newRacer.LicensePrinterName);
+            Database.StoreDatabaseRegistry(_databaseName, _editRace.CurrentRaceName, _outputFolderName, _timeBasedScoring, _maxRaceTime, _newRacer.QrCodeLink, _newRacer.QrPrinterName, _newRacer.LicensePrinterName, _credentials.Password);
         }
 
         private void EnablePhotos_Click(object sender, RoutedEventArgs e)
@@ -641,7 +640,7 @@ namespace DerbyApp
                 _newRacer.LicensePrinterName = ps.licensePrinterBox.Text;
                 _racerTableView.QrPrinterName = ps.qrPrinterBox.Text;
                 _racerTableView.LicensePrinterName = ps.licensePrinterBox.Text;
-                Database.StoreDatabaseRegistry(_databaseName, _editRace.CurrentRaceName, _outputFolderName, _timeBasedScoring, _maxRaceTime, _newRacer.QrCodeLink, _newRacer.QrPrinterName, _newRacer.LicensePrinterName);
+                Database.StoreDatabaseRegistry(_databaseName, _editRace.CurrentRaceName, _outputFolderName, _timeBasedScoring, _maxRaceTime, _newRacer.QrCodeLink, _newRacer.QrPrinterName, _newRacer.LicensePrinterName, _credentials.Password);
             }
         }
 

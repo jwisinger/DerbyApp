@@ -416,7 +416,7 @@ namespace DerbyApp.RacerDatabase
             _databaseGeneric.ExecuteNonQueryWithParams(sql, param);
         }
 
-        public static void StoreDatabaseRegistry(string database, string activeRace, string outputFolderName, bool timeBasedScoring, int maxRaceTime, string qrCodeLink, string qrPrinterName, string licensePrinterName)
+        public static void StoreDatabaseRegistry(string database, string activeRace, string outputFolderName, bool timeBasedScoring, int maxRaceTime, string qrCodeLink, string qrPrinterName, string licensePrinterName, string password)
         {
             RegistryKey key = Registry.CurrentUser.CreateSubKey(@"SOFTWARE\DerbyApp");
             if (database != null)
@@ -429,11 +429,12 @@ namespace DerbyApp.RacerDatabase
                 key.SetValue("qrCodeLink", qrCodeLink);
                 key.SetValue("qrPrinterName", qrPrinterName);
                 key.SetValue("licensePrinterName", licensePrinterName);
+                key.SetValue("password", password);
             }
             key.Close();
         }
 
-        public static bool GetDatabaseRegistry(out string database, out string activeRace, out string outputFolderName, out bool timeBasedScoring, out int maxRaceTime, out string qrCodeLink, out string qrPrinterName, out string licensePrinterName)
+        public static bool GetDatabaseRegistry(out string database, out string activeRace, out string outputFolderName, out bool timeBasedScoring, out int maxRaceTime, out string qrCodeLink, out string qrPrinterName, out string licensePrinterName, out string password)
         {
             database = "";
             activeRace = "";
@@ -441,6 +442,7 @@ namespace DerbyApp.RacerDatabase
             qrCodeLink = "";
             qrPrinterName = "";
             licensePrinterName = "";
+            password = "";
             timeBasedScoring = false;
             maxRaceTime = 10;
             RegistryKey key = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\DerbyApp");
@@ -454,6 +456,7 @@ namespace DerbyApp.RacerDatabase
                 if (key.GetValue("qrCodeLink") is string s6) qrCodeLink = s6;
                 if (key.GetValue("qrPrinterName") is string s7) qrPrinterName = s7;
                 if (key.GetValue("licensePrinterName") is string s8) licensePrinterName = s8;
+                if (key.GetValue("password") is string s9) password = s9;
                 return true;
             }
             return false;
