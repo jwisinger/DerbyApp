@@ -236,6 +236,11 @@ namespace DerbyApp
             _db.AddVideoToTable(e);
         }
 
+        public void UpdateResultsTable()
+        {
+            _db.UpdateResultsTable(Results.RaceName, Results.ResultsTable, OutputFolderName);
+        }
+
         private void ButtonNextHeat_Click(object sender, RoutedEventArgs e)
         {
             Results.CurrentHeatNumber++;

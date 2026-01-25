@@ -3,9 +3,11 @@
 #warning TEST: Test complete run of race with Postgres
 #warning TEST: Test complete run of race with Sqlite
 #warning TEST: Test running race on one computer while someone is adding racers from another PC
-#warning TODO: Force a periodic refresh of lists that might need it
-#warning TODO: Update software licenses
-#warning TODO: Allow changing picture?
+#warning TEST: Test network loss with auto-write from track
+#warning TODO: Force a periodic refresh of lists (like racers) that might need it
+#warning FUTURE: Remove initial password entry
+#warning FUTURE: Update software licenses
+#warning FUTURE: Allow changing picture?
 using ClippySharp;
 using DerbyApp.Assistant;
 using DerbyApp.Helpers;
@@ -300,6 +302,7 @@ namespace DerbyApp
             {
                 DisplayPhotos = DisplayPhotosChecked ? Visibility.Visible : Visibility.Collapsed
             };
+            _editRace.RaceTracker = _raceTracker;
             if (_raceTracker.Results.CurrentHeatNumber > 1) _editRace.buttonAddRacer.IsEnabled = false;
             else _editRace.buttonAddRacer.IsEnabled = true;
             _raceTracker.HeatChanged += RaceTracker_HeatChanged;
@@ -329,7 +332,7 @@ namespace DerbyApp
         {
             Title = "Current Event = " + Path.GetFileNameWithoutExtension(_databaseName);
             _db.LoadRaceSettings(out _eventName);
-            _editRace = new EditRace(_db);
+            _editRace = new EditRace(_db, _raceTracker);
             if (activeRace != null) _editRace.CurrentRaceName = activeRace;
             _editRace.RaceChanged += EditRace_RaceChanged;
             _editRace.RaceChanging += EditRace_RaceChanging;

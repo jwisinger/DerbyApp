@@ -134,6 +134,7 @@ namespace DerbyApp.RacerDatabase
             try
             {
                 NpgsqlCommand command = new(sql.Replace('[', '"').Replace(']', '"'), PostgresConn);
+                command.CommandTimeout = 3;
                 _reader?.Close();
                 return command.ExecuteNonQuery();
             }
@@ -185,27 +186,31 @@ namespace DerbyApp.RacerDatabase
             _reader?.Close();
             _reader = command.ExecuteReader();
         }
-#warning TODO: All of these accesses to _reader should have a check to see if it's null
+
         public override bool Read()
         {
+            if (_reader == null) return false;
             if (!_reader.IsClosed) return _reader.Read();
             else return false;
         }
 
         public override object GetReadValue(string name)
         {
+            if (_reader == null) return false;
             if (!_reader.IsClosed) return _reader.GetValue(name);
             else return null;
         }
 
         public override int GetReadFieldCount()
         {
+            if (_reader == null) return 0;
             if (!_reader.IsClosed) return _reader.FieldCount;
             else return 0;
         }
 
         public override string GetReadFieldName(int column)
         {
+            if (_reader == null) return "";
             if (!_reader.IsClosed) return _reader.GetName(column);
             else return "";
         }

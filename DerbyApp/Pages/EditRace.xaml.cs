@@ -17,6 +17,7 @@ namespace DerbyApp.Pages
     public partial class EditRace : Page, INotifyPropertyChanged
     {
         private readonly Database _db;
+        public RaceTracker RaceTracker;
         private string _currentRaceName;
         private int _raceFormatIndex = 0;
         public ObservableCollection<string> Races;
@@ -65,9 +66,10 @@ namespace DerbyApp.Pages
             }
         }
 
-        public EditRace(Database db)
+        public EditRace(Database db, RaceTracker raceTracker)
         {
             _db = db;
+            RaceTracker = raceTracker;
             InitializeComponent();
             Races = _db.GetListOfRaces();
             cbName.DataContext = Races;
@@ -99,13 +101,15 @@ namespace DerbyApp.Pages
         {
             if (!_db.IsSynced)
             {
-                _db.ModifyResultsTable(Racers, cbName.Text, RaceFormats.Formats[RaceFormatIndex].HeatCount, RaceFormatIndex);
+                RaceTracker.UpdateResultsTable();
                 if (!_db.IsSynced)
                 {
                     if(MessageBoxResult.Cancel == MessageBox.Show("Connection to the database has been lost. If you continue, any results from this race will be lost.",
                                     "Database Connection Lost", MessageBoxButton.OKCancel, MessageBoxImage.Warning))
                     {
+                        cbName.SelectionChanged -= ComboBoxRaceName_SelectionChanged;
                         cbName.SelectedValue = CurrentRaceName;
+                        cbName.SelectionChanged += ComboBoxRaceName_SelectionChanged;
                         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(cbName.SelectedValue)));
                         return;
                     }

@@ -1,5 +1,4 @@
-﻿#warning 0: Test fail of: StoreRaceSettings, LoadRaceSettings, AddRunOffHeat, GetListOfRaces
-#warning 0: Test lost database connection for generating XML and giving warning (after warning, can I still edit the race results?)
+﻿#warning TODO: If database connection is lost when addrunoff, the column lets you fill it out on the screen, but it never gets added to the database
 using DerbyApp.Helpers;
 using DerbyApp.RaceStats;
 using Microsoft.Win32;
@@ -239,6 +238,7 @@ namespace DerbyApp.RacerDatabase
             foreach (DataRow row in table.Rows)
             {
                 string sql = "UPDATE [" + raceName + "] SET ";
+                bool emptyRow = true;
 
                 for (int i = 2; i < row.ItemArray.Length; i++)
                 {
@@ -246,19 +246,26 @@ namespace DerbyApp.RacerDatabase
                     if (num != null)
                     {
                         sql += "[Heat " + (i - 1) + "]=" + num + ", ";
+                        emptyRow = false;
                     }
                 }
-                sql = sql[..^2];
+                if (emptyRow) continue;
+                sql = sql[..^2]; 
                 sql += " WHERE [Number]=" + (int)row["Number"];
 
                 try
                 {
-                    if (_databaseGeneric.ExecuteNonQuery(sql) == 0) IsSynced = false;
+                    if (_databaseGeneric.ExecuteNonQuery(sql) < 1)
+                    {
+                        IsSynced = false;
+                        break;
+                    }
                     else IsSynced = true;
                 }
                 catch
                 {
                     IsSynced = false;
+                    break;
                 }
             }
             if (!IsSynced)
@@ -365,6 +372,7 @@ namespace DerbyApp.RacerDatabase
             }
             retVal.Remove(_settingsTableName);
             retVal.Remove(_racerTableName);
+            retVal.Remove(_videoTableName);
             return retVal;
         }
 
