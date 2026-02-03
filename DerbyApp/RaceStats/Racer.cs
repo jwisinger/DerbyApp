@@ -105,14 +105,31 @@ namespace DerbyApp.RaceStats
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Lane)));
             }
         }
-
-        public ImageSource PhotoSource { get => _photosource; set => _photosource = value; }
-        public Image Photo { get => _photo; set { _photo = value; PhotoSource = GetImageSource(_photo); } }
+        public ImageSource PhotoSource
+        {
+            get => _photosource;
+            set
+            {
+                _photosource = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(PhotoSource)));
+            }
+        }
+        public Image Photo
+        {
+            get => _photo;
+            set
+            {
+                _photo = value;
+                PhotoSource = GetImageSource(_photo);
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Photo)));
+            }
+        }
 
         private static BitmapImage GetImageSource(Image photo)
         {
             using MemoryStream ms = new();
             BitmapImage bitmapImage = new();
+            if (photo == null) return bitmapImage;
             photo.Save(ms, ImageFormat.Bmp);
             ms.Seek(0, SeekOrigin.Begin);
             bitmapImage.BeginInit();

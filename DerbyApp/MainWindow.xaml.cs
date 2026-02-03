@@ -1,10 +1,13 @@
 ﻿#warning TEST: What happens if I lose database connection when adding a racer
-#warning TEST: Test adding racers with 2 computers
 #warning TEST: Test complete run of race with Postgres
 #warning TEST: Test complete run of race with Sqlite
-#warning TEST: Test running race on one computer while someone is adding racers from another PC
 #warning TEST: Test network loss with auto-write from track
+#warning TEST(2): Test adding racers with 2 computers
+#warning TEST(2): Test running race on one computer while someone is adding racers from another PC
 #warning TODO: Force a periodic refresh of lists (like racers) that might need it
+#warning TODO: Add ability to copy remote database to local
+#warning TODO: Store racer images in Google Drive and store links in database
+#warning TODO: Can I create another Vercel app to provide the blob list instead of calling list so much?
 #warning FUTURE: Update software licenses
 #warning FUTURE: Allow changing picture?
 using ClippySharp;
@@ -58,6 +61,7 @@ namespace DerbyApp
         private AgentInterface _agentInterface;
         private readonly Announcer _announcer = new();
         private readonly Credentials _credentials;
+        private readonly GoogleDriveAccess _googleDriveAccess;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -193,10 +197,6 @@ namespace DerbyApp
             }
         }
 
-        private void MenuVisible_Checked(object sender, RoutedEventArgs e)
-        {
-        }
-
         private void PlaySounds_Checked(object sender, RoutedEventArgs e)
         {
             PlaySoundsChecked = !PlaySoundsChecked;
@@ -243,7 +243,6 @@ namespace DerbyApp
             InitializeComponent();
 
             Database.GetDatabaseRegistry(out _databaseName, out string activeRace, out _outputFolderName, out _timeBasedScoring, out _maxRaceTime, out string qrCodeLink, out string qrPrinterName, out string licensePrinterName, out string password);
-#warning TEST: Check that everything stores correctly in the registry (look at the list above)
             _newRacer = new NewRacer(_outputFolderName, _databaseName)
             {
                 QrCodeLink = qrCodeLink,
@@ -254,11 +253,10 @@ namespace DerbyApp
             if (_databaseName.Contains(':')) sqlite = true;
 
             _credentials = new Credentials(password);
-            _db = new Database(_databaseName, sqlite, _credentials);
+            _googleDriveAccess = new GoogleDriveAccess(_credentials);
+            _db = new Database(_databaseName, sqlite, _credentials, _googleDriveAccess, Path.Combine(_outputFolderName, _databaseName));
             if (!_db.InitGood)
             {
-#warning TEST: Do a local database and confirm all settings continue after a close and re-open (including which event and which race)
-#warning TEST: Do a remote database and confirm all settings continue after a close and re-open (including which event and which race)
                 sqlite = SelectDatabase();
             }
 
@@ -366,7 +364,7 @@ namespace DerbyApp
                     _outputFolderName = "C:\\temp";
                 }
 
-                _db = new Database(_databaseName, dbs.Sqlite, _credentials);
+                _db = new Database(_databaseName, dbs.Sqlite, _credentials, _googleDriveAccess, Path.Combine(_outputFolderName, _databaseName));
                 ChangeDatabase(null);
             }
 
@@ -433,7 +431,8 @@ namespace DerbyApp
                 TrackStatusIcon = "/Images/Disconnected.png";
                 if (_raceTracker != null) _raceTracker.TrackConnected = false;
             }
-            Database temp = new(_databaseName, false, _credentials);
+#warning GOOGLE: This creates a ton of database connections ... need to simplify it
+            Database temp = new(_databaseName, false, _credentials, _googleDriveAccess, Path.Combine(_outputFolderName, _databaseName));
             if (temp.InitGood) DatabaseStatusIcon = "/Images/DatabaseRun.png";
             else DatabaseStatusIcon = "/Images/DatabaseStop.png";
 

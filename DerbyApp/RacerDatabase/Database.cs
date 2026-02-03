@@ -6,24 +6,32 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Data;
+using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace DerbyApp.RacerDatabase
 {
     public class Database
     {
         private readonly DatabaseGeneric _databaseGeneric;
+        private readonly GoogleDriveAccess _googleDriveAccess;
+        private static readonly HttpClient httpClient = new();
         private readonly string _racerTableName = "raceTable";
         private readonly string _videoTableName = "videoTable";
         private readonly string _settingsTableName = "settingsTable";
+        private readonly string _outputFolderName;
         private readonly bool _sqlite;
         public bool IsSynced = true;
         public bool InitGood = false;
 
-        public Database(string databaseFile, bool isSqlite, Credentials credentials)
+        public Database(string databaseFile, bool isSqlite, Credentials credentials, GoogleDriveAccess gda, string outputFolderName)
         {
             _sqlite = isSqlite;
+            _googleDriveAccess = gda;
+            _outputFolderName = outputFolderName;
             if (_sqlite) _databaseGeneric = new DatabaseSqlite(databaseFile); 
             else _databaseGeneric = new DatabasePostgres(databaseFile, credentials);
             if (_databaseGeneric.InitGood)
@@ -58,11 +66,11 @@ namespace DerbyApp.RacerDatabase
             string sql;
             if (_sqlite)    // These differ because of how autoincrement is different between postgres and sqlite
             {
-                sql = "CREATE TABLE IF NOT EXISTS [" + _racerTableName + "] ([Number] INTEGER PRIMARY KEY AUTOINCREMENT, [Name] VARCHAR(50), [Weight(oz)] DECIMAL(5, 3), [Troop] VARCHAR(10), [Level] VARCHAR(20), [Email] VARCHAR(100), [Image] MEDIUMBLOB)";
+                sql = "CREATE TABLE IF NOT EXISTS [" + _racerTableName + "] ([Number] INTEGER PRIMARY KEY AUTOINCREMENT, [Name] VARCHAR(50), [Weight(oz)] DECIMAL(5, 3), [Troop] VARCHAR(10), [Level] VARCHAR(20), [Email] VARCHAR(100), [Image] MEDIUMBLOB, [ImageKey] VARCHAR(50))";
             }
             else
             {
-                sql = "CREATE TABLE IF NOT EXISTS [" + _racerTableName + "] ([Number] INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY, [Name] VARCHAR(50), [Weight(oz)] DECIMAL(5, 3), [Troop] VARCHAR(10), [Level] VARCHAR(20), [Email] VARCHAR(100), [Image] BYTEA)";
+                sql = "CREATE TABLE IF NOT EXISTS [" + _racerTableName + "] ([Number] INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY, [Name] VARCHAR(50), [Weight(oz)] DECIMAL(5, 3), [Troop] VARCHAR(10), [Level] VARCHAR(20), [Email] VARCHAR(100), [Image] VARCHAR(150), [ImageKey] VARCHAR(50))";
             }
             _databaseGeneric.ExecuteNonQuery(sql);
             sql = "CREATE TABLE IF NOT EXISTS [" + _settingsTableName + "] ([Number] INTEGER PRIMARY KEY, [Name] VARCHAR(500))";
@@ -285,18 +293,59 @@ namespace DerbyApp.RacerDatabase
             {
                 try
                 {
-                    Racers.Add(new Racer(Convert.ToInt64(_databaseGeneric.GetReadValue("number")),
-                                     (string)_databaseGeneric.GetReadValue("name"),
-                                     Convert.ToDecimal(_databaseGeneric.GetReadValue("weight(oz)")),
-                                     (string)_databaseGeneric.GetReadValue("troop"),
-                                     (string)_databaseGeneric.GetReadValue("level"),
-                                     (string)_databaseGeneric.GetReadValue("email"),
-                                     ImageHandler.ByteArrayToImage((byte[])_databaseGeneric.GetReadValue("image"))));
+                    if (_sqlite)
+                    {
+                        Racers.Add(new Racer(Convert.ToInt64(_databaseGeneric.GetReadValue("number")),
+                                         (string)_databaseGeneric.GetReadValue("name"),
+                                         Convert.ToDecimal(_databaseGeneric.GetReadValue("weight(oz)")),
+                                         (string)_databaseGeneric.GetReadValue("troop"),
+                                         (string)_databaseGeneric.GetReadValue("level"),
+                                         (string)_databaseGeneric.GetReadValue("email"),
+                                         ImageHandler.ByteArrayToImage((byte[])_databaseGeneric.GetReadValue("image"))));
+                    }
+                    else
+                    {
+                        string guid = (string)_databaseGeneric.GetReadValue("imagekey");
+                        string path = Path.Combine(_outputFolderName, "racer_images");
+                        if (!Directory.Exists(path)) Directory.CreateDirectory(path);
+                        Racer racer = new(Convert.ToInt64(_databaseGeneric.GetReadValue("number")),
+                                         (string)_databaseGeneric.GetReadValue("name"),
+                                         Convert.ToDecimal(_databaseGeneric.GetReadValue("weight(oz)")),
+                                         (string)_databaseGeneric.GetReadValue("troop"),
+                                         (string)_databaseGeneric.GetReadValue("level"),
+                                         (string)_databaseGeneric.GetReadValue("email"),
+                                         null);
+                        Racers.Add(racer);
+                        try
+                        {
+                            racer.Photo = Image.FromFile(Path.Combine(path, guid + ".png"));
+                        }
+                        catch
+                        {
+                            _ = DownloadImageAsync((string)_databaseGeneric.GetReadValue("image"), path, guid + ".png", racer);
+                        }
+                    }
                 }
                 catch { }
             }
 
             return Racers;
+        }
+
+        private static async Task DownloadImageAsync(string imageUrl, string destinationPath, string fileName, Racer racer)
+        {
+#warning GOOGLE: This should really happen before it goes in the database
+            imageUrl = imageUrl.Replace("file/d/", "uc?export=download&id=");
+            imageUrl = imageUrl.Replace("/view?usp=drivesdk", "");
+            using (var httpResponse = await httpClient.GetAsync(imageUrl, HttpCompletionOption.ResponseHeadersRead))
+            {
+                httpResponse.EnsureSuccessStatusCode(); // Throws an exception if the status code is not successful
+                using var mediaStream = await httpResponse.Content.ReadAsStreamAsync();
+                using var fileStream = new FileStream(Path.Combine(destinationPath, fileName), FileMode.Create, FileAccess.Write);
+                await mediaStream.CopyToAsync(fileStream);
+            }
+            racer.Photo = Image.FromFile(Path.Combine(destinationPath, fileName));
+#warning GOOGLE: Not sure if calling this updates WPF image (seems inconsistent)
         }
 
         public (ObservableCollection<Racer>, int) GetRacers(string raceName, ObservableCollection<Racer> Racers = null)
@@ -314,13 +363,27 @@ namespace DerbyApp.RacerDatabase
                     {
                         try
                         {
-                            Racers.Add(new Racer(Convert.ToInt64(_databaseGeneric.GetReadValue("number")),
-                                             (string)_databaseGeneric.GetReadValue("name"),
-                                             Convert.ToDecimal(_databaseGeneric.GetReadValue("weight(oz)")),
-                                             (string)_databaseGeneric.GetReadValue("troop"),
-                                             (string)_databaseGeneric.GetReadValue("level"),
-                                             (string)_databaseGeneric.GetReadValue("email"),
-                                             ImageHandler.ByteArrayToImage((byte[])_databaseGeneric.GetReadValue("image"))));
+                            if (_sqlite)
+                            {
+                                Racers.Add(new Racer(Convert.ToInt64(_databaseGeneric.GetReadValue("number")),
+                                                 (string)_databaseGeneric.GetReadValue("name"),
+                                                 Convert.ToDecimal(_databaseGeneric.GetReadValue("weight(oz)")),
+                                                 (string)_databaseGeneric.GetReadValue("troop"),
+                                                 (string)_databaseGeneric.GetReadValue("level"),
+                                                 (string)_databaseGeneric.GetReadValue("email"),
+                                                 ImageHandler.ByteArrayToImage((byte[])_databaseGeneric.GetReadValue("image"))));
+                            }
+                            else
+                            {
+                                Racers.Add(new Racer(Convert.ToInt64(_databaseGeneric.GetReadValue("number")),
+                                                 (string)_databaseGeneric.GetReadValue("name"),
+                                                 Convert.ToDecimal(_databaseGeneric.GetReadValue("weight(oz)")),
+                                                 (string)_databaseGeneric.GetReadValue("troop"),
+                                                 (string)_databaseGeneric.GetReadValue("level"),
+                                                 (string)_databaseGeneric.GetReadValue("email"),
+                                                 ImageHandler.ByteArrayToImage((byte[])_databaseGeneric.GetReadValue("image"))));
+#warning GOOGLE: Look for local file or download
+                            }
                             raceFormatIndex = (int)Convert.ChangeType(_databaseGeneric.GetReadValue("RaceFormat"), _databaseGeneric.GetReadValue("RaceFormat").GetType());
                         }
                         catch { }
@@ -382,16 +445,12 @@ namespace DerbyApp.RacerDatabase
 
             if (racer.Number == 0)
             {
-                sql = "INSERT INTO [" + _racerTableName + "] ([Name], [Weight(oz)], [Troop], [Level], [Email], [Image]) VALUES (@Name, @Weight, @Troop, @Level, @Email, @Image)";
+                sql = "INSERT INTO [" + _racerTableName + "] ([Name], [Weight(oz)], [Troop], [Level], [Email], [Image], [ImageKey]) VALUES (@Name, @Weight, @Troop, @Level, @Email, @Image, @ImageKey)";
             }
             else
             {
-                sql = "UPDATE [" + _racerTableName + "] SET [Name] = @Name, [Weight(oz)] = @Weight, [Troop] =  @Troop, [Level] = @Level, [Email] = @Email, [Image] = @Image WHERE [Number] = @Number";
+                sql = "UPDATE [" + _racerTableName + "] SET [Name] = @Name, [Weight(oz)] = @Weight, [Troop] =  @Troop, [Level] = @Level, [Email] = @Email, [Image] = @Image, [ImageKey] = @ImageKey WHERE [Number] = @Number";
             }
-            MemoryStream ms = new();
-            racer.Photo.Save(ms, ImageFormat.Jpeg);
-            ms.Position = 0;
-            byte[] photo = ms.ToArray();
 
             List<DatabaseGeneric.SqlParameter> param =
             [
@@ -401,8 +460,25 @@ namespace DerbyApp.RacerDatabase
                 new DatabaseGeneric.SqlParameter { name = "@Troop", type = DatabaseGeneric.DataType.Text, value = racer.Troop },
                 new DatabaseGeneric.SqlParameter { name = "@Level", type = DatabaseGeneric.DataType.Text, value = racer.Level },
                 new DatabaseGeneric.SqlParameter { name = "@Email", type = DatabaseGeneric.DataType.Text, value = racer.Email },
-                new DatabaseGeneric.SqlParameter { name = "@Image", type = DatabaseGeneric.DataType.Blob, value = photo },
             ];
+
+            MemoryStream ms = new();
+            racer.Photo.Save(ms, ImageFormat.Png);
+            ms.Position = 0;
+
+            if (_sqlite)
+            {
+                param.Add(new DatabaseGeneric.SqlParameter { name = "@Image", type = DatabaseGeneric.DataType.Blob, value = ms.ToArray() });
+            }
+            else
+            {
+                string guid = ShortGuid.GenerateShortGuid();
+                param.Add(new DatabaseGeneric.SqlParameter { name = "@Image", type = DatabaseGeneric.DataType.Text, value = _googleDriveAccess.UploadFile(guid + ".png", ms) });
+                param.Add(new DatabaseGeneric.SqlParameter { name = "@ImageKey", type = DatabaseGeneric.DataType.Text, value = guid });
+                string path = Path.Combine(_outputFolderName, "racer_images");
+                if (!Directory.Exists(path)) Directory.CreateDirectory(path);
+                racer.Photo.Save(Path.Combine(path, guid + ".png"), ImageFormat.Png);
+            }
             _databaseGeneric.ExecuteNonQueryWithParams(sql, param);
         }
 

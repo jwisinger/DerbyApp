@@ -83,6 +83,7 @@
     <PackageReference Include="Emgu.CV.runtime.windows" Version="4.12.0.5764" />
     <PackageReference Include="Emgu.CV.UI" Version="4.12.0.5764" />
     <PackageReference Include="GemBox.Pdf" Version="2026.1.100" />
+    <PackageReference Include="Google.Apis.Drive.v3" Version="1.73.0.3996" />
     <PackageReference Include="hidlibrary" Version="3.3.40" />
     <PackageReference Include="KeePassLib.Standard" Version="2.57.1" />
     <PackageReference Include="Microsoft.Data.Sqlite" Version="10.0.2" />

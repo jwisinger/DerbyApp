@@ -2,8 +2,6 @@
 using KeePassLib;
 using KeePassLib.Keys;
 using KeePassLib.Serialization;
-using System;
-using System.IO;
 using System.Linq;
 
 namespace DerbyApp.Helpers
@@ -13,6 +11,8 @@ namespace DerbyApp.Helpers
         public string Password;
         public string DatabaseUsername;
         public string DatabasePassword;
+        public string GoogleDriveUsername;
+        public string GoogleDrivePassword;
         public string FileUploaderApiKey;
 
         private int OpenVault(out PwDatabase db)
@@ -45,19 +45,29 @@ namespace DerbyApp.Helpers
             }
 
             var matchingEntries = from entry in db.RootGroup.GetEntries(true)
-                                    where entry.Strings.ReadSafe("Title") == "Retool"
-                                    select entry;
+                                  where entry.Strings.ReadSafe("Title") == "Retool"
+                                  select entry;
             if (matchingEntries.Any())
             {
                 DatabaseUsername = matchingEntries.First().Strings.ReadSafe("UserName");
                 DatabasePassword= matchingEntries.First().Strings.ReadSafe("Password");
             }
+
             matchingEntries = from entry in db.RootGroup.GetEntries(true)
-                                    where entry.Strings.ReadSafe("Title") == "RetoolFileUploader"
-                                select entry;
+                              where entry.Strings.ReadSafe("Title") == "RetoolFileUploader"
+                              select entry;
             if (matchingEntries.Any())
             {
                 FileUploaderApiKey = matchingEntries.First().Strings.ReadSafe("Password");
+            }
+
+            matchingEntries = from entry in db.RootGroup.GetEntries(true)
+                              where entry.Strings.ReadSafe("Title") == "GoogleDrive"
+                              select entry;
+            if (matchingEntries.Any())
+            {
+                GoogleDriveUsername = matchingEntries.First().Strings.ReadSafe("UserName");
+                GoogleDrivePassword = matchingEntries.First().Strings.ReadSafe("Password");
             }
 
             db.Close();

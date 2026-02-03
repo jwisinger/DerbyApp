@@ -40,7 +40,6 @@
                 </DataGrid.Columns>
             </DataGrid>
             <Slider Value="25" AutoToolTipPlacement="TopLeft" AutoToolTipPrecision="0" Grid.Row="0" Name="_zoom" Minimum="1" Maximum="100" VerticalAlignment="Bottom" Margin="5,0,5,5" />
-            
         </Grid>
     </Viewbox>
 </Page>
