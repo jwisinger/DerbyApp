@@ -318,11 +318,11 @@ namespace DerbyApp.RacerDatabase
                         Racers.Add(racer);
                         try
                         {
-                            racer.Photo = Image.FromFile(Path.Combine(path, guid + ".png"));
+                            ImageDownloader.SetPhoto(racer, Path.Combine(path, guid + ".png"));
                         }
                         catch
                         {
-                            _ = DownloadImageAsync((string)_databaseGeneric.GetReadValue("image"), path, guid + ".png", racer);
+                            _ = ImageDownloader.DownloadImageAsync((string)_databaseGeneric.GetReadValue("image"), path, guid + ".png", racer);
                         }
                     }
                 }
@@ -331,23 +331,7 @@ namespace DerbyApp.RacerDatabase
 
             return Racers;
         }
-
-        private static async Task DownloadImageAsync(string imageUrl, string destinationPath, string fileName, Racer racer)
-        {
-#warning GOOGLE: This should really happen before it goes in the database
-            imageUrl = imageUrl.Replace("file/d/", "uc?export=download&id=");
-            imageUrl = imageUrl.Replace("/view?usp=drivesdk", "");
-            using (var httpResponse = await httpClient.GetAsync(imageUrl, HttpCompletionOption.ResponseHeadersRead))
-            {
-                httpResponse.EnsureSuccessStatusCode(); // Throws an exception if the status code is not successful
-                using var mediaStream = await httpResponse.Content.ReadAsStreamAsync();
-                using var fileStream = new FileStream(Path.Combine(destinationPath, fileName), FileMode.Create, FileAccess.Write);
-                await mediaStream.CopyToAsync(fileStream);
-            }
-            racer.Photo = Image.FromFile(Path.Combine(destinationPath, fileName));
-#warning GOOGLE: Not sure if calling this updates WPF image (seems inconsistent)
-        }
-
+        
         public (ObservableCollection<Racer>, int) GetRacers(string raceName, ObservableCollection<Racer> Racers = null)
         {
             if (Racers == null) Racers = [];
@@ -375,14 +359,25 @@ namespace DerbyApp.RacerDatabase
                             }
                             else
                             {
-                                Racers.Add(new Racer(Convert.ToInt64(_databaseGeneric.GetReadValue("number")),
+                                string guid = (string)_databaseGeneric.GetReadValue("imagekey");
+                                string path = Path.Combine(_outputFolderName, "racer_images");
+                                if (!Directory.Exists(path)) Directory.CreateDirectory(path);
+                                Racer racer = new(Convert.ToInt64(_databaseGeneric.GetReadValue("number")),
                                                  (string)_databaseGeneric.GetReadValue("name"),
                                                  Convert.ToDecimal(_databaseGeneric.GetReadValue("weight(oz)")),
                                                  (string)_databaseGeneric.GetReadValue("troop"),
                                                  (string)_databaseGeneric.GetReadValue("level"),
                                                  (string)_databaseGeneric.GetReadValue("email"),
-                                                 ImageHandler.ByteArrayToImage((byte[])_databaseGeneric.GetReadValue("image"))));
-#warning GOOGLE: Look for local file or download
+                                                 null);
+                                Racers.Add(racer);
+                                try
+                                {
+                                    ImageDownloader.SetPhoto(racer, Path.Combine(path, guid + ".png"));
+                                }
+                                catch
+                                {
+                                    _ = ImageDownloader.DownloadImageAsync((string)_databaseGeneric.GetReadValue("image"), path, guid + ".png", racer);
+                                }
                             }
                             raceFormatIndex = (int)Convert.ChangeType(_databaseGeneric.GetReadValue("RaceFormat"), _databaseGeneric.GetReadValue("RaceFormat").GetType());
                         }

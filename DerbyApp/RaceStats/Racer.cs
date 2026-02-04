@@ -136,6 +136,7 @@ namespace DerbyApp.RaceStats
             bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
             bitmapImage.StreamSource = ms;
             bitmapImage.EndInit();
+            bitmapImage.Freeze(); // freeze to make it free-threaded
             return bitmapImage;
         }
 
