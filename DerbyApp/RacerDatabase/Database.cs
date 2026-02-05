@@ -47,6 +47,11 @@ namespace DerbyApp.RacerDatabase
             return _databaseGeneric.GetDataBaseName();
         }
 
+        public bool TestConnection()
+        {
+            return _databaseGeneric.TestConnection();
+        }
+
         private void CreateVideoTable()
         {
             string sql;
@@ -468,7 +473,10 @@ namespace DerbyApp.RacerDatabase
             else
             {
                 string guid = ShortGuid.GenerateShortGuid();
-                param.Add(new DatabaseGeneric.SqlParameter { name = "@Image", type = DatabaseGeneric.DataType.Text, value = _googleDriveAccess.UploadFile(guid + ".png", ms) });
+                string imageUrl = _googleDriveAccess.UploadFile(guid + ".png", ms);
+                imageUrl = imageUrl.Replace("file/d/", "uc?export=download&id=");
+                imageUrl = imageUrl.Replace("/view?usp=drivesdk", "");
+                param.Add(new DatabaseGeneric.SqlParameter { name = "@Image", type = DatabaseGeneric.DataType.Text, value = imageUrl });
                 param.Add(new DatabaseGeneric.SqlParameter { name = "@ImageKey", type = DatabaseGeneric.DataType.Text, value = guid });
                 string path = Path.Combine(_outputFolderName, "racer_images");
                 if (!Directory.Exists(path)) Directory.CreateDirectory(path);

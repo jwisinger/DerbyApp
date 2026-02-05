@@ -50,10 +50,6 @@ namespace DerbyApp.Helpers
 
         public static async Task DownloadImageAsync(string imageUrl, string destinationPath, string fileName, Racer racer)
         {
-#warning GOOGLE: This should really happen before it goes in the database
-            imageUrl = imageUrl.Replace("file/d/", "uc?export=download&id=");
-            imageUrl = imageUrl.Replace("/view?usp=drivesdk", "");
-
             fileName = Path.Combine(destinationPath, fileName);
             IEnumerable<RacersToUpdate> matchingRacers = _racersInProgress.Where(x => x.PhotoFileName == fileName);
             if (matchingRacers.Any())

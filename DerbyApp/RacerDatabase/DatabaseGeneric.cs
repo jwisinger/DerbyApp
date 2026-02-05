@@ -32,6 +32,11 @@ namespace DerbyApp.RacerDatabase
             }
         }
 
+        public virtual bool TestConnection()
+        {
+            return false;
+        }
+
         public virtual int ExecuteNonQuery(string sql)
         {
             return -1;

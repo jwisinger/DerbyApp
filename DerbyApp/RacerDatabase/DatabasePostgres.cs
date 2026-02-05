@@ -1,4 +1,5 @@
 ﻿using DerbyApp.Helpers;
+using DirectShowLib.Dvd;
 using Npgsql;
 using NpgsqlTypes;
 using System;
@@ -71,20 +72,10 @@ namespace DerbyApp.RacerDatabase
             return true;
         }
 
-        private bool SwitchToDatabase(string databaseName)
+        private bool ConnectToDatabase(string databaseName)
         {
             try
             {
-                string sql = "SELECT EXISTS(SELECT datname FROM pg_catalog.pg_database WHERE lower(datname) = lower('" + databaseName + "'));";
-                ExecuteReader(sql);
-                _reader.Read();
-                if (!_reader.GetBoolean(0))
-                {
-                    sql = "CREATE DATABASE " + databaseName.Replace("\"", null);
-                    ExecuteNonQuery(sql);
-                }
-
-                PostgresConn.Close();
                 PostgresConn = new("Host=" + Host + "; Username=" + _credentials.DatabaseUsername + ";Password=" + _credentials.DatabasePassword + ";Database=" + databaseName.ToLower());
                 PostgresConn.Open();
             }
@@ -103,17 +94,38 @@ namespace DerbyApp.RacerDatabase
 
             try
             {
-                if(ConnectToRootDatabase(false))
+                if (ConnectToDatabase(databaseName))
                 {
-                    if (SwitchToDatabase(databaseName))
-                    {
-                        InitGood = true;
-                    }
+                    InitGood = true;
                 }
             }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
+            }
+        }
+
+        public override bool TestConnection()
+        {
+            try
+            {
+                NpgsqlCommand command = new("SELECT 1", PostgresConn);
+                command.CommandTimeout = 3;
+                command.ExecuteScalar();
+                return true;
+            }
+            catch
+            {
+                try
+                {
+                    PostgresConn.Close();
+                    PostgresConn.Open();
+                }
+                catch
+                {
+                    return false;
+                }
+                return false;
             }
         }
 

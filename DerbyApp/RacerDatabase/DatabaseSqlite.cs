@@ -49,6 +49,11 @@ namespace DerbyApp.RacerDatabase
             }
         }
 
+        public override bool TestConnection()
+        {
+            return true;
+        }
+
         public override int ExecuteNonQuery(string sql)
         {
             SqliteCommand command = new(sql, SqliteConn);

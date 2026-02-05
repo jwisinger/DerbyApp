@@ -4,10 +4,9 @@
 #warning TEST: Test network loss with auto-write from track
 #warning TEST(2): Test adding racers with 2 computers
 #warning TEST(2): Test running race on one computer while someone is adding racers from another PC
-#warning TODO: Force a periodic refresh of lists (like racers) that might need it
+#warning 000: Force a periodic refresh of lists (like racers) that might need it
 #warning TODO: Add ability to copy remote database to local
-#warning TODO: Store racer images in Google Drive and store links in database
-#warning TODO: Can I create another Vercel app to provide the blob list instead of calling list so much?
+#warning 001: Can I create another Vercel app to provide the blob list instead of calling list so much?
 #warning FUTURE: Update software licenses
 #warning FUTURE: Allow changing picture?
 using ClippySharp;
@@ -431,9 +430,8 @@ namespace DerbyApp
                 TrackStatusIcon = "/Images/Disconnected.png";
                 if (_raceTracker != null) _raceTracker.TrackConnected = false;
             }
-#warning GOOGLE: This creates a ton of database connections ... need to simplify it
-            Database temp = new(_databaseName, false, _credentials, _googleDriveAccess, Path.Combine(_outputFolderName, _databaseName));
-            if (temp.InitGood) DatabaseStatusIcon = "/Images/DatabaseRun.png";
+            
+            if (_db.TestConnection()) DatabaseStatusIcon = "/Images/DatabaseRun.png";
             else DatabaseStatusIcon = "/Images/DatabaseStop.png";
 
             _ = Task.Delay(5000).ContinueWith(t => TrackStatusCheck());
