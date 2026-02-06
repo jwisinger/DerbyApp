@@ -38,6 +38,7 @@ namespace DerbyApp.Pages
             foreach (string raceName in Races)
             {
                 (ObservableCollection<Racer> racers, int raceFormatIndex) = _db.GetRacers(raceName);
+                if (racers.Count == 0) continue;
                 RaceResults results = new(raceName, racers, RaceFormats.Formats[raceFormatIndex].Clone());
                 int heatCount = _db.GetHeatCount(results.RaceName);
                 while (results.RaceFormat.HeatCount < heatCount) results.AddRunOffHeat(null);
@@ -56,6 +57,7 @@ namespace DerbyApp.Pages
 
         private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            if (_races.Count == 0) return;
             RaceResults result = _races.Where(x => x.RaceName == ((sender as ComboBox).SelectedItem as string)).First();
             if (result != null)
             {

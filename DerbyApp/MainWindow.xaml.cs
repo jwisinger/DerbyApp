@@ -7,9 +7,14 @@
 #warning (1)TEST: Test adding racers with 2 computers (make sure refresh works)
 #warning (1)TEST: Test creating races with 2 computers (make sure refresh works)
 #warning (1)TEST: Test running race on one computer while someone is adding racers from another PC
+#warning (1)TEST: Check vercel usage when running full race with two computers
+#warning (1)TEST: Check reports
+#warning (1)TODO: Can I make reports go to Google Drive?
+#warning (1)TODO: Can I show a racers position in the app?
 #warning (2)TEST: Test complete run of race with Sqlite
 #warning (2.5)TEST: What happens when I click the 2 refresh buttons with sqlite?
 #warning FUTURE: Allow changing picture?
+#warning FUTURE: Move videos from retool to Gdrive?
 using ClippySharp;
 using DerbyApp.Assistant;
 using DerbyApp.Helpers;
