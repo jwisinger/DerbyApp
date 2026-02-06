@@ -228,6 +228,15 @@ namespace DerbyApp.Pages
             }
         }
 
+        private void RefreshDatabase(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            if (_db.TestConnection())
+            {
+                UpdateRacerList();
+                Races = _db.GetListOfRaces();
+            }
+        }
+
         private void ZoomPicture(object sender, RoutedEventArgs e)
         {
             new ImageDisplay((sender as Image).Source).ShowDialog();

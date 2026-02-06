@@ -8,6 +8,20 @@
         xmlns:racestats="clr-namespace:DerbyApp.RaceStats"
         mc:Ignorable="d"
         Title="Racer Table View" Name="rtWindow">
+    <Page.Resources>
+        <Style x:Key="HoverStyle" TargetType="Label">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="Normal"/>
+            <Setter Property="Foreground" Value="Black"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="FontSize" Value="12"/>
+                    <Setter Property="FontWeight" Value="Bold"/>
+                    <Setter Property="Foreground" Value="Blue"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </Page.Resources>
     <Viewbox Stretch="Uniform">
         <Grid Height="400" Width="700">
             <DataGrid AutoGenerateColumns="False" RowHeight="{Binding Path=Value, ElementName=_zoom}" CanUserAddRows="False" Margin="5,35,5,30" Name="dataGridRacerTable" BorderThickness="5,5,5,5" Grid.ColumnSpan="3" RowBackground="Transparent" ItemsSource="{Binding Path=.}" RowEditEnding="DataGridRacerTable_RowEditEnding" >
@@ -40,6 +54,7 @@
                 </DataGrid.Columns>
             </DataGrid>
             <Slider Value="25" AutoToolTipPlacement="TopLeft" AutoToolTipPrecision="0" Grid.Row="0" Name="_zoom" Minimum="1" Maximum="100" VerticalAlignment="Bottom" Margin="5,0,5,5" />
+            <Label Content="Refresh From Database" Style="{StaticResource HoverStyle}" HorizontalAlignment="Center" Margin="0,10,0,0" VerticalAlignment="Top" MouseLeftButtonDown="RefreshDatabase"/>
         </Grid>
     </Viewbox>
 </Page>

@@ -9,8 +9,22 @@
       mc:Ignorable="d" 
       d:DesignHeight="450" d:DesignWidth="800"
       Title="EditRace" Name="erWindow">
+    <Page.Resources>
+        <Style x:Key="HoverStyle" TargetType="Label">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="Normal"/>
+            <Setter Property="Foreground" Value="Black"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="FontSize" Value="12"/>
+                    <Setter Property="FontWeight" Value="Bold"/>
+                    <Setter Property="Foreground" Value="Blue"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </Page.Resources>
     <Viewbox Stretch="Uniform">
-        <Grid Name="EditRaceGrid" Height="400" Width="700">
+        <Grid Name="EditRaceGrid" Height="380" Width="700">
             <Grid.RowDefinitions>
                 <RowDefinition Height="32"/>
                 <RowDefinition Height="30"/>
@@ -79,6 +93,7 @@
                 </DataGrid.Columns>
             </DataGrid>
             <Slider Value="25" AutoToolTipPlacement="TopLeft" AutoToolTipPrecision="0" Grid.Row="3" Name="_zoom" Minimum="1" Maximum="100" VerticalAlignment="Bottom" Margin="5,0,5,5" />
+            <Label Content="Refresh From Database" Style="{StaticResource HoverStyle}" HorizontalAlignment="Center" Margin="0,-25,0,0" VerticalAlignment="Top" MouseLeftButtonDown="RefreshDatabase"/>
         </Grid>
     </Viewbox>
 </Page>

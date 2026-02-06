@@ -1,13 +1,14 @@
-﻿#warning TEST: What happens if I lose database connection when adding a racer
-#warning TEST: Test complete run of race with Postgres
-#warning TEST: Test complete run of race with Sqlite
-#warning TEST: Test network loss with auto-write from track
-#warning TEST(2): Test adding racers with 2 computers
-#warning TEST(2): Test running race on one computer while someone is adding racers from another PC
-#warning 000: Force a periodic refresh of lists (like racers) that might need it
-#warning TODO: Add ability to copy remote database to local
-#warning 001: Can I create another Vercel app to provide the blob list instead of calling list so much?
-#warning FUTURE: Update software licenses
+﻿#warning 001: Add ability to copy remote database to local
+#warning 002: Can I create another Vercel app to provide the blob list instead of calling list so much?
+#warning 003: Update software licenses
+#warning (0)TEST: What happens if I lose database connection when adding a racer
+#warning (0)TEST: Test network loss with auto-write from track
+#warning (1)TEST: Test complete run of race with Postgres
+#warning (1)TEST: Test adding racers with 2 computers (make sure refresh works)
+#warning (1)TEST: Test creating races with 2 computers (make sure refresh works)
+#warning (1)TEST: Test running race on one computer while someone is adding racers from another PC
+#warning (2)TEST: Test complete run of race with Sqlite
+#warning (2.5)TEST: What happens when I click the 2 refresh buttons with sqlite?
 #warning FUTURE: Allow changing picture?
 using ClippySharp;
 using DerbyApp.Assistant;

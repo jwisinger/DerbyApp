@@ -85,5 +85,10 @@ namespace DerbyApp
         {
             new ImageDisplay((sender as Image).Source).ShowDialog();
         }
+
+        private void RefreshDatabase(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            if (_db.TestConnection()) Racers = _db.GetAllRacers();
+        }
     }
 }
