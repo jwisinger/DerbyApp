@@ -1,4 +1,4 @@
-﻿#warning 001: Add ability to copy remote database to local
+﻿#warning 001: Add ability to copy local database to remote
 #warning 002: Can I create another Vercel app to provide the blob list instead of calling list so much?
 #warning 003: Update software licenses
 #warning (0)TEST: What happens if I lose database connection when adding a racer
@@ -27,6 +27,7 @@ using System;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Windows;
@@ -259,7 +260,18 @@ namespace DerbyApp
 
             _credentials = new Credentials(password);
             _googleDriveAccess = new GoogleDriveAccess(_credentials);
-            _db = new Database(_databaseName, sqlite, _credentials, _googleDriveAccess, Path.Combine(_outputFolderName, _databaseName));
+
+            string outputFolderName = Path.GetFileName(_databaseName);
+            if (sqlite)
+            {
+                outputFolderName = Path.Combine(_outputFolderName, outputFolderName.Substring(0, outputFolderName.LastIndexOf('.')));
+            }
+            else
+            {
+                outputFolderName = Path.Combine(_outputFolderName, _databaseName);
+            }
+
+            _db = new Database(_databaseName, sqlite, _credentials, _googleDriveAccess, outputFolderName);
             if (!_db.InitGood)
             {
                 sqlite = SelectDatabase();
@@ -357,19 +369,21 @@ namespace DerbyApp
             DatabaseSelector dbs = new(_credentials);
             if ((bool)dbs.ShowDialog())
             {
+                string outputFolderName = Path.GetFileName(_databaseName);
                 if (dbs.Sqlite)
                 {
                     _databaseName = dbs.DatabaseFile;
-                    _outputFolderName = Path.GetDirectoryName(_databaseName);
+                    outputFolderName = Path.Combine(_outputFolderName, outputFolderName.Substring(0, outputFolderName.LastIndexOf('.')));
                     retVal = true;
                 }
                 else
                 {
                     _databaseName = dbs.EventName;
                     _outputFolderName = "C:\\temp";
+                    outputFolderName = Path.Combine(_outputFolderName, _databaseName);
                 }
 
-                _db = new Database(_databaseName, dbs.Sqlite, _credentials, _googleDriveAccess, Path.Combine(_outputFolderName, _databaseName));
+                _db = new Database(_databaseName, dbs.Sqlite, _credentials, _googleDriveAccess, outputFolderName);
                 ChangeDatabase(null);
             }
 
@@ -656,6 +670,13 @@ namespace DerbyApp
         {
             _raceTracker?.Shutdown();
             _newRacer?.ReleaseCamera();
+        }
+
+        private void CopyDatabaseToLocal_Click(object sender, RoutedEventArgs e)
+        {
+            string postGresConnStr = _db.GetConnectionString();
+
+            if (postGresConnStr != "") DatabaseMigrator.Migrate(MigrationDirection.PostgresToSqlite, Path.Combine(_outputFolderName,_databaseName + "_" + DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss") + ".sqlite"), postGresConnStr);
         }
     }
 }

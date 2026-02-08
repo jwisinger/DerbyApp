@@ -6,11 +6,8 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Data;
-using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
-using System.Net.Http;
-using System.Threading.Tasks;
 
 namespace DerbyApp.RacerDatabase
 {
@@ -18,7 +15,6 @@ namespace DerbyApp.RacerDatabase
     {
         private readonly DatabaseGeneric _databaseGeneric;
         private readonly GoogleDriveAccess _googleDriveAccess;
-        private static readonly HttpClient httpClient = new();
         private readonly string _racerTableName = "raceTable";
         private readonly string _videoTableName = "videoTable";
         private readonly string _settingsTableName = "settingsTable";
@@ -45,6 +41,11 @@ namespace DerbyApp.RacerDatabase
         public string GetName()
         {
             return _databaseGeneric.GetDataBaseName();
+        }
+
+        public string GetConnectionString()
+        {
+            return _databaseGeneric.GetConnectionString();
         }
 
         public bool TestConnection()
@@ -300,35 +301,37 @@ namespace DerbyApp.RacerDatabase
                 {
                     if (_sqlite)
                     {
-                        Racers.Add(new Racer(Convert.ToInt64(_databaseGeneric.GetReadValue("number")),
-                                         (string)_databaseGeneric.GetReadValue("name"),
-                                         Convert.ToDecimal(_databaseGeneric.GetReadValue("weight(oz)")),
-                                         (string)_databaseGeneric.GetReadValue("troop"),
-                                         (string)_databaseGeneric.GetReadValue("level"),
-                                         (string)_databaseGeneric.GetReadValue("email"),
-                                         ImageHandler.ByteArrayToImage((byte[])_databaseGeneric.GetReadValue("image"))));
-                    }
-                    else
-                    {
-                        string guid = (string)_databaseGeneric.GetReadValue("imagekey");
-                        string path = Path.Combine(_outputFolderName, "racer_images");
-                        if (!Directory.Exists(path)) Directory.CreateDirectory(path);
-                        Racer racer = new(Convert.ToInt64(_databaseGeneric.GetReadValue("number")),
-                                         (string)_databaseGeneric.GetReadValue("name"),
-                                         Convert.ToDecimal(_databaseGeneric.GetReadValue("weight(oz)")),
-                                         (string)_databaseGeneric.GetReadValue("troop"),
-                                         (string)_databaseGeneric.GetReadValue("level"),
-                                         (string)_databaseGeneric.GetReadValue("email"),
-                                         null);
-                        Racers.Add(racer);
                         try
                         {
-                            ImageDownloader.SetPhoto(racer, Path.Combine(path, guid + ".png"));
+                            Racers.Add(new Racer(Convert.ToInt64(_databaseGeneric.GetReadValue("number")),
+                                            (string)_databaseGeneric.GetReadValue("name"),
+                                            Convert.ToDecimal(_databaseGeneric.GetReadValue("weight(oz)")),
+                                            (string)_databaseGeneric.GetReadValue("troop"),
+                                            (string)_databaseGeneric.GetReadValue("level"),
+                                            (string)_databaseGeneric.GetReadValue("email"),
+                                            ImageHandler.ByteArrayToImage((byte[])_databaseGeneric.GetReadValue("image"))));
+                            continue;
                         }
-                        catch
-                        {
-                            _ = ImageDownloader.DownloadImageAsync((string)_databaseGeneric.GetReadValue("image"), path, guid + ".png", racer);
-                        }
+                        catch { }
+                    }
+                    string guid = (string)_databaseGeneric.GetReadValue("imagekey");
+                    string path = Path.Combine(_outputFolderName, "racer_images");
+                    if (!Directory.Exists(path)) Directory.CreateDirectory(path);
+                    Racer racer = new(Convert.ToInt64(_databaseGeneric.GetReadValue("number")),
+                                        (string)_databaseGeneric.GetReadValue("name"),
+                                        Convert.ToDecimal(_databaseGeneric.GetReadValue("weight(oz)")),
+                                        (string)_databaseGeneric.GetReadValue("troop"),
+                                        (string)_databaseGeneric.GetReadValue("level"),
+                                        (string)_databaseGeneric.GetReadValue("email"),
+                                        null);
+                    Racers.Add(racer);
+                    try
+                    {
+                        ImageDownloader.SetPhoto(racer, Path.Combine(path, guid + ".png"));
+                    }
+                    catch
+                    {
+                        _ = ImageDownloader.DownloadImageAsync((string)_databaseGeneric.GetReadValue("image"), path, guid + ".png", racer);
                     }
                 }
                 catch { }

@@ -105,6 +105,11 @@ namespace DerbyApp.RacerDatabase
             }
         }
 
+        public override string GetConnectionString()
+        {
+            return "Host=" + Host + "; Username=" + _credentials.DatabaseUsername + ";Password=" + _credentials.DatabasePassword.ToString() + ";Database=" + EventName.ToLower();
+        }
+
         public override bool TestConnection()
         {
             try

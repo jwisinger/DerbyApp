@@ -32,6 +32,11 @@ namespace DerbyApp.RacerDatabase
             }
         }
 
+        public virtual string GetConnectionString()
+        {
+            return "";
+        }
+
         public virtual bool TestConnection()
         {
             return false;

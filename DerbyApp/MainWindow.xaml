@@ -80,6 +80,11 @@
                             <Image Source="{Binding TimeBasedScoringIcon, Mode=TwoWay}"/>
                         </MenuItem.Icon>
                     </MenuItem>
+                    <MenuItem Click="CopyDatabaseToLocal_Click"  Header="Copy Database to Local">
+                        <MenuItem.Icon>
+                            <Image Source="/Images/DatabaseRun.png"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
                 </MenuItem>
                 <MenuItem ItemsSource="{Binding CharacterMenuItems}" ToolTip="Assistant">
                     <MenuItem.Header>
