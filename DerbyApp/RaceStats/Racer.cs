@@ -1,10 +1,12 @@
-﻿using System.Drawing;
-using System.IO;
-using System.Windows.Media.Imaging;
-using System.Windows.Media;
-using System.Drawing.Imaging;
+﻿using NAudio.Gui;
 using System;
 using System.ComponentModel;
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.IO;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace DerbyApp.RaceStats
 {
@@ -142,6 +144,17 @@ namespace DerbyApp.RaceStats
 
         public Racer()
         {
+        }
+
+        public Racer(Racer r)
+        {
+            Number = r.Number;
+            RacerName = r.RacerName;
+            Weight = r.Weight;
+            Troop = r.Troop;
+            Level = r.Level;
+            Email = r.Email;
+            Photo = r.Photo;
         }
 
         public Racer(long number, string racerName, decimal weight, string troop, string level, string email, Image photo)

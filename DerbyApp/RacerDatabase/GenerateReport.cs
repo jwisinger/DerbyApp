@@ -47,7 +47,7 @@ namespace DerbyApp.RacerDatabase
             style.ParagraphFormat.SpaceAfter = 3;
         }
 
-        static Document CreateDocument(Racer r, List<RaceResults> races, string eventName, bool timeBasedScoring)
+        static Document CreateDocument(Racer r, string eventName, bool timeBasedScoring)
         {
             Document document = new();
             DefineStyles(document);
@@ -88,8 +88,8 @@ namespace DerbyApp.RacerDatabase
             paragraph.AddFormattedText("Car Weight: " + r.Weight.ToString() + "\r\n", "Heading3");
             table.SetEdge(0, 0, 1, 1, Edge.Box, BorderStyle.Single, 2);
             table.SetEdge(0, 0, 2, 1, Edge.Box, BorderStyle.Single, 2);
-
-            foreach (RaceResults result in races)
+#warning REPORT: Fix report
+            /*foreach (RaceResults result in races)
             {
                 Leaderboard ldr = new(result.Racers, result.RaceFormat.HeatCount, result.RaceFormat.LaneCount, timeBasedScoring);
                 ldr.CalculateResults(result.ResultsTable);
@@ -154,14 +154,15 @@ namespace DerbyApp.RacerDatabase
                             break;
                     }
                 }
-            }
+            }*/
 
             return document;
         }
 
-        static public void Generate(string eventName, string eventFile, string outputFolderName, ObservableCollection<Racer> racers, List<RaceResults> races, bool timeBasedScoring)
+        static public void Generate(string eventName, string eventFile, string outputFolderName, ObservableCollection<Racer> racers, bool timeBasedScoring)
         {
-            string eventPath = Path.Combine(outputFolderName, Path.GetFileNameWithoutExtension(eventFile), "reports");
+#warning REPORT: Fix report
+            /*string eventPath = Path.Combine(outputFolderName, Path.GetFileNameWithoutExtension(eventFile), "reports");
             Directory.CreateDirectory(eventPath);
             foreach (Racer r in racers)
             {
@@ -182,7 +183,7 @@ namespace DerbyApp.RacerDatabase
                     }
                 };
                 p.Start();
-            }
+            }*/
         }
     }
 }

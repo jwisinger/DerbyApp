@@ -17,29 +17,26 @@ namespace DerbyApp.Pages
     {
         private readonly Database _db;
         private readonly bool _timeBasedScoring;
-        private readonly List<RaceResults> _races;
         private readonly string _eventName;
         private readonly string _outputFolderName;
-        public ObservableCollection<string> Races;
 
         public Reports(Database db, bool timeBasedScoring, string eventName, string outputFolderName)
         {
             InitializeComponent();
             _db = db;
             _timeBasedScoring = timeBasedScoring;
-            _races = [];
             _eventName = eventName;
             _outputFolderName = outputFolderName;
-            Races = _db.GetListOfRaces();
-            cbRace1.DataContext = Races;
-            cbRace2.DataContext = Races;
-            cbRace3.DataContext = Races;
+            cbRace1.DataContext = _db.Races;
+            cbRace2.DataContext = _db.Races;
+            cbRace3.DataContext = _db.Races;
 
-            foreach (string raceName in Races)
+#warning REPORT: Fix report
+            /*foreach (string raceName in _db.Races)
             {
-                (ObservableCollection<Racer> racers, int raceFormatIndex) = _db.GetRacers(raceName);
-                if (racers.Count == 0) continue;
-                RaceResults results = new(raceName, racers, RaceFormats.Formats[raceFormatIndex].Clone());
+                _db.CurrentRaceName = raceName;
+                if (_db.CurrentRaceRacers.Count == 0) continue;
+                RaceResults results = new(raceName, _db.CurrentRaceRacers, RaceFormats.Formats[_db.RaceFormatIndex].Clone(), _db.GetHeatCount(_db.CurrentRaceName));
                 int heatCount = _db.GetHeatCount(results.RaceName);
                 while (results.RaceFormat.HeatCount < heatCount) results.AddRunOffHeat(null);
                 _db.LoadResultsTable(results);
@@ -47,16 +44,19 @@ namespace DerbyApp.Pages
             }
             if (_races.Count > 0) cbRace1.SelectedItem = _races[0].RaceName;
             if (_races.Count > 1) cbRace2.SelectedItem = _races[1].RaceName;
-            if (_races.Count > 2) cbRace3.SelectedItem = _races[2].RaceName;
+            if (_races.Count > 2) cbRace3.SelectedItem = _races[2].RaceName;*/
         }
 
         private void ButtonReport_Click(object sender, RoutedEventArgs e)
         {
-            GenerateReport.Generate(_eventName, _db.GetName(), _outputFolderName, _db.GetAllRacers(), _races, _timeBasedScoring);
+#warning REPORT: Fix report
+            //GenerateReport.Generate(_eventName, _db.GetName(), _outputFolderName, _db.Racers, _races, _timeBasedScoring);
         }
 
         private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+#warning REPORT: Fix report
+            /*
             if (_races.Count == 0) return;
             RaceResults result = _races.Where(x => x.RaceName == ((sender as ComboBox).SelectedItem as string)).First();
             if (result != null)
@@ -115,7 +115,7 @@ namespace DerbyApp.Pages
                             break;
                     }
                 }
-            }
+            }*/
         }
 
         private void SlideShow_Click(object sender, RoutedEventArgs e)

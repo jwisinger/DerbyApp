@@ -1,6 +1,4 @@
-﻿#warning 001: Add ability to copy local database to remote
-#warning 002: Can I create another Vercel app to provide the blob list instead of calling list so much?
-#warning 003: Update software licenses
+﻿#warning FUTURE: Update software licenses
 #warning (0)TEST: What happens if I lose database connection when adding a racer
 #warning (0)TEST: Test network loss with auto-write from track
 #warning (1)TEST: Test complete run of race with Postgres
@@ -13,6 +11,7 @@
 #warning (1)TODO: Can I show a racers position in the app?
 #warning (2)TEST: Test complete run of race with Sqlite
 #warning (2.5)TEST: What happens when I click the 2 refresh buttons with sqlite?
+#warning (2.5)TEST: What happens with funny characters in database or table names?
 #warning FUTURE: Allow changing picture?
 #warning FUTURE: Move videos from retool to Gdrive?
 using ClippySharp;
@@ -26,8 +25,6 @@ using Microsoft.Win32;
 using System;
 using System.ComponentModel;
 using System.IO;
-using System.Linq;
-using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Windows;
@@ -50,13 +47,14 @@ namespace DerbyApp
         private string _agentEnabledIcon = "/Images/DatabaseRoleError.png";
         private string _menuHideIcon = "/Images/TableFillLeft.png";
         private string _timeBasedScoringText = "Time Based Scoring";
+        private string _copyDatabaseText = "Copy Database to Local";
 
         private int _selectedCamera = 0;
         private EditRace _editRace;
         private RacerTableView _racerTableView;
         private RaceTracker _raceTracker;
         private Reports _reports;
-        private readonly NewRacer _newRacer;
+        private NewRacer _newRacer;
         private int _maxRaceTime = 10;
         private bool _displayPhotosChecked = true;
         private bool _menuBarChecked = false;
@@ -66,8 +64,8 @@ namespace DerbyApp
         private Visibility _collapsedVisibility = Visibility.Visible;
         private AgentInterface _agentInterface;
         private readonly Announcer _announcer = new();
-        private readonly Credentials _credentials;
-        private readonly GoogleDriveAccess _googleDriveAccess;
+        private Credentials _credentials;
+        private GoogleDriveAccess _googleDriveAccess;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -144,6 +142,15 @@ namespace DerbyApp
             {
                 _timeBasedScoringText = value;
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(TimeBasedScoringText)));
+            }
+        }
+        public string CopyDatabaseText
+        {
+            get => _copyDatabaseText;
+            set
+            {
+                _copyDatabaseText = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CopyDatabaseText)));
             }
         }
         public string TimeBasedScoringIcon
@@ -225,7 +232,7 @@ namespace DerbyApp
             if ((bool)ib.ShowDialog()) link = ib.Input;
             _newRacer.QrCodeLink = link;
             _racerTableView.QrCodeLink = link;
-            Database.StoreDatabaseRegistry(_databaseName, _editRace.CurrentRaceName, _outputFolderName, _timeBasedScoring, _maxRaceTime, _newRacer.QrCodeLink, _newRacer.QrPrinterName, _newRacer.LicensePrinterName, _credentials.Password);
+            Database.StoreDatabaseRegistry(_databaseName, _db.CurrentRaceName, _outputFolderName, null, null, _newRacer.QrCodeLink, _newRacer.QrPrinterName, _newRacer.LicensePrinterName, _credentials.Password);
         }
 
         private void FlipCameraBox_Checked(object sender, RoutedEventArgs e)
@@ -245,40 +252,9 @@ namespace DerbyApp
 
         public MainWindow()
         {
-            bool sqlite = false;
             InitializeComponent();
-
-            Database.GetDatabaseRegistry(out _databaseName, out string activeRace, out _outputFolderName, out _timeBasedScoring, out _maxRaceTime, out string qrCodeLink, out string qrPrinterName, out string licensePrinterName, out string password);
-            _newRacer = new NewRacer(_outputFolderName, _databaseName)
-            {
-                QrCodeLink = qrCodeLink,
-                QrPrinterName = qrPrinterName,
-                LicensePrinterName = licensePrinterName
-            };
-            _newRacer.RacerAdded += Racer_RacerAdded;
-            if (_databaseName.Contains(':')) sqlite = true;
-
-            _credentials = new Credentials(password);
-            _googleDriveAccess = new GoogleDriveAccess(_credentials);
-
-            string outputFolderName = Path.GetFileName(_databaseName);
-            if (sqlite)
-            {
-                outputFolderName = Path.Combine(_outputFolderName, outputFolderName.Substring(0, outputFolderName.LastIndexOf('.')));
-            }
-            else
-            {
-                outputFolderName = Path.Combine(_outputFolderName, _databaseName);
-            }
-
-            _db = new Database(_databaseName, sqlite, _credentials, _googleDriveAccess, outputFolderName);
-            if (!_db.InitGood)
-            {
-                sqlite = SelectDatabase();
-            }
-
-            ChangeDatabase(activeRace);
             CreateMenu();
+            if(!ChangeDatabase()) SelectDatabase();
             _ = TrackStatusCheck();
         }
 
@@ -290,7 +266,7 @@ namespace DerbyApp
         private void EditRace_RaceChanging(object sender, ResponseEventArgs e)
         {
             e.Continue = false;
-            if (_raceTracker.Results.InProgress)
+            if (_db.RaceInProgress)
             {
                 if (MessageBoxResult.OK == MessageBox.Show(
                     "Adding or removing a racer will reset the race in progress and erase all results.",
@@ -305,87 +281,82 @@ namespace DerbyApp
             }
         }
 
+#warning TODO: (SIMPLIFY) Change race
         private void EditRace_RaceChanged(object sender, bool e)
         {
-            RaceResults results = new(_editRace.CurrentRaceName, _editRace.Racers, RaceFormats.Formats[_editRace.RaceFormatIndex].Clone());
-            int heatCount = _db.GetHeatCount(results.RaceName);
-            while (results.RaceFormat.HeatCount < heatCount) results.AddRunOffHeat(null);
-            _db.LoadResultsTable(results);
-
-            _raceTracker = new RaceTracker(results, _db, _databaseName, _outputFolderName, _announcer, _credentials)
+            Database.GetDatabaseRegistry(out string databaseName, out string activeRace, out string outputFolderName, out bool timeBasedScoring, out int maxRaceTime, out _, out _, out _, out _);
+            _db.RaceFormat = RaceFormats.Formats[_editRace.RaceFormatIndex].Clone();
+            _raceTracker = new RaceTracker(_db, databaseName, outputFolderName, _announcer, _credentials)
             {
                 DisplayPhotos = DisplayPhotosChecked ? Visibility.Visible : Visibility.Collapsed
             };
-            _editRace.RaceTracker = _raceTracker;
-            if (_raceTracker.Results.CurrentHeatNumber > 1) _editRace.buttonAddRacer.IsEnabled = false;
-            else _editRace.buttonAddRacer.IsEnabled = true;
             _raceTracker.HeatChanged += RaceTracker_HeatChanged;
-            if (!e) _raceTracker.Results.InProgress = false;
-            _raceTracker.LdrBoard.TimeBasedScoring = _timeBasedScoring;
-            _raceTracker.LdrBoard.CalculateResults(_raceTracker.Results.ResultsTable);
-            _raceTracker.MaxRaceTime = _maxRaceTime;
+            _raceTracker.LdrBoard.TimeBasedScoring = timeBasedScoring;
+            _raceTracker.LdrBoard.CalculateResults(_db.ResultsTable);
+            _raceTracker.MaxRaceTime = maxRaceTime;
             _raceTracker.Replay.SelectedCamera = _selectedCamera;
-        }
+            if (!e) _db.RaceInProgress = false;
 
-        private void RacerTableView_RacerRemoved(object sender, EventArgs e)
-        {
-            Racer r = (e as RacerEventArgs).racer;
-            _editRace.AllRacers.Remove(_editRace.AllRacers.First(x => x.Number == r.Number));
-            _editRace.AvailableRacers.Remove(_editRace.AvailableRacers.First(x => x.Number == r.Number));
+            if (_db.CurrentHeatNumber > 1) _editRace.buttonAddRacer.IsEnabled = false;
+            else _editRace.buttonAddRacer.IsEnabled = true;
         }
 
         private void Racer_RacerAdded(object sender, EventArgs e)
         {
-            _db.AddRacerToRacerTable(_newRacer.Racer);
-            _racerTableView.UpdateRacerList();
-            _editRace.UpdateRacerList();
+            _db.AddRacerToRacerTable(new Racer(_newRacer.Racer));
             _newRacer.ClearRacer();
         }
 
-        private void ChangeDatabase(string activeRace)
+        private bool ChangeDatabase()
         {
+            Database.GetDatabaseRegistry(out _databaseName, out string activeRace, out _outputFolderName, out _timeBasedScoring, out _maxRaceTime, out string qrCodeLink, out string qrPrinterName, out string licensePrinterName, out string password);
             Title = "Current Event = " + Path.GetFileNameWithoutExtension(_databaseName);
+            _credentials = new Credentials(password);
+            _googleDriveAccess = new GoogleDriveAccess(_credentials);
+            _db = new Database(_databaseName, _credentials, _googleDriveAccess, _outputFolderName);
+            if (!_db.InitGood) return false;
             _db.LoadRaceSettings(out _eventName);
-            _editRace = new EditRace(_db, _raceTracker);
-            if (activeRace != null) _editRace.CurrentRaceName = activeRace;
+            if (activeRace != null) _db.CurrentRaceName = activeRace;
+            if (_db.IsSqlite) CopyDatabaseText = "Upload Database to Remote";
+            else CopyDatabaseText = "Copy Database to Local";
+
+            _newRacer = new NewRacer(_outputFolderName, _databaseName)
+            {
+                QrCodeLink = qrCodeLink,
+                QrPrinterName = qrPrinterName,
+                LicensePrinterName = licensePrinterName
+            };
+            _newRacer.RacerAdded += Racer_RacerAdded;
+
+
+            _editRace = new EditRace(_db);
             _editRace.RaceChanged += EditRace_RaceChanged;
             _editRace.RaceChanging += EditRace_RaceChanging;
-            _newRacer.OutputFolderName = _outputFolderName;
-            _newRacer.EventFile = _db.GetName();
+
             _racerTableView = new RacerTableView(_db, _outputFolderName)
             {
                 QrCodeLink = _newRacer.QrCodeLink,
                 QrPrinterName = _newRacer.QrPrinterName,
                 LicensePrinterName = _newRacer.LicensePrinterName
             };
-            _racerTableView.RacerRemoved += RacerTableView_RacerRemoved;
-            Database.StoreDatabaseRegistry(_databaseName, _editRace.CurrentRaceName, _outputFolderName, _timeBasedScoring, _maxRaceTime, _newRacer.QrCodeLink, _newRacer.QrPrinterName, _newRacer.LicensePrinterName, _credentials.Password);
+
             mainFrame.Navigate(new Default());
+            return true;
         }
 
         private bool SelectDatabase()
         {
             bool retVal = false;
             DatabaseSelector dbs = new(_credentials);
-            if ((bool)dbs.ShowDialog())
+            while ((bool)dbs.ShowDialog())
             {
-                string outputFolderName = Path.GetFileName(_databaseName);
-                if (dbs.Sqlite)
-                {
-                    _databaseName = dbs.DatabaseFile;
-                    outputFolderName = Path.Combine(_outputFolderName, outputFolderName.Substring(0, outputFolderName.LastIndexOf('.')));
-                    retVal = true;
-                }
-                else
-                {
-                    _databaseName = dbs.EventName;
-                    _outputFolderName = "C:\\temp";
-                    outputFolderName = Path.Combine(_outputFolderName, _databaseName);
-                }
-
-                _db = new Database(_databaseName, dbs.Sqlite, _credentials, _googleDriveAccess, outputFolderName);
-                ChangeDatabase(null);
+                if (dbs.Sqlite) _databaseName = dbs.DatabaseFile;
+                else _databaseName = dbs.EventName;
+                Database.StoreDatabaseRegistry(_databaseName, null, null, null, null, null, null, null, null);
+                if (ChangeDatabase()) break;
             }
+            if (retVal) CopyDatabaseText = "Upload Database to Remote";
+            else CopyDatabaseText = "Copy Database to Local";
 
             return retVal;
         }
@@ -416,16 +387,16 @@ namespace DerbyApp
         private void ButtonStartRace_Click(object sender, RoutedEventArgs e)
         {
             _agentInterface.StartRaceAction();
-            if (_editRace.Racers.Count > 0)
+            if (_db.CurrentRaceRacers.Count > 0)
             {
                 mainFrame.Navigate(_raceTracker);
             }
             else
             {
                 mainFrame.Navigate(new Default());
-                MessageBox.Show("Your currently selected race " + _editRace.CurrentRaceName + " has no racers in it.");
+                MessageBox.Show("Your currently selected race " + _db.CurrentRaceName + " has no racers in it.");
             }
-            Database.StoreDatabaseRegistry(_databaseName, _editRace.CurrentRaceName, _outputFolderName, _timeBasedScoring, _maxRaceTime, _newRacer.QrCodeLink, _newRacer.QrPrinterName, _newRacer.LicensePrinterName, _credentials.Password);
+            Database.StoreDatabaseRegistry(_databaseName, _db.CurrentRaceName, _outputFolderName, null, null, _newRacer.QrCodeLink, _newRacer.QrPrinterName, _newRacer.LicensePrinterName, _credentials.Password);
         }
 
         private void ButtonReport_Click(object sender, RoutedEventArgs e)
@@ -523,6 +494,7 @@ namespace DerbyApp
             _db.StoreRaceSettings(_eventName);
         }
 
+#warning TODO: (SIMPLIFY) _selectedCamera (2 children)
         private void SelectCamera_Click(object sender, RoutedEventArgs e)
         {
             SelectCamera sc = new();
@@ -534,12 +506,13 @@ namespace DerbyApp
             }
         }
 
+#warning TODO: (SIMPLIFY) _maxRaceTime (1 child)
         private void SetMaxRaceTime_Click(object sender, RoutedEventArgs e)
         {
             NumericInput input = new("Enter the max race time in seconds", _maxRaceTime);
             if ((bool)input.ShowDialog()) _maxRaceTime = input.Input;
             _raceTracker.MaxRaceTime = _maxRaceTime;
-            Database.StoreDatabaseRegistry(_databaseName, _editRace.CurrentRaceName, _outputFolderName, _timeBasedScoring, _maxRaceTime, _newRacer.QrCodeLink, _newRacer.QrPrinterName, _newRacer.LicensePrinterName, _credentials.Password);
+            Database.StoreDatabaseRegistry(null, null, null, null, _maxRaceTime, null, null, null, null);
         }
 
         private void TimeBasedScoring_Click(object sender, RoutedEventArgs e)
@@ -555,17 +528,8 @@ namespace DerbyApp
                 TimeBasedScoringIcon = "/Images/OrderedList.png";
                 TimeBasedScoringText = "Order Based Scoring";
             }
-            _raceTracker.LdrBoard.TimeBasedScoring = _timeBasedScoring;
-            _raceTracker.LdrBoard.CalculateResults(_raceTracker.Results.ResultsTable);
-            Database.StoreDatabaseRegistry(_databaseName, _editRace.CurrentRaceName, _outputFolderName, _timeBasedScoring, _maxRaceTime, _newRacer.QrCodeLink, _newRacer.QrPrinterName, _newRacer.LicensePrinterName, _credentials.Password);
-        }
-
-        private void EnablePhotos_Click(object sender, RoutedEventArgs e)
-        {
-        }
-
-        private void EnableSound_Click(object sender, RoutedEventArgs e)
-        {
+            _raceTracker.SetTimeBasedScoring(_timeBasedScoring);
+            Database.StoreDatabaseRegistry(null, null, null, _timeBasedScoring, null, null, null, null, null);
         }
 
         private void AboutItem_Click(object sender, RoutedEventArgs e)
@@ -573,6 +537,7 @@ namespace DerbyApp
             new AboutWindow().ShowDialog();
         }
 
+#warning TODO (FUTURE): Maybe use this again
         private void OutDirItem_Click(object sender, RoutedEventArgs e)
         {
             var folderDialog = new OpenFolderDialog
@@ -647,7 +612,7 @@ namespace DerbyApp
             _ = _announcer.SelectVoice(e);
         }
 
-
+#warning TODO: (SIMPLIFY) printer (2 children)
         private void Item_PrinterChanged(object sender, RoutedEventArgs e)
         {
             PrinterSelect ps = new();
@@ -657,7 +622,7 @@ namespace DerbyApp
                 _newRacer.LicensePrinterName = ps.licensePrinterBox.Text;
                 _racerTableView.QrPrinterName = ps.qrPrinterBox.Text;
                 _racerTableView.LicensePrinterName = ps.licensePrinterBox.Text;
-                Database.StoreDatabaseRegistry(_databaseName, _editRace.CurrentRaceName, _outputFolderName, _timeBasedScoring, _maxRaceTime, _newRacer.QrCodeLink, _newRacer.QrPrinterName, _newRacer.LicensePrinterName, _credentials.Password);
+                Database.StoreDatabaseRegistry(null, null, null, null, null, null, _newRacer.QrPrinterName, _newRacer.LicensePrinterName, null);
             }
         }
 
@@ -676,7 +641,14 @@ namespace DerbyApp
         {
             string postGresConnStr = _db.GetConnectionString();
 
-            if (postGresConnStr != "") DatabaseMigrator.Migrate(MigrationDirection.PostgresToSqlite, Path.Combine(_outputFolderName,_databaseName + "_" + DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss") + ".sqlite"), postGresConnStr);
+            if (postGresConnStr != "")
+            {
+                DatabaseMigrator.Migrate(MigrationDirection.PostgresToSqlite, Path.Combine(_outputFolderName, _databaseName + "_" + DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss") + ".sqlite"), postGresConnStr);
+            }
+            else
+            {
+#warning FUTURE: Add ability to copy local database to remote, mainly need a way to get a name for the remote database and then create it
+            }
         }
     }
 }

@@ -114,8 +114,10 @@ namespace DerbyApp.RacerDatabase
         {
             try
             {
-                NpgsqlCommand command = new("SELECT 1", PostgresConn);
-                command.CommandTimeout = 3;
+                NpgsqlCommand command = new("SELECT 1", PostgresConn)
+                {
+                    CommandTimeout = 3
+                };
                 command.ExecuteScalar();
                 return true;
             }
@@ -150,8 +152,10 @@ namespace DerbyApp.RacerDatabase
             }
             try
             {
-                NpgsqlCommand command = new(sql.Replace('[', '"').Replace(']', '"'), PostgresConn);
-                command.CommandTimeout = 3;
+                NpgsqlCommand command = new(sql.Replace('[', '"').Replace(']', '"'), PostgresConn)
+                {
+                    CommandTimeout = 3
+                };
                 _reader?.Close();
                 return command.ExecuteNonQuery();
             }

@@ -98,7 +98,7 @@ namespace DerbyApp.Helpers
                 request = _driveService.Files.Create(fileMetadata, stream, mimeType);
                 request.SupportsAllDrives = true;
                 request.Fields = "webViewLink";
-                request.ProgressChanged += (IUploadProgress progress) =>
+                request.ProgressChanged += progress =>
                 {
                     switch (progress.Status)
                     {

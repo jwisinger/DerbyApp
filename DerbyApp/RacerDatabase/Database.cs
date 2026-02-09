@@ -5,35 +5,92 @@ using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Data;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Linq;
 
 namespace DerbyApp.RacerDatabase
 {
-    public class Database
+    public class Database : INotifyPropertyChanged
     {
+        private const string _racerTableName = "raceTable";
+        private const string _videoTableName = "videoTable";
+        private const string _settingsTableName = "settingsTable";
         private readonly DatabaseGeneric _databaseGeneric;
         private readonly GoogleDriveAccess _googleDriveAccess;
-        private readonly string _racerTableName = "raceTable";
-        private readonly string _videoTableName = "videoTable";
-        private readonly string _settingsTableName = "settingsTable";
         private readonly string _outputFolderName;
-        private readonly bool _sqlite;
+        private int _currentHeatNumber = 1;
+        private string _currentRaceName = "";
+
+        public readonly bool IsSqlite;
         public bool IsSynced = true;
         public bool InitGood = false;
+        public bool RaceInProgress = false;
+        public TrulyObservableCollection<Racer> Racers = [];
+        public ObservableCollection<string> Races = [];
+        public TrulyObservableCollection<Racer> CurrentRaceRacers = [];
+        public DataTable ResultsTable;
+        public RaceFormat RaceFormat;
+        public int HeatCount;
 
-        public Database(string databaseFile, bool isSqlite, Credentials credentials, GoogleDriveAccess gda, string outputFolderName)
+        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler ColumnAdded;
+
+        public string CurrentRaceName
         {
-            _sqlite = isSqlite;
+            get => _currentRaceName;
+            set
+            {
+#warning TODO: The cbName combobox in EditRace should get updated here, but the binding is broken
+                _currentRaceName = value;
+                GetRacersFromSpecificRace(value);
+                HeatCount = GetHeatCount();
+                int order = 1;
+                foreach (Racer r in CurrentRaceRacers) r.RaceOrder = order++;
+                CreateResultsTable();
+                LoadResultsTable();
+            }
+        }
+
+        public int CurrentHeatNumber
+        {
+            get
+            {
+                return _currentHeatNumber;
+            }
+            set
+            {
+                _currentHeatNumber = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CurrentHeatNumber)));
+            }
+        }
+
+#warning CLEANUP: Make outputFolderName be public, and make this be the sole source
+        public Database(string databaseFile, Credentials credentials, GoogleDriveAccess gda, string outputFolderName)
+        {
+            if (databaseFile.Contains(':')) IsSqlite = true;
+            else IsSqlite = false;
+            string databaseOutputFolderName = Path.GetFileName(databaseFile);
+            if (IsSqlite)
+            {
+                databaseOutputFolderName = Path.Combine(outputFolderName, databaseOutputFolderName[..databaseOutputFolderName.LastIndexOf('.')]);
+            }
+            else
+            {
+                databaseOutputFolderName = Path.Combine(outputFolderName, databaseFile);
+            }
+
             _googleDriveAccess = gda;
-            _outputFolderName = outputFolderName;
-            if (_sqlite) _databaseGeneric = new DatabaseSqlite(databaseFile); 
+            _outputFolderName = databaseOutputFolderName;
+            if (IsSqlite) _databaseGeneric = new DatabaseSqlite(databaseFile); 
             else _databaseGeneric = new DatabasePostgres(databaseFile, credentials);
             if (_databaseGeneric.InitGood)
             {
                 CreateRacerTable();
                 CreateVideoTable();
+                RefreshDatabase();
                 InitGood = true;
             }
         }
@@ -53,10 +110,11 @@ namespace DerbyApp.RacerDatabase
             return _databaseGeneric.TestConnection();
         }
 
+#warning CLEANUP: Put this into a new DatabaseCommands class
         private void CreateVideoTable()
         {
             string sql;
-            if (_sqlite)    // These differ because of how autoincrement is different between postgres and sqlite
+            if (IsSqlite)    // These differ because of how autoincrement is different between postgres and sqlite
             {
                 sql = "CREATE TABLE IF NOT EXISTS [" + _videoTableName + "] ([Number] INTEGER PRIMARY KEY AUTOINCREMENT, [RaceName] VARCHAR(50), [HeatNumber] INTEGER, [Url] VARCHAR(200), UNIQUE ([RaceName], [HeatNumber]))";
             }
@@ -67,10 +125,11 @@ namespace DerbyApp.RacerDatabase
             _databaseGeneric.ExecuteNonQuery(sql);
         }
 
+#warning CLEANUP: Put this into a new DatabaseCommands class
         private void CreateRacerTable()
         {
             string sql;
-            if (_sqlite)    // These differ because of how autoincrement is different between postgres and sqlite
+            if (IsSqlite)    // These differ because of how autoincrement is different between postgres and sqlite
             {
                 sql = "CREATE TABLE IF NOT EXISTS [" + _racerTableName + "] ([Number] INTEGER PRIMARY KEY AUTOINCREMENT, [Name] VARCHAR(50), [Weight(oz)] DECIMAL(5, 3), [Troop] VARCHAR(10), [Level] VARCHAR(20), [Email] VARCHAR(100), [Image] MEDIUMBLOB, [ImageKey] VARCHAR(50))";
             }
@@ -83,6 +142,7 @@ namespace DerbyApp.RacerDatabase
             _databaseGeneric.ExecuteNonQuery(sql);
         }
 
+#warning CLEANUP: Put this into a new DatabaseCommands class
         public void StoreRaceSettings(string eventName)
         {
             string sql = "CREATE TABLE IF NOT EXISTS [" + _settingsTableName + "] ([Number] INTEGER PRIMARY KEY, [Name] VARCHAR(500))";
@@ -97,6 +157,7 @@ namespace DerbyApp.RacerDatabase
             _databaseGeneric.ExecuteNonQueryWithParams(sql, param);
         }
 
+#warning CLEANUP: Put this into a new DatabaseCommands class
         public void LoadRaceSettings(out string eventName)
         {
             string sql = "SELECT * FROM [" + _settingsTableName + "] ORDER BY [Number] ASC LIMIT 1";
@@ -111,28 +172,30 @@ namespace DerbyApp.RacerDatabase
             }
         }
 
-        public void LoadResultsTable(RaceResults results)
+#warning CLEANUP: Put part of this into a new DatabaseCommands class
+        private void LoadResultsTable()
         {
             try
             {
-                if (results.RaceName == "") return;
-                string sql = "SELECT *  FROM [" + _racerTableName + "] INNER JOIN [" + results.RaceName + "] ON [" + results.RaceName + "].[Number] = [" + _racerTableName + "].[Number]";
+                if (CurrentRaceName == "") return;
+                string sql = "SELECT *  FROM [" + _racerTableName + "] INNER JOIN [" + CurrentRaceName + "] ON [" + CurrentRaceName + "].[Number] = [" + _racerTableName + "].[Number]";
                 _databaseGeneric.ExecuteReader(sql);
                 DataTable dt = new();
                 dt.Load(_databaseGeneric.GetDataReader());
                 if (dt.Rows.Count > 0)
                 {
-                    results.InProgress = true;
-                    results.ResultsTable.Clear();
+                    RaceInProgress = true;
+                    ResultsTable.Clear();
                     foreach (DataRow row in dt.Rows)
                     {
-                        results.ResultsTable.ImportRow(row);
+                        ResultsTable.ImportRow(row);
                     }
                 }
             }
             catch { }
         }
 
+#warning CLEANUP: Put part of this into a new DatabaseCommands class
         public void DeleteResultsTable(string raceName)
         {
             try
@@ -141,6 +204,7 @@ namespace DerbyApp.RacerDatabase
                 _databaseGeneric.ExecuteNonQuery(sql);
             }
             catch { }
+            Races.Remove(raceName);
         }
 
         public void ModifyResultsTable(ObservableCollection<Racer> racers, string raceName, int heatCount, int raceFormat)
@@ -151,7 +215,7 @@ namespace DerbyApp.RacerDatabase
             sql = "DELETE FROM [" + raceName + "]";
             if (_databaseGeneric.ExecuteNonQuery(sql) < 0)
             {
-                if (_sqlite)    // These differ because of how autoincrement is different between postgres and sqlite
+                if (IsSqlite)    // These differ because of how autoincrement is different between postgres and sqlite
                 {
                     sql = "CREATE TABLE IF NOT EXISTS [" + raceName + "] ([RacePosition] INTEGER PRIMARY KEY AUTOINCREMENT, [Number] INTEGER, [RaceFormat] INTEGER";
                 }
@@ -163,11 +227,12 @@ namespace DerbyApp.RacerDatabase
                 for (int i = 0; i < heatCount; i++) sql += ", [Heat " + (i + 1) + "] REAL";
                 sql += ")";
                 _databaseGeneric.ExecuteNonQuery(sql);
+                if (!Races.Contains(raceName)) Races.Add(raceName);
             }
 
             try
             {
-                if (_sqlite)    // These differ because of how reseting the ID key is different between postgres and sqlite
+                if (IsSqlite)    // These differ because of how reseting the ID key is different between postgres and sqlite
                 {
                     sql = "DELETE FROM sqlite_sequence WHERE NAME=[" + raceName + "]";
                 }
@@ -201,32 +266,6 @@ namespace DerbyApp.RacerDatabase
             catch { }
         }
 
-        public void UpdateResultsTable(string raceName, DataRow row)
-        {
-            string sql = "UPDATE [" + raceName + "] SET ";
-
-            for (int i = 2; i < row.ItemArray.Length; i++)
-            {
-                double? num = row.ItemArray[i] as double?;
-                if (num != null)
-                {
-                    sql += "[Heat " + (i - 1) + "]=" + num + ", ";
-                }
-            }
-            sql = sql[..^2];
-            sql += " WHERE [Number]=" + (int)row["Number"];
-
-            try
-            {
-                if (_databaseGeneric.ExecuteNonQuery(sql) == 0) IsSynced = false;
-                else IsSynced = true;
-            }
-            catch
-            {
-                IsSynced = false;
-            }
-        }
-
         public void AddVideoToTable(VideoUploadedEventArgs e)
         {
             string sql = "INSERT INTO [" + _videoTableName + "] ([Url], [HeatNumber], [RaceName]) VALUES (@url, @heatnumber, @racename) ON CONFLICT ([HeatNumber], [RaceName]) DO UPDATE SET [Url] = EXCLUDED.[Url]";
@@ -247,11 +286,17 @@ namespace DerbyApp.RacerDatabase
             }
         }
 
-        public void UpdateResultsTable(string raceName, DataTable table, string outputFolderName)
+        public void UpdateResultsTable(DataTable table, string newString, int c, int r)
         {
+            if ((r < ResultsTable.Rows.Count) && (double.TryParse(newString, out _)))
+            {
+                ResultsTable.Rows[r][c] = newString;
+                RaceInProgress = true;
+            }
+
             foreach (DataRow row in table.Rows)
             {
-                string sql = "UPDATE [" + raceName + "] SET ";
+                string sql = "UPDATE [" + CurrentRaceName + "] SET ";
                 bool emptyRow = true;
 
                 for (int i = 2; i < row.ItemArray.Length; i++)
@@ -284,22 +329,21 @@ namespace DerbyApp.RacerDatabase
             }
             if (!IsSynced)
             {
-                table.TableName = raceName;
-                table.WriteXml(Path.Combine(outputFolderName, "databaseBackup_" + DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss") + ".xml"));
+                table.TableName = CurrentRaceName;
+                table.WriteXml(Path.Combine(_outputFolderName, "databaseBackup_" + DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss") + ".xml"));
             }
         }
 
-        public ObservableCollection<Racer> GetAllRacers(ObservableCollection<Racer> Racers = null)
+        private void GetAllRacers()
         {
             string sql = "SELECT * FROM [" + _racerTableName + "]";
             _databaseGeneric.ExecuteReader(sql);
-            if (Racers == null) Racers = [];
-            else Racers.Clear();
+            Racers.Clear();
             while (_databaseGeneric.Read())
             {
                 try
                 {
-                    if (_sqlite)
+                    if (IsSqlite)
                     {
                         try
                         {
@@ -336,15 +380,11 @@ namespace DerbyApp.RacerDatabase
                 }
                 catch { }
             }
-
-            return Racers;
         }
         
-        public (ObservableCollection<Racer>, int) GetRacers(string raceName, ObservableCollection<Racer> Racers = null)
+        private void GetRacersFromSpecificRace(string raceName)
         {
-            if (Racers == null) Racers = [];
-            else Racers.Clear();
-            int raceFormatIndex = -1;
+            CurrentRaceRacers.Clear();
             if (raceName != "")
             {
                 try
@@ -355,9 +395,9 @@ namespace DerbyApp.RacerDatabase
                     {
                         try
                         {
-                            if (_sqlite)
+                            if (IsSqlite)
                             {
-                                Racers.Add(new Racer(Convert.ToInt64(_databaseGeneric.GetReadValue("number")),
+                                CurrentRaceRacers.Add(new Racer(Convert.ToInt64(_databaseGeneric.GetReadValue("number")),
                                                  (string)_databaseGeneric.GetReadValue("name"),
                                                  Convert.ToDecimal(_databaseGeneric.GetReadValue("weight(oz)")),
                                                  (string)_databaseGeneric.GetReadValue("troop"),
@@ -377,7 +417,7 @@ namespace DerbyApp.RacerDatabase
                                                  (string)_databaseGeneric.GetReadValue("level"),
                                                  (string)_databaseGeneric.GetReadValue("email"),
                                                  null);
-                                Racers.Add(racer);
+                                CurrentRaceRacers.Add(racer);
                                 try
                                 {
                                     ImageDownloader.SetPhoto(racer, Path.Combine(path, guid + ".png"));
@@ -387,26 +427,25 @@ namespace DerbyApp.RacerDatabase
                                     _ = ImageDownloader.DownloadImageAsync((string)_databaseGeneric.GetReadValue("image"), path, guid + ".png", racer);
                                 }
                             }
-                            raceFormatIndex = (int)Convert.ChangeType(_databaseGeneric.GetReadValue("RaceFormat"), _databaseGeneric.GetReadValue("RaceFormat").GetType());
+                            int raceFormatIndex = (int)Convert.ChangeType(_databaseGeneric.GetReadValue("RaceFormat"), _databaseGeneric.GetReadValue("RaceFormat").GetType());
+                            RaceFormat = RaceFormats.Formats[raceFormatIndex];
                         }
                         catch { }
                     }
                 }
                 catch { }
             }
-
-            return (Racers, raceFormatIndex);
         }
 
-        public int GetHeatCount(string raceName)
+        private int GetHeatCount()
         {
             int retVal = -1;
-            if (raceName != "")
+            if (CurrentRaceName != "")
             {
                 try
                 {
 
-                    string sql = "SELECT * FROM [" + raceName + "] LIMIT 1";
+                    string sql = "SELECT * FROM [" + CurrentRaceName + "] LIMIT 1";
                     _databaseGeneric.ExecuteReader(sql);
                     retVal = 0;
                     for (int i = 0; i < _databaseGeneric.GetReadFieldCount(); i++)
@@ -420,26 +459,34 @@ namespace DerbyApp.RacerDatabase
             return retVal;
         }
 
-        public ObservableCollection<string> GetListOfRaces()
+        private void GetListOfRaces()
         {
-            ObservableCollection<string> retVal = [];
             string sql;
-            if (_sqlite)    // These differ because of how tables are stored in postgres vs sqlite
+            Races.Clear();
+            if (IsSqlite)    // These differ because of how tables are stored in postgres vs sqlite
             {
                 sql = "SELECT name FROM sqlite_schema WHERE type ='table' AND (name NOT LIKE 'sqlite_%') AND (name NOT LIKE 'settings%');";
                 _databaseGeneric.ExecuteReader(sql);
-                while (_databaseGeneric.Read()) retVal.Add(Convert.ToString(_databaseGeneric.GetReadValue("name")));
+                while (_databaseGeneric.Read()) Races.Add(Convert.ToString(_databaseGeneric.GetReadValue("name")));
             }
             else
             {
                 sql = "SELECT table_name FROM information_schema.tables WHERE table_schema NOT IN('pg_catalog', 'information_schema') AND table_type = 'BASE TABLE'";
                 _databaseGeneric.ExecuteReader(sql);
-                while (_databaseGeneric.Read()) retVal.Add(Convert.ToString(_databaseGeneric.GetReadValue("table_name")));
+                while (_databaseGeneric.Read()) Races.Add(Convert.ToString(_databaseGeneric.GetReadValue("table_name")));
             }
-            retVal.Remove(_settingsTableName);
-            retVal.Remove(_racerTableName);
-            retVal.Remove(_videoTableName);
-            return retVal;
+            Races.Remove(_settingsTableName);
+            Races.Remove(_racerTableName);
+            Races.Remove(_videoTableName);
+        }
+
+        public void RefreshDatabase()
+        {
+            if (TestConnection())
+            {
+                GetAllRacers();
+                GetListOfRaces();
+            }
         }
 
         public void AddRacerToRacerTable(Racer racer)
@@ -469,7 +516,7 @@ namespace DerbyApp.RacerDatabase
             racer.Photo.Save(ms, ImageFormat.Png);
             ms.Position = 0;
 
-            if (_sqlite)
+            if (IsSqlite)
             {
                 param.Add(new DatabaseGeneric.SqlParameter { name = "@Image", type = DatabaseGeneric.DataType.Blob, value = ms.ToArray() });
             }
@@ -486,6 +533,8 @@ namespace DerbyApp.RacerDatabase
                 racer.Photo.Save(Path.Combine(path, guid + ".png"), ImageFormat.Png);
             }
             _databaseGeneric.ExecuteNonQueryWithParams(sql, param);
+            Racers.Remove(Racers.Where(x => x.Number == racer.Number).First());
+            Racers.Add(racer);
         }
 
         public void RemoveRacerFromRacerTable(Racer racer)
@@ -496,22 +545,23 @@ namespace DerbyApp.RacerDatabase
                 new DatabaseGeneric.SqlParameter { name = "@Number", type = DatabaseGeneric.DataType.Integer, value = racer.Number },
             ];
             _databaseGeneric.ExecuteNonQueryWithParams(sql, param);
+            Racers.Remove(racer);
         }
 
-        public static void StoreDatabaseRegistry(string database, string activeRace, string outputFolderName, bool timeBasedScoring, int maxRaceTime, string qrCodeLink, string qrPrinterName, string licensePrinterName, string password)
+        public static void StoreDatabaseRegistry(string database, string activeRace, string outputFolderName, bool? timeBasedScoring, int? maxRaceTime, string qrCodeLink, string qrPrinterName, string licensePrinterName, string password)
         {
             RegistryKey key = Registry.CurrentUser.CreateSubKey(@"SOFTWARE\DerbyApp");
             if (database != null)
             {
                 key.SetValue("database", database);
                 if (activeRace != null) key.SetValue("activeRace", activeRace);
-                key.SetValue("outputFolderName", outputFolderName);
-                key.SetValue("timeBasedScoring", timeBasedScoring);
-                key.SetValue("maxRaceTime", maxRaceTime);
-                key.SetValue("qrCodeLink", qrCodeLink);
-                key.SetValue("qrPrinterName", qrPrinterName);
-                key.SetValue("licensePrinterName", licensePrinterName);
-                key.SetValue("password", password);
+                if (outputFolderName != null) key.SetValue("outputFolderName", outputFolderName);
+                if (timeBasedScoring != null) key.SetValue("timeBasedScoring", timeBasedScoring);
+                if (maxRaceTime != null) key.SetValue("maxRaceTime", maxRaceTime);
+                if (qrCodeLink != null) key.SetValue("qrCodeLink", qrCodeLink);
+                if (qrPrinterName != null) key.SetValue("qrPrinterName", qrPrinterName);
+                if (licensePrinterName != null) key.SetValue("licensePrinterName", licensePrinterName);
+                if (password != null) key.SetValue("password", password);
             }
             key.Close();
         }
@@ -542,6 +592,37 @@ namespace DerbyApp.RacerDatabase
                 return true;
             }
             return false;
+        }
+
+        private void CreateResultsTable()
+        {
+            int racerNum = 0;
+
+            ResultsTable = new DataTable();
+            ResultsTable.Columns.Add("Number", Type.GetType("System.Int32"));
+            ResultsTable.PrimaryKey = [ResultsTable.Columns["Number"]];
+            ResultsTable.Columns.Add("Name", Type.GetType("System.String"));
+            for (int i = 1; i <= RaceFormat.HeatCount; i++)
+            {
+                ResultsTable.Columns.Add("Heat " + i, Type.GetType("System.Double"));
+            }
+            foreach (Racer r in CurrentRaceRacers)
+            {
+                DataRow row = ResultsTable.NewRow();
+                row["Number"] = r.Number;
+                row["Name"] = r.RacerName;
+                ResultsTable.Rows.Add(row);
+                r.RaceOrder = racerNum++;
+            }
+
+            while (RaceFormat.HeatCount < HeatCount) AddRunOffHeat();
+        }
+
+        public void AddRunOffHeat()
+        {
+            RaceFormat.AddRunOffHeat([.. CurrentRaceRacers]);
+            ResultsTable.Columns.Add("Heat " + RaceFormat.HeatCount, Type.GetType("System.Double"));
+            ColumnAdded?.Invoke(this, new PropertyChangedEventArgs("Heat " + RaceFormat.HeatCount));
         }
     }
 }

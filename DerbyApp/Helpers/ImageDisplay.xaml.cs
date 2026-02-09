@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using DerbyApp.RaceStats;
+using System.Windows;
 using System.Windows.Media;
 
 namespace DerbyApp.Pages
@@ -8,7 +9,7 @@ namespace DerbyApp.Pages
     /// </summary>
     public partial class ImageDisplay : Window
     {
-        public ImageDisplay(ImageSource imageSource)
+        public ImageDisplay(ImageSource imageSource, Racer racer)
         {
             InitializeComponent();
             Picture.Source = imageSource;

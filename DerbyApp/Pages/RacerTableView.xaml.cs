@@ -2,8 +2,8 @@
 using DerbyApp.RacerDatabase;
 using DerbyApp.RaceStats;
 using System;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -11,12 +11,10 @@ namespace DerbyApp
 {
     public partial class RacerTableView : Page, INotifyPropertyChanged
     {
-        public ObservableCollection<Racer> Racers = [];
         private readonly Database _db;
         private bool _editHandle = true;
         private Visibility _displayPhotos = Visibility.Visible;
         public event PropertyChangedEventHandler PropertyChanged;
-        public event EventHandler RacerRemoved;
         public string OutputFolder = "";
         public string LicensePrinterName = "";
         public string QrPrinterName = "";
@@ -36,59 +34,50 @@ namespace DerbyApp
         {
             InitializeComponent();
             _db = db;
-            _db.GetAllRacers(Racers);
-            dataGridRacerTable.DataContext = Racers;
+            dataGridRacerTable.DataContext = _db.Racers;
             OutputFolder = outputFolder;
-        }
-
-        public void UpdateRacerList()
-        {
-            _db.GetAllRacers(Racers);
         }
 
         private void DataGridRacerTable_RowEditEnding(object sender, DataGridRowEditEndingEventArgs e)
         {
-            if ((e.Row.GetIndex() >= 0) && (e.Row.GetIndex() < Racers.Count))
+            if ((e.Row.GetIndex() >= 0) && (e.Row.GetIndex() < _db.Racers.Count))
             {
                 if (_editHandle)
                 {
+                    int index = e.Row.GetIndex();
                     _editHandle = false;
                     dataGridRacerTable.CommitEdit();
-                    _db.AddRacerToRacerTable(Racers[e.Row.GetIndex()]);
+                    _db.AddRacerToRacerTable(_db.Racers[index]);
                     _editHandle = true;
-                    _db.GetAllRacers(Racers);
                 }
             }
         }
 
         private void Delete_OnClick(object sender, RoutedEventArgs e)
         {
-            if (dataGridRacerTable.SelectedIndex < Racers.Count)
+            if (dataGridRacerTable.SelectedIndex < _db.Racers.Count)
             {
-                Racer r = Racers[dataGridRacerTable.SelectedIndex];
-                _db.RemoveRacerFromRacerTable(Racers[dataGridRacerTable.SelectedIndex]);
-                Racers.RemoveAt(dataGridRacerTable.SelectedIndex);
-                RacerRemoved?.Invoke(this, new RacerEventArgs() { racer = r });
+                _db.RemoveRacerFromRacerTable(_db.Racers[dataGridRacerTable.SelectedIndex]);
             }
         }
 
         private void PrintLicense_OnClick(object sender, RoutedEventArgs e)
         {
-            if (dataGridRacerTable.SelectedIndex < Racers.Count)
+            if (dataGridRacerTable.SelectedIndex < _db.Racers.Count)
             {
-                Racer r = Racers[dataGridRacerTable.SelectedIndex];
+                Racer r = _db.Racers[dataGridRacerTable.SelectedIndex];
                 GenerateLicense.Generate(r, _db.GetName(), OutputFolder, QrCodeLink, LicensePrinterName, QrPrinterName);
             }
         }
         
         private void ZoomPicture(object sender, RoutedEventArgs e)
         {
-            new ImageDisplay((sender as Image).Source).ShowDialog();
+            new ImageDisplay((sender as Image).Source, ((sender as Image).DataContext as Racer)).ShowDialog();
         }
 
         private void RefreshDatabase(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            if (_db.TestConnection()) Racers = _db.GetAllRacers();
+            _db.RefreshDatabase();
         }
     }
 }
