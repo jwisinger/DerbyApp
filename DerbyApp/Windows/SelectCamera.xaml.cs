@@ -2,7 +2,7 @@
 using System.Collections.ObjectModel;
 using System.Windows;
 
-namespace DerbyApp.Helpers
+namespace DerbyApp.Windows
 {
     /// <summary>
     /// Interaction logic for SelectCamera.xaml

@@ -2,7 +2,7 @@
 using System.Windows;
 using System.Windows.Media;
 
-namespace DerbyApp.Pages
+namespace DerbyApp.Windows
 {
     /// <summary>
     /// Interaction logic for ImageDisplay.xaml

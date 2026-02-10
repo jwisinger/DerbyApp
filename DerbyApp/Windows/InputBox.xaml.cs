@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows;
 
-namespace DerbyApp.Helpers
+namespace DerbyApp.Windows
 {
     /// <summary>
     /// Interaction logic for InputBox.xaml

@@ -1,11 +1,10 @@
 ﻿#warning TODO: (SIMPLIFY) - This code could use a good cleanup too especially around LeaderBoard
 using DerbyApp.Assistant;
 using DerbyApp.Helpers;
-using DerbyApp.Pages;
+using DerbyApp.Windows;
 using DerbyApp.RacerDatabase;
 using DerbyApp.RaceStats;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.IO;

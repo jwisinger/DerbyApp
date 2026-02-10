@@ -1,9 +1,9 @@
-﻿<Window x:Class="DerbyApp.Helpers.SelectCamera"
+﻿<Window x:Class="DerbyApp.Windows.SelectCamera"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:DerbyApp.Helpers"
+        xmlns:local="clr-namespace:DerbyApp.Windows"
         mc:Ignorable="d"
         Title="Select Camera" Width="350" Height="110">
     <Grid Width="323">

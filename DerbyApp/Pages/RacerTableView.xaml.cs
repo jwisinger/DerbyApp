@@ -1,9 +1,7 @@
-﻿using DerbyApp.Pages;
+﻿using DerbyApp.Windows;
 using DerbyApp.RacerDatabase;
 using DerbyApp.RaceStats;
-using System;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 
