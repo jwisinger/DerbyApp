@@ -1,11 +1,9 @@
-﻿#warning TODO: Deleting racer from main list does not remove if already added to a race
-using DerbyApp.Helpers;
+﻿#warning CLEANUP: Put breakpoints in every function in this file and confirm they work
+#warning TODO: Deleting racer from main list does not remove if already added to a race
 using DerbyApp.RacerDatabase;
 using DerbyApp.RaceStats;
 using DerbyApp.Windows;
-using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -20,9 +18,8 @@ namespace DerbyApp.Pages
         private int _raceFormatIndex = 0;
         private Visibility _displayPhotos = Visibility.Visible;
         public event PropertyChangedEventHandler PropertyChanged;
-        public event EventHandler<bool> RaceChanged;
-        public event EventHandler<ResponseEventArgs> RaceChanging;
 
+        #region Public Properties
         public string RaceFormatNameString { get; set; }
 
         public int RaceFormatIndex
@@ -45,8 +42,7 @@ namespace DerbyApp.Pages
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(DisplayPhotos)));
             }
         }
-
-        public Database Database => _db;
+        #endregion
 
         public EditRace(Database db)
         {
@@ -58,11 +54,21 @@ namespace DerbyApp.Pages
             tbFormat.DataContext = this;
         }
 
+        #region UI Event Handlers
+        private void CbName_KeyUp(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            var regex = AlphaNumericRegex();
+            cbName.Text = regex.Replace(cbName.Text, "");
+            if (cbName.Text.Length > 0) buttonDeleteRace.IsEnabled = true;
+            else buttonDeleteRace.IsEnabled = false;
+        }
+
+#warning CLEANUP: EditRace
         private void ComboBoxRaceName_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (!_db.IsSynced)
             {
-                _db.UpdateResultsTable(_db.ResultsTable, null, 0, 0);
+                _db.UpdateResultsTable(null, 0, 0);
                 if (!_db.IsSynced)
                 {
                     if(MessageBoxResult.Cancel == MessageBox.Show("Connection to the database has been lost. If you continue, any results from this race will be lost.",
@@ -87,22 +93,16 @@ namespace DerbyApp.Pages
             {
                 buttonDeleteRace.IsEnabled = false;
             }
-            RaceChanged?.Invoke(this, true);
+            if (_db.CurrentHeatNumber > 1) buttonAddRacer.IsEnabled = false;
+            else buttonAddRacer.IsEnabled = true;
         }
+        #endregion
 
-        private void CbName_KeyUp(object sender, System.Windows.Input.KeyEventArgs e)
-        {
-            var regex = AlphaNumericRegex();
-            cbName.Text = regex.Replace(cbName.Text, "");
-            if (cbName.Text.Length > 0) buttonDeleteRace.IsEnabled = true;
-            else buttonDeleteRace.IsEnabled = false;
-        }
-
+        #region Button Handlers
+#warning CLEANUP: EditRace
         private void ButtonAddRacer_Click(object sender, RoutedEventArgs e)
         {
-            ResponseEventArgs response = new();
-            RaceChanging?.Invoke(this, response);
-            if (response.Continue)
+            if (CheckRaceInProgress())
             {
                 int order = 1;
                 if (_db.CurrentRaceRacers.Count > RaceFormats.Formats[RaceFormatIndex].RacerCount)
@@ -140,25 +140,28 @@ namespace DerbyApp.Pages
                     _db.ModifyResultsTable(_db.CurrentRaceRacers, cbName.Text, RaceFormats.Formats[RaceFormatIndex].HeatCount, RaceFormatIndex);
                 }
                 catch { }
-                RaceChanged?.Invoke(this, false);
+                _db.RaceInProgress = false;
+                if (_db.CurrentHeatNumber > 1) buttonAddRacer.IsEnabled = false;
+                else buttonAddRacer.IsEnabled = true;
             }
         }
 
         private void Delete_OnClick(object sender, RoutedEventArgs e)
         {
-            ResponseEventArgs response = new();
-            RaceChanging?.Invoke(this, response);
-            if (response.Continue)
+            if (CheckRaceInProgress())
             {
                 int order = 1;
                 try
                 {
+#warning CLEANUP: Handle this inside Database.cs
                     _db.CurrentRaceRacers.RemoveAt(dataGridRacers.SelectedIndex);
                     foreach (Racer r in _db.CurrentRaceRacers) r.RaceOrder = order++;
                     _db.ModifyResultsTable(_db.CurrentRaceRacers, cbName.Text, RaceFormats.Formats[RaceFormatIndex].HeatCount, 0);
                 }
                 catch { }
-                RaceChanged?.Invoke(this, false);
+                _db.RaceInProgress = false;
+                if (_db.CurrentHeatNumber > 1) buttonAddRacer.IsEnabled = false;
+                else buttonAddRacer.IsEnabled = true;
             }
         }
 
@@ -167,15 +170,7 @@ namespace DerbyApp.Pages
             NewRace nr = new();
             if((bool)nr.ShowDialog())
             {
-                if (!_db.Races.Contains(nr.RaceName))
-                {
-                    _db.Races.Add(nr.RaceName);
-                    cbName.SelectedItem = nr.RaceName;
-                    RaceFormatIndex = nr.RaceFormatIndex;
-                    RaceFormatNameString = RaceFormats.Formats[nr.RaceFormatIndex].Name;
-                    _db.CurrentRaceRacers.Clear();
-                }
-                else
+                if(!_db.AddRace(nr.RaceName, nr.RaceFormatIndex))
                 {
                     MessageBox.Show("A race with that name already exists.", "Name Exists",
                         MessageBoxButton.OK, MessageBoxImage.Error);
@@ -190,8 +185,7 @@ namespace DerbyApp.Pages
                 if(MessageBox.Show("This will delete the race named " + cbName.SelectedItem + " and all associated data. Are you sure?",
                     "Delete Race", MessageBoxButton.OKCancel, MessageBoxImage.Question) == MessageBoxResult.OK)
                 {
-                    _db.DeleteResultsTable(cbName.SelectedItem as string);
-                    _db.Races.Remove(cbName.SelectedItem as string);
+                    _db.DeleteCurrentRace();
                 }
             }
         }
@@ -205,8 +199,26 @@ namespace DerbyApp.Pages
         {
             new ImageDisplay((sender as Image).Source, ((sender as Image).DataContext as Racer)).ShowDialog();
         }
+        #endregion
+
+        #region Methods
+        private bool CheckRaceInProgress()
+        {
+            if (_db.RaceInProgress)
+            {
+                if (MessageBoxResult.OK == MessageBox.Show(
+                    "Adding or removing a racer will reset the race in progress and erase all results.",
+                    "Race Results Will Be Erased", MessageBoxButton.OKCancel, MessageBoxImage.Warning))
+                {
+                    return true;
+                }
+                else return false;
+            }
+            else return true;
+        }
 
         [GeneratedRegex(@"[^a-zA-Z0-9\s]")]
         private static partial Regex AlphaNumericRegex();
+        #endregion
     }
 }

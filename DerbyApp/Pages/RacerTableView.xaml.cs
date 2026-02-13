@@ -1,4 +1,5 @@
-﻿using DerbyApp.Windows;
+﻿#warning CLEANUP: Put breakpoints in every function in this file and confirm they work
+using DerbyApp.Windows;
 using DerbyApp.RacerDatabase;
 using DerbyApp.RaceStats;
 using System.ComponentModel;
@@ -13,10 +14,6 @@ namespace DerbyApp
         private bool _editHandle = true;
         private Visibility _displayPhotos = Visibility.Visible;
         public event PropertyChangedEventHandler PropertyChanged;
-        public string OutputFolder = "";
-        public string LicensePrinterName = "";
-        public string QrPrinterName = "";
-        public string QrCodeLink = "";
 
         public Visibility DisplayPhotos
         {
@@ -28,12 +25,11 @@ namespace DerbyApp
             }
         }
 
-        public RacerTableView(Database db, string outputFolder)
+        public RacerTableView(Database db)
         {
             InitializeComponent();
             _db = db;
             dataGridRacerTable.DataContext = _db.Racers;
-            OutputFolder = outputFolder;
         }
 
         private void DataGridRacerTable_RowEditEnding(object sender, DataGridRowEditEndingEventArgs e)
@@ -45,7 +41,7 @@ namespace DerbyApp
                     int index = e.Row.GetIndex();
                     _editHandle = false;
                     dataGridRacerTable.CommitEdit();
-                    _db.AddRacerToRacerTable(_db.Racers[index]);
+                    _db.AddRacer(_db.Racers[index]);
                     _editHandle = true;
                 }
             }
@@ -55,7 +51,7 @@ namespace DerbyApp
         {
             if (dataGridRacerTable.SelectedIndex < _db.Racers.Count)
             {
-                _db.RemoveRacerFromRacerTable(_db.Racers[dataGridRacerTable.SelectedIndex]);
+                _db.RemoveRacer(_db.Racers[dataGridRacerTable.SelectedIndex]);
             }
         }
 
@@ -64,13 +60,13 @@ namespace DerbyApp
             if (dataGridRacerTable.SelectedIndex < _db.Racers.Count)
             {
                 Racer r = _db.Racers[dataGridRacerTable.SelectedIndex];
-                GenerateLicense.Generate(r, _db.GetName(), OutputFolder, QrCodeLink, LicensePrinterName, QrPrinterName);
+                GenerateLicense.Generate(r, _db);
             }
         }
         
         private void ZoomPicture(object sender, RoutedEventArgs e)
         {
-            new ImageDisplay((sender as Image).Source, ((sender as Image).DataContext as Racer)).ShowDialog();
+            new ImageDisplay((sender as Image).Source, (sender as Image).DataContext as Racer).ShowDialog();
         }
 
         private void RefreshDatabase(object sender, System.Windows.Input.MouseButtonEventArgs e)

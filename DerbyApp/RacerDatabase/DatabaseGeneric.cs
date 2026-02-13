@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Data;
+using System.Windows.Forms;
 
 namespace DerbyApp.RacerDatabase
 {
@@ -32,7 +33,7 @@ namespace DerbyApp.RacerDatabase
             }
         }
 
-        public virtual string GetConnectionString()
+        public virtual string GetConnectionString(bool microsoftFormat)
         {
             return "";
         }
@@ -52,8 +53,9 @@ namespace DerbyApp.RacerDatabase
             return -1;
         }
 
-        public virtual void ExecuteReader(string sql)
+        public virtual bool ExecuteReader(string sql)
         {
+            return false;
         }
 
         public virtual bool Read()
@@ -84,6 +86,11 @@ namespace DerbyApp.RacerDatabase
         public virtual string GetDataBaseName()
         {
             return "";
+        }
+
+        public virtual void InitResultsTable(string raceName, DataTable table)
+        {
+            return;
         }
     }
 }

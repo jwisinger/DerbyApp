@@ -51,9 +51,9 @@ namespace DerbyApp.RaceStats
             RaceScoreTable.Columns.Add("Heat " + heatCount, Type.GetType("System.Int32"));
         }
 
-        public void CalculateResults(DataTable raceResultsTable)
+        public void CalculateResults(DataTable raceResultsTable, int heatCount)
         {
-            for (int i = 1; i <= raceResultsTable.Columns.Count - 2; i++)
+            for (int i = 1; i <= heatCount - 2; i++)
             {
                 List<Tuple<double, string>> l = [];
                 foreach (DataRow dataRow in raceResultsTable.Rows)

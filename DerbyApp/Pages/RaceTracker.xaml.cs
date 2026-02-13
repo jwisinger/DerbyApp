@@ -1,9 +1,5 @@
-﻿#warning TODO: (SIMPLIFY) - This code could use a good cleanup too especially around LeaderBoard
-using DerbyApp.Assistant;
-using DerbyApp.Helpers;
-using DerbyApp.Windows;
-using DerbyApp.RacerDatabase;
-using DerbyApp.RaceStats;
+﻿#warning CLEANUP: Put breakpoints in every function in this file and confirm they work
+#warning TODO: (SIMPLIFY) - This code could use a good cleanup too especially around LeaderBoard
 using System;
 using System.ComponentModel;
 using System.Data;
@@ -17,37 +13,58 @@ using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Media;
 using System.Windows.Threading;
+using DerbyApp.Assistant;
+using DerbyApp.Helpers;
+using DerbyApp.RacerDatabase;
+using DerbyApp.RaceStats;
+using DerbyApp.Windows;
 
 namespace DerbyApp
 {
     public partial class RaceTracker : Page, INotifyPropertyChanged
     {
-        private Visibility _displayPhotos = Visibility.Collapsed;
+        #region Child Classes
+        private readonly Database _db;
+        private readonly Announcer _announcer;
+        private readonly VideoHandler _videoHandler;
+        private readonly TrackController _trackController;
+        #endregion
+
+        #region Private Properties
         private Visibility _recordingVisibility = Visibility.Collapsed;
+        private Visibility _buttonVisibility = Visibility.Visible;
+        private Visibility _cancelButtonVisibility = Visibility.Visible;
+        private Visibility _displayPhotos = Visibility.Collapsed;
+        private string _enableBoxButtonText = "Enable Manual Control";
+        private string _currentHeatLabelString = "Current Heat (1)";
+        private string _raceCountDownString = "";
         private bool _previousHeatEnabled = false;
         private bool _cancelReplayEnabled = false;
         private bool _nextHeatEnabled = true;
-        private Visibility _buttonVisibility = Visibility.Visible;
-        private Visibility _cancelButtonVisibility = Visibility.Visible;
-        private string _enableBoxButtonText = "Enable Manual Control";
-        private string _currentHeatLabelString = "Current Heat (1)";
-        private readonly Database _db = null;
-        private readonly DispatcherTimer _raceTimer;
-        private string _raceCountDownString = "";
-        private int _raceCountDownTime = 0;
-        public int MaxRaceTime = 10;
-        public bool TrackConnected = false;
-        private readonly Replay replay;
-        private readonly string _databaseName;
-        private readonly Announcer _announcer;
-        private bool _manualControlEnabled = false;
+        private int _maxRaceTime = 10;
+        #endregion
 
-        private readonly string[] _trackStrings = ["red", "yellow", "green", "go"];
-        private int _trackStepCounter = 0;
-
-        public string OutputFolderName;
         public Leaderboard LdrBoard { get; set; }
 
+        #region Public Properties
+        public int MaxRaceTime
+        {
+            get => _maxRaceTime;
+            set
+            {
+                _maxRaceTime = value;
+                DatabaseRegistry.StoreDatabaseRegistry(null, null, null, null, value, null, null, null, null);
+            }
+        }
+
+        public bool TrackConnected
+        {
+            get => _trackController.TrackConnected;
+            set => _trackController.TrackConnected = value;
+        }
+        #endregion
+
+        #region UI Properties
         public Visibility DisplayPhotos
         {
             get => _displayPhotos;
@@ -57,6 +74,7 @@ namespace DerbyApp
                 NotifyPropertyChanged();
             }
         }
+
         public bool PreviousHeatEnabled
         {
             get => _previousHeatEnabled;
@@ -66,6 +84,7 @@ namespace DerbyApp
                 NotifyPropertyChanged();
             }
         }
+
         public bool CancelReplayEnabled
         {
             get => _cancelReplayEnabled;
@@ -75,6 +94,7 @@ namespace DerbyApp
                 NotifyPropertyChanged();
             }
         }
+
         public Visibility RecordingVisibility
         {
             get => _recordingVisibility;
@@ -84,6 +104,7 @@ namespace DerbyApp
                 NotifyPropertyChanged();
             }
         }
+
         public bool NextHeatEnabled
         {
             get => _nextHeatEnabled;
@@ -93,6 +114,7 @@ namespace DerbyApp
                 NotifyPropertyChanged();
             }
         }
+
         public Visibility ButtonVisibility
         {
             get => _buttonVisibility;
@@ -102,6 +124,7 @@ namespace DerbyApp
                 NotifyPropertyChanged();
             }
         }
+
         public Visibility CancelButtonVisibility
         {
             get => _cancelButtonVisibility;
@@ -111,6 +134,7 @@ namespace DerbyApp
                 NotifyPropertyChanged();
             }
         }
+
         public string EnableBoxButtonText
         {
             get => _enableBoxButtonText;
@@ -123,16 +147,14 @@ namespace DerbyApp
 
         public string RaceCountDownString
         {
-            get
-            {
-                return _raceCountDownString;
-            }
+            get => _raceCountDownString;
             set
             {
                 _raceCountDownString = value;
                 NotifyPropertyChanged();
             }
         }
+
         public string CurrentHeatLabelString
         {
             get
@@ -145,11 +167,208 @@ namespace DerbyApp
                 NotifyPropertyChanged();
             }
         }
+        #endregion
 
-        internal Replay Replay => replay;
-
+        #region Events
         public event PropertyChangedEventHandler PropertyChanged;
         public event EventHandler HeatChanged;
+        #endregion
+
+        #region Event Handlers
+        private void OnImageCaptured(object sender, EventArgs e)
+        {
+            Application.Current.Dispatcher.Invoke(new Action(() => {
+                frameVideo.Source = _videoHandler.CurrentImageSource;
+            }));
+        }
+
+        private void RaceTrackerWindow_Loaded(object sender, RoutedEventArgs e)
+        {
+            ICollectionView dataView = CollectionViewSource.GetDefaultView(gridLeaderBoard.ItemsSource);
+            dataView.SortDescriptions.Clear();
+            dataView.SortDescriptions.Add(new SortDescription("Score", ListSortDirection.Descending));
+            dataView.Refresh();
+            gridRaceResults.Columns[0].IsReadOnly = true;
+            gridRaceResults.Columns[1].IsReadOnly = true;
+            UpdateHeatUI();
+            _videoHandler.ImageCaptured += OnImageCaptured;
+        }
+
+        private void RaceTrackerWindow_Unloaded(object sender, RoutedEventArgs e)
+        {
+            _videoHandler.ImageCaptured -= OnImageCaptured;
+        }
+
+        private void TrackController_TrackStateUpdated(object sender, int raceCountdownTime)
+        {
+            if (_trackController.TrackStateNumber < _trackController.TrackStates.Length)
+            {
+                _announcer.StartRace(_trackController.TrackStateNumber);
+                //_ = TrackMessage(_trackController.TrackStateString);
+                if (_trackController.TrackStateNumber == _trackController.TrackStates.Length - 1)
+                {
+                    RecordingVisibility = Visibility.Visible;
+                    _videoHandler.StartRecording(Path.Combine(_db.OutputFolderName, "videos"), _db.EventName, _db.CurrentHeatNumber);
+                }
+                RaceCountDownString = raceCountdownTime.ToString() + " seconds remaining.";
+            }
+            else
+            {
+                if (raceCountdownTime == 0)
+                {
+#warning CLEANUP: Move this UI stuff (and what's inside ButtonGetTime) into it's own method since it's used in multiple places
+                    RaceCountDownString = "";
+                    ButtonGetTimes_Click(sender, null);
+                }
+                else
+                {
+                    RaceCountDownString = raceCountdownTime.ToString() + " seconds remaining.";
+                    CancelButtonVisibility = Visibility.Collapsed;
+                }
+            }
+
+        }
+        #endregion
+
+        #region Public Methods
+        public void SetTimeBasedScoring(bool enabled)
+        {
+            LdrBoard.TimeBasedScoring = enabled;
+            LdrBoard.CalculateResults(_db.ResultsTable, _db.HeatCount);
+        }
+
+        public void Shutdown()
+        {
+            _ = _announcer.Voice.Cancel();
+        }
+        #endregion
+
+        # region Private Methods
+        private void SetActiveHeatColumn()
+        {
+            Style style = new(typeof(DataGridColumnHeader))
+            {
+                BasedOn = TryFindResource("baseStyle") as Style
+            };
+            style.Setters.Add(new Setter(Control.FontWeightProperty, FontWeights.Bold));
+            style.Setters.Add(new Setter(Control.BackgroundProperty, new SolidColorBrush(Colors.LightGreen)));
+            gridRaceResults.Columns[_db.CurrentHeatNumber + 1].HeaderStyle = style;
+
+            Style style2 = new(typeof(DataGridColumnHeader))
+            {
+                BasedOn = TryFindResource("baseStyle") as Style
+            };
+            style2.Setters.Add(new Setter(Control.FontWeightProperty, FontWeights.Bold));
+            style2.Setters.Add(new Setter(Control.BackgroundProperty, new SolidColorBrush(Colors.Transparent)));
+            gridRaceResults.Columns[_db.CurrentHeatNumber].HeaderStyle = style2;
+            gridRaceResults.Columns[_db.CurrentHeatNumber + 2].HeaderStyle = style2;
+            HeatChanged?.Invoke(this, null);
+        }
+
+        private void UpdateHeatUI()
+        {
+#warning CLEANUP: Turns this into a switch statement that handles various states of button enabling and strings
+            if (true/*_manualControlEnabled*/)
+            {
+                PreviousHeatEnabled = false;
+                NextHeatEnabled = false;
+                EnableBoxButtonText = "Cancel";
+                ButtonVisibility = Visibility.Collapsed;
+            }
+            else
+            {
+                if (_db.CurrentHeatNumber >= _db.RaceFormat.HeatCount) NextHeatEnabled = false;
+                else NextHeatEnabled = true;
+                if (_db.CurrentHeatNumber <= 1) PreviousHeatEnabled = false;
+                else PreviousHeatEnabled = true;
+                EnableBoxButtonText = "Enable Manual Control";
+                ButtonVisibility = Visibility.Visible;
+            }
+
+            CurrentHeatLabelString = "Current Heat (" + _db.CurrentHeatNumber + ")";
+            _db.RaceFormat.UpdateDisplayedHeat(_db.CurrentHeatNumber, _db.CurrentRaceRacers);
+        }
+        #endregion
+
+        #region Button Handlers
+        private void ButtonNextHeat_Click(object sender, RoutedEventArgs e)
+        {
+            _db.CurrentHeatNumber++;
+            UpdateHeatUI();
+            SetActiveHeatColumn();
+            _announcer.SayNames(_db.RaceFormat.CurrentRacers);
+        }
+
+        private void ButtonPreviousHeat_Click(object sender, RoutedEventArgs e)
+        {
+            _db.CurrentHeatNumber--;
+            UpdateHeatUI();
+            SetActiveHeatColumn();
+        }
+
+        private void ButtonStart_Click(object sender, RoutedEventArgs e)
+        {
+            ButtonVisibility = Visibility.Collapsed;
+            PreviousHeatEnabled = false;
+            NextHeatEnabled = false;
+            _announcer.StartRace(_trackController.TrackStateNumber);
+            _ = _trackController.StartHeat(MaxRaceTime);
+        }
+
+        private void ButtonGetTimes_Click(object sender, RoutedEventArgs e)
+        {
+            ButtonVisibility = Visibility.Collapsed;
+            CancelButtonVisibility = Visibility.Collapsed;
+            _ = GetTimes();
+        }
+
+        private void ButtonCancelReplay_Click(object sender, RoutedEventArgs e)
+        {
+            _videoHandler.CancelReplay();
+        }
+
+        private void ButtonAnnounceNames_Click(object sender, RoutedEventArgs e)
+        {
+            _announcer.SayNames(_db.RaceFormat.CurrentRacers);
+        }
+
+        private void ButtonSilenceAnnouncer_Click(object sender, RoutedEventArgs e)
+        {
+            _announcer.Silence();
+        }
+
+        private void ButtonEnable_Click(object sender, RoutedEventArgs e)
+        {
+            /*if (_manualControlEnabled)
+            {
+                _manualControlEnabled = false;
+                UpdateHeatUI();
+                _ = TrackMessage("cancel");
+            }
+            else
+            {
+                _manualControlEnabled = true;
+                UpdateHeatUI();
+                _trackStepCounter = 0;
+                _raceCountDownTime = MaxRaceTime;
+                _announcer.StartRace(_trackStepCounter);
+                DispatcherTimer t = new() { Interval = TimeSpan.FromMilliseconds(250) };
+                t.Tick += CheckSwitch;
+                t.Start();
+                _ = TrackMessage(_trackStrings[_trackStepCounter++]);
+            }*/
+        }
+
+        private void ZoomPicture(object sender, RoutedEventArgs e)
+        {
+            new ImageDisplay((sender as Image).Source, ((sender as Image).DataContext as Racer)).ShowDialog();
+        }
+        #endregion
+
+
+
+
+
 
         private void Datagrid_AutoGeneratingColumn(object sender, DataGridAutoGeneratingColumnEventArgs e)
         {
@@ -169,11 +388,13 @@ namespace DerbyApp
             gridRaceResults.Columns.Add(new DataGridTextColumn() { Header = e.PropertyName, Binding = new System.Windows.Data.Binding(e.PropertyName) { StringFormat = "N3" } });
         }
 
-        public RaceTracker(Database db, string databaseName, string outputFolderName, Announcer announcer, Credentials credentials)
+        public RaceTracker(Database db, int selectedCamera, bool timeBasedScoring, Announcer announcer, Credentials credentials, VideoHandler videoHandler)
         {
             InitializeComponent();
             _announcer = announcer;
             _db = db;
+            _trackController = new TrackController();
+            _trackController.TrackStateUpdated += TrackController_TrackStateUpdated;
             _db.RaceFormat.UpdateDisplayedHeat(_db.CurrentHeatNumber, db.CurrentRaceRacers);
             LdrBoard = new Leaderboard(db.CurrentRaceRacers, _db.RaceFormat.HeatCount, _db.RaceFormat.LaneCount, false);
             gridRaceResults.AutoGeneratingColumn += Datagrid_AutoGeneratingColumn;
@@ -181,22 +402,13 @@ namespace DerbyApp
             gridLeaderBoard.DataContext = LdrBoard.Board;
             _db.RaceFormat.CurrentRacers.CollectionChanged += CurrentRacers_CollectionChanged;
             CurrentHeatLabel.DataContext = this;
-            _raceTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
-            _raceTimer.Tick += TimeTickRace;
-            LdrBoard.CalculateResults(_db.ResultsTable);
+            LdrBoard.TimeBasedScoring = timeBasedScoring;
+            LdrBoard.CalculateResults(_db.ResultsTable, _db.HeatCount);
             _db.ColumnAdded += ResultsColumnAdded;
-            _databaseName = databaseName;
-            OutputFolderName = outputFolderName;
 
-            replay = new Replay(frameVideo, credentials);
-            replay.ReplayEnded += ReplayEnded;
-            replay.VideoUploaded += VideoUploaded;
-        }
-
-        public void SetTimeBasedScoring(bool enabled)
-        {
-            LdrBoard.TimeBasedScoring = enabled;
-            LdrBoard.CalculateResults(_db.ResultsTable);
+            _videoHandler = videoHandler;
+            _videoHandler.ReplayEnded += ReplayEnded;
+            _videoHandler.VideoUploaded += VideoUploaded;
         }
 
         private void CurrentRacers_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
@@ -230,7 +442,7 @@ namespace DerbyApp
         {
             ButtonVisibility = Visibility.Visible;
             CancelButtonVisibility = Visibility.Visible;
-            _manualControlEnabled = false;
+            //_manualControlEnabled = false;
             EnableBoxButtonText = "Enable Manual Control";
             CancelReplayEnabled = false;
         }
@@ -240,103 +452,14 @@ namespace DerbyApp
             _db.AddVideoToTable(e);
         }
 
-        private void ButtonNextHeat_Click(object sender, RoutedEventArgs e)
-        {
-            _db.CurrentHeatNumber++;
-            CurrentHeatLabelString = "Current Heat (" + _db.CurrentHeatNumber + ")";
-            _db.RaceFormat.UpdateDisplayedHeat(_db.CurrentHeatNumber, _db.CurrentRaceRacers);
-            if (_db.CurrentHeatNumber >= _db.RaceFormat.HeatCount) NextHeatEnabled = false;
-            else NextHeatEnabled = true;
-            if (_db.CurrentHeatNumber <= 1) PreviousHeatEnabled = false;
-            else PreviousHeatEnabled = true;
-
-            Style style = new(typeof(DataGridColumnHeader))
-            {
-                BasedOn = TryFindResource("baseStyle") as Style
-            };
-            style.Setters.Add(new Setter(Control.FontWeightProperty, FontWeights.Bold));
-            style.Setters.Add(new Setter(Control.BackgroundProperty, new SolidColorBrush(Colors.LightGreen)));
-            gridRaceResults.Columns[_db.CurrentHeatNumber + 1].HeaderStyle = style;
-
-            Style style2 = new(typeof(DataGridColumnHeader))
-            {
-                BasedOn = TryFindResource("baseStyle") as Style
-            };
-            style2.Setters.Add(new Setter(Control.FontWeightProperty, FontWeights.Bold));
-            style2.Setters.Add(new Setter(Control.BackgroundProperty, new SolidColorBrush(Colors.Transparent)));
-            gridRaceResults.Columns[_db.CurrentHeatNumber].HeaderStyle = style2;
-            HeatChanged?.Invoke(this, null);
-            _announcer.SayNames(_db.RaceFormat.CurrentRacers);
-        }
-
-        private void ButtonPreviousHeat_Click(object sender, RoutedEventArgs e)
-        {
-            _db.CurrentHeatNumber--;
-            CurrentHeatLabelString = "Current Heat (" + _db.CurrentHeatNumber + ")";
-            _db.RaceFormat.UpdateDisplayedHeat(_db.CurrentHeatNumber, _db.CurrentRaceRacers);
-            if (_db.CurrentHeatNumber >= _db.RaceFormat.HeatCount) NextHeatEnabled = false;
-            else NextHeatEnabled = true;
-            if (_db.CurrentHeatNumber <= 1) PreviousHeatEnabled = false;
-            else PreviousHeatEnabled = true;
-
-            Style style = new(typeof(DataGridColumnHeader))
-            {
-                BasedOn = TryFindResource("baseStyle") as Style
-            };
-            style.Setters.Add(new Setter(System.Windows.Controls.Control.FontWeightProperty, FontWeights.Bold));
-            style.Setters.Add(new Setter(System.Windows.Controls.Control.BackgroundProperty, new SolidColorBrush(Colors.LightGreen)));
-            gridRaceResults.Columns[_db.CurrentHeatNumber + 1].HeaderStyle = style;
-            Style style2 = new(typeof(DataGridColumnHeader))
-            {
-                BasedOn = TryFindResource("baseStyle") as Style
-            };
-            style2.Setters.Add(new Setter(System.Windows.Controls.Control.FontWeightProperty, FontWeights.Bold));
-            style2.Setters.Add(new Setter(System.Windows.Controls.Control.BackgroundProperty, new SolidColorBrush(Colors.Transparent)));
-            gridRaceResults.Columns[_db.CurrentHeatNumber + 2].HeaderStyle = style2;
-            HeatChanged?.Invoke(this, null);
-        }
 
         private void GridRaceResults_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
         {
-            LdrBoard.CalculateResults(_db.ResultsTable);
-            _db.UpdateResultsTable(_db.ResultsTable, (e.EditingElement as TextBox).Text, e.Column.DisplayIndex, e.Row.GetIndex());
+            LdrBoard.CalculateResults(_db.ResultsTable, _db.HeatCount);
+            _db.UpdateResultsTable((e.EditingElement as TextBox).Text, e.Column.DisplayIndex, e.Row.GetIndex());
         }
 
-        private void RaceTrackerWindow_Loaded(object sender, RoutedEventArgs e)
-        {
-            ICollectionView dataView = CollectionViewSource.GetDefaultView(gridLeaderBoard.ItemsSource);
-            dataView.SortDescriptions.Clear();
-            dataView.SortDescriptions.Add(new SortDescription("Score", ListSortDirection.Descending));
-            dataView.Refresh();
-            gridRaceResults.Columns[0].IsReadOnly = true;
-            gridRaceResults.Columns[1].IsReadOnly = true;
-
-            Style style = new(typeof(DataGridColumnHeader))
-            {
-                BasedOn = TryFindResource("baseStyle") as Style
-            };
-            style.Setters.Add(new Setter(System.Windows.Controls.Control.FontWeightProperty, FontWeights.Bold));
-            style.Setters.Add(new Setter(System.Windows.Controls.Control.BackgroundProperty, new SolidColorBrush(Colors.LightGreen)));
-            gridRaceResults.Columns[_db.CurrentHeatNumber + 1].HeaderStyle = style;
-            Replay.Start();
-        }
-
-        public void CheckBox_Checked()
-        {
-            DisplayPhotos = Visibility.Visible;
-        }
-
-        private void ButtonStart_Click(object sender, RoutedEventArgs e)
-        {
-            ButtonVisibility = Visibility.Collapsed;
-            PreviousHeatEnabled = false;
-            NextHeatEnabled = false;
-            _trackStepCounter = 0;
-            _announcer.StartRace(_trackStepCounter);
-            _ = StartHeat();
-        }
-
-        async void CheckSwitch(object sender, EventArgs e)
+        /*private async void CheckSwitch(object sender, EventArgs e)
         {
             if (_manualControlEnabled)
             {
@@ -367,50 +490,9 @@ namespace DerbyApp
             {
                 (sender as DispatcherTimer).Stop();
             }
-        }
+        }*/
 
-        private void ButtonEnable_Click(object sender, RoutedEventArgs e)
-        {
-            if (_manualControlEnabled)
-            {
-                _manualControlEnabled = false;
-                EnableBoxButtonText = "Enable Manual Control";
-                _ = TrackMessage("cancel");
-                ButtonVisibility = Visibility.Visible;
-                if (_db.CurrentHeatNumber >= _db.RaceFormat.HeatCount) NextHeatEnabled = false;
-                else NextHeatEnabled = true;
-                if (_db.CurrentHeatNumber <= 1) PreviousHeatEnabled = false;
-                else PreviousHeatEnabled = true;
-            }
-            else
-            {
-                _manualControlEnabled = true;
-                EnableBoxButtonText = "Cancel";
-                PreviousHeatEnabled = false;
-                NextHeatEnabled = false;
-                DispatcherTimer t = new()
-                {
-                    Interval = TimeSpan.FromMilliseconds(250)
-                };
-                t.Tick += CheckSwitch;
-                t.Start();
 
-                ButtonVisibility = Visibility.Collapsed;
-                PreviousHeatEnabled = false;
-                NextHeatEnabled = false;
-                _trackStepCounter = 0;
-                _raceCountDownTime = MaxRaceTime;
-                _announcer.StartRace(_trackStepCounter);
-                _ = TrackMessage(_trackStrings[_trackStepCounter++]);
-            }
-        }
-
-        private void ButtonGetTimes_Click(object sender, RoutedEventArgs e)
-        {
-            ButtonVisibility = Visibility.Collapsed;
-            CancelButtonVisibility = Visibility.Collapsed;
-            _ = GetTimes();
-        }
 
         private void ButtonAddRunoff_Click(object sender, RoutedEventArgs e)
         {
@@ -418,47 +500,6 @@ namespace DerbyApp
             LdrBoard.AddRunOffHeat(_db.RaceFormat.HeatCount);
         }
 
-        private void ButtonCancelReplay_Click(object sender, RoutedEventArgs e)
-        {
-            Replay.Cancel();
-        }
-
-        private void ButtonAnnounceNames_Click(object sender, RoutedEventArgs e)
-        {
-            _announcer.SayNames(_db.RaceFormat.CurrentRacers);
-        }
-
-        private void ButtonSilenceAnnouncer_Click(object sender, RoutedEventArgs e)
-        {
-            _announcer.Silence();
-        }
-        
-        private async Task StartHeat()
-        {
-            await TrackMessage(_trackStrings[_trackStepCounter++]);
-            _raceCountDownTime = MaxRaceTime;
-            _raceTimer.Start();
-        }
-
-        private async Task<string> TrackMessage(string step)
-        {
-            if (TrackConnected)
-            {
-                try
-                {
-                    await Task.Delay(200);
-                    using HttpClient client = new();
-                    client.Timeout = TimeSpan.FromSeconds(5);
-                    string response = await client.GetStringAsync(new Uri("http://192.168.0.1/" + step));
-                    return response;
-                }
-                catch (HttpRequestException e)
-                {
-                    MessageBox.Show(e.Message, "Track Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-            }
-            return null;
-        }
 
         private async Task GetTimes()
         {
@@ -500,8 +541,8 @@ namespace DerbyApp
                                 {
                                     if (result < 0.1) result = 10.0F;
                                     dr["Heat " + _db.CurrentHeatNumber] = result;
-                                    LdrBoard.CalculateResults(_db.ResultsTable);
-                                    _db.UpdateResultsTable(_db.ResultsTable, null, 0, 0);
+                                    LdrBoard.CalculateResults(_db.ResultsTable, _db.HeatCount);
+                                    _db.UpdateResultsTable(null, 0, 0);
                                 }
                             }
                             catch { }
@@ -519,7 +560,7 @@ namespace DerbyApp
             }
             try
             {
-                Replay.ShowReplay();
+                _videoHandler.ShowReplay();
             }
             catch { }
             RecordingVisibility = Visibility.Collapsed;
@@ -529,53 +570,6 @@ namespace DerbyApp
             else NextHeatEnabled = true;
             if (_db.CurrentHeatNumber <= 1) PreviousHeatEnabled = false;
             else PreviousHeatEnabled = true;
-        }
-
-        private void TimeTickRace(object sender, EventArgs e)
-        {
-            if(_trackStepCounter < _trackStrings.Length)
-            {
-                _announcer.StartRace(_trackStepCounter);
-                _ = TrackMessage(_trackStrings[_trackStepCounter++]);
-                if (_trackStepCounter == _trackStrings.Length)
-                {
-                    RecordingVisibility = Visibility.Visible;
-#warning TODO: The placeholder string should be the race name
-                    Replay.StartRecording(Path.Combine(OutputFolderName, Path.GetFileNameWithoutExtension(_databaseName), "videos"), "placeholder", _db.CurrentHeatNumber);
-                }
-                RaceCountDownString = _raceCountDownTime.ToString() + " seconds remaining.";
-            }
-            else
-            {
-                if (_raceCountDownTime == 0)
-                {
-                    RaceCountDownString = "";
-                    _raceTimer.Stop();
-                    ButtonGetTimes_Click(sender, null);
-                }
-                else
-                {
-                    RaceCountDownString = _raceCountDownTime.ToString() + " seconds remaining.";
-                    CancelButtonVisibility = Visibility.Collapsed;
-                }
-                _raceCountDownTime--;
-            }
-        }
-
-        private void ZoomPicture(object sender, RoutedEventArgs e)
-        {
-            new ImageDisplay((sender as Image).Source, ((sender as Image).DataContext as Racer)).ShowDialog();
-        }
-
-        public void Shutdown()
-        {
-            Replay.Cancel();
-            _ = _announcer.Voice.Cancel();
-        }
-
-        private void RaceTrackerWindow_Unloaded(object sender, RoutedEventArgs e)
-        {
-            Replay.Stop();
         }
     }
 }

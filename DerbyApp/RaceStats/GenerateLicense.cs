@@ -1,11 +1,11 @@
 ﻿using DerbyApp.Helpers;
+using DerbyApp.RacerDatabase;
 using GemBox.Pdf;
 using MigraDoc.DocumentObjectModel;
 using MigraDoc.DocumentObjectModel.Shapes;
 using MigraDoc.DocumentObjectModel.Tables;
 using MigraDoc.Rendering;
 using QRCoder;
-using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Text;
@@ -100,9 +100,9 @@ namespace DerbyApp.RaceStats
             return document;
         }
 
-        static public void Generate(Racer racer, string eventFile, string outputFolderName, string qrCodeLink, string licensePrinter, string qrPrinter)
+        static public void Generate(Racer racer, Database db)
         {
-            string eventPath = Path.Combine(outputFolderName, Path.GetFileNameWithoutExtension(eventFile), "licenses");
+            string eventPath = Path.Combine(db.OutputFolderName, db.EventName, "licenses");
             Directory.CreateDirectory(eventPath);
             ComponentInfo.SetLicense("FREE-LIMITED-KEY");
 
@@ -112,24 +112,15 @@ namespace DerbyApp.RaceStats
             pdfRenderer.RenderDocument();
             pdfRenderer.PdfDocument.Save(Path.Combine(eventPath, racer.RacerName + ".pdf"));
             using var pdfDoc = PdfDocument.Load(Path.Combine(eventPath, racer.RacerName + ".pdf"));
-            pdfDoc.Print(licensePrinter);
+            pdfDoc.Print(db.LicensePrinter);
 
-            document = CreateQrCode(new(new QRCodeGenerator().CreateQrCode(qrCodeLink, QRCodeGenerator.ECCLevel.M)));
+            document = CreateQrCode(new(new QRCodeGenerator().CreateQrCode(db.QrCodeLink, QRCodeGenerator.ECCLevel.M)));
             pdfRenderer = new() { Document = document };
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             pdfRenderer.RenderDocument();
             pdfRenderer.PdfDocument.Save(Path.Combine(eventPath, "qr.pdf"));
             using var pdfDoc2 = PdfDocument.Load(Path.Combine(eventPath, "qr.pdf"));
-            pdfDoc2.Print(qrPrinter);
-
-            /*var p = new Process
-            {
-                StartInfo = new ProcessStartInfo(Path.Combine(eventPath, racer.RacerName + ".pdf"))
-                {
-                    UseShellExecute = true
-                }
-            };
-            p.Start();*/
+            pdfDoc2.Print(db.QrPrinter);
         }
     }
 }

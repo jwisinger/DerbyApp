@@ -1,117 +1,59 @@
-﻿using DerbyApp.RaceStats;
+﻿#warning CLEANUP: Put breakpoints in every function in this file and confirm they work
 using System;
-using System.Drawing;
-using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Interop;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
 using System.Windows.Threading;
-using Emgu.CV;
 using DerbyApp.Helpers;
+using DerbyApp.RacerDatabase;
+using DerbyApp.RaceStats;
 
 namespace DerbyApp
 {
     public partial class NewRacer : Page
     {
+        private readonly Database _db;
+        private readonly VideoHandler _videoHandler;
+        private readonly USBScale _scale = null;
+        private readonly DispatcherTimer _scaleTimer;
         private static bool _needSnapshot = false;
+
         public Racer Racer = new();
         public event EventHandler RacerAdded;
-        public Mat CurrentFrame {get; set;}
-        public bool FlipImage = false;
-        private VideoCapture _videoCapture = null;
-        private int _selectedCamera = 0;
-        private readonly USBScale _scale = null;
-        public string OutputFolderName = null;
-        public string EventFile = null;
-        public string QrPrinterName = null;
-        public string LicensePrinterName = null;
-        public string QrCodeLink = null;
-        private readonly DispatcherTimer _scaleTimer;
 
-        public int SelectedCamera
-        {
-            get => _selectedCamera;
-            set
-            {
-                _selectedCamera = value;
-                GetCamera();
-            }
-        }
-
-        public NewRacer(string outputFolderName, string eventFile)
+        public NewRacer(Database db, VideoHandler vh)
         {
             InitializeComponent();
+            _db = db;
+            _videoHandler = vh;
+            _scale = new USBScale();
+            _scaleTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
+            _scaleTimer.Tick += ReadScale;
+
             tbName.DataContext = Racer;
             tbTroop.DataContext = Racer;
             tbWeight.DataContext = Racer;
             tbEmail.DataContext = Racer;
             cbLevel.DataContext = Racer;
-            _scale = new USBScale();
-            OutputFolderName = outputFolderName;
-            EventFile = eventFile;
             frameVideo.DataContext = this;
-            _scaleTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
-            _scaleTimer.Tick += ReadScale;
         }
 
         private void ReadScale(object sender, EventArgs e)
         {
-            if (!_scale.IsConnected)
-            {
-                _scale.Connect();
-            }
-            if(_scale.IsConnected)
+            if (!_scale.IsConnected) _scale.Connect();
+            if (_scale.IsConnected)
             {
                 Racer.Weight = _scale.GetWeight();
                 _scale.Disconnect();
             }
         }
 
-        public void GetCamera()
+        public void ClearRacer()
         {
-            if (_videoCapture != null) ReleaseCamera();
-            _videoCapture = new VideoCapture(SelectedCamera, VideoCapture.API.DShow);
-            CurrentFrame = new Mat();
-            _videoCapture.ImageGrabbed += VideoCapture_NewFrame;
-            _videoCapture.Start();
-        }
-
-        public void ReleaseCamera()
-        {
-            _videoCapture.Stop();
-            _videoCapture.Dispose();
-        }
-
-        public void UpdateCaptureSnapshotManifast(Bitmap image)
-        {
-            try
-            {
-                _needSnapshot = false;
-                frameCapture.Source = ImageSourceFromBitmap(image);
-                Racer.Photo = (System.Drawing.Image)image.Clone();
-            }
-            catch { }
-        }
-
-        private void VideoCapture_NewFrame(object sender, EventArgs e)
-        {
-            _videoCapture.Retrieve(CurrentFrame);
-            try
-            {
-                Application.Current?.Dispatcher.BeginInvoke(new Action(() =>
-                {
-                    Bitmap bMap = CurrentFrame.ToImage<Emgu.CV.Structure.Bgr, byte>().ToBitmap();
-                    if (FlipImage) bMap.RotateFlip(RotateFlipType.Rotate180FlipNone);
-                    frameVideo.Source = ImageSourceFromBitmap(bMap);
-                    if (_needSnapshot)
-                    {
-                        Dispatcher.Invoke(new Action(() => { UpdateCaptureSnapshotManifast(bMap); }));
-                    }
-                }));
-            }
-            catch { }
+            Racer.RacerName = "";
+            Racer.Troop = "";
+            Racer.Weight = 0;
+            Racer.Email = "";
+            Racer.Number = 0;
         }
 
         private void ButtonCamera_Click(object sender, RoutedEventArgs e)
@@ -146,43 +88,30 @@ namespace DerbyApp
                 MessageBox.Show("Level cannot be left blank.", "Invalid Entry", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
-            GenerateLicense.Generate(Racer, EventFile, OutputFolderName, QrCodeLink, LicensePrinterName, QrPrinterName);
+            GenerateLicense.Generate(Racer, _db);
         }
-        
 
-        [LibraryImport("gdi32.dll", EntryPoint = "DeleteObject")]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        private static partial bool DeleteObject(IntPtr hObject);
-
-        public static ImageSource ImageSourceFromBitmap(Bitmap bmp)
+        private void OnImageCaptured(object sender, EventArgs e)
         {
-            var handle = bmp.GetHbitmap();
-            try
+            if (_needSnapshot)
             {
-                return Imaging.CreateBitmapSourceFromHBitmap(handle, IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
+                _needSnapshot = false;
+                Dispatcher.Invoke(new Action(() => { frameCapture.Source = _videoHandler.CurrentImageSource; }));
+                Racer.Photo = (System.Drawing.Image)_videoHandler.CurrentImageBitmap.Clone();
             }
-            finally { DeleteObject(handle); }
-        }
-
-        public void ClearRacer()
-        {
-            Racer.RacerName = "";
-            Racer.Troop = "";
-            Racer.Weight = 0;
-            Racer.Email = "";
-            Racer.Number = 0;
+            Application.Current.Dispatcher.Invoke(new Action(() => { frameVideo.Source = _videoHandler.CurrentImageSource; }));
         }
 
         private void NewRacerPage_Unloaded(object sender, RoutedEventArgs e)
         {
             _scaleTimer.Stop();
-            ReleaseCamera();
+            _videoHandler.ImageCaptured -= OnImageCaptured;
         }
 
         private void NewRacerPage_Loaded(object sender, RoutedEventArgs e)
         {
             _scaleTimer.Start();
-            GetCamera();
+            _videoHandler.ImageCaptured += OnImageCaptured;
         }
     }
 }

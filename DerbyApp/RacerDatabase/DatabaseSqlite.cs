@@ -71,10 +71,11 @@ namespace DerbyApp.RacerDatabase
             return command.ExecuteNonQuery();
         }
 
-        public override void ExecuteReader(string sql)
+        public override bool ExecuteReader(string sql)
         {
             SqliteCommand command = new(sql, SqliteConn);
             _reader = command.ExecuteReader();
+            return true;
         }
 
         public override bool Read()

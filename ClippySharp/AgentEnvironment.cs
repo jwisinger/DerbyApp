@@ -89,11 +89,11 @@ namespace ClippySharp
 
 
         //TODO: change this to use a directory thing
-        static readonly string[][] agents = [
+        static readonly List<string[]> agents = [
             [ "bonzi", "BonziBuddy" ], ["clippy", "Clippy"], ["f1", "F1 Robot"], ["genius", "Einstein"], ["links", "Links the Cat"], ["merlin", "Merlin"], ["peedy", "Peedy"], ["rocky", "Rocky"],[ "rover", "Rover"]
         ];
 
-        public static string[][] GetAgents()
+        public static List<string[]> GetAgents()
         {
             return agents;
         }

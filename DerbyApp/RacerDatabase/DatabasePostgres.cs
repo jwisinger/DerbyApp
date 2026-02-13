@@ -1,5 +1,4 @@
 ﻿using DerbyApp.Helpers;
-using DirectShowLib.Dvd;
 using Npgsql;
 using NpgsqlTypes;
 using System;
@@ -16,6 +15,7 @@ namespace DerbyApp.RacerDatabase
         public readonly string EventName = "";
         public NpgsqlConnection PostgresConn;
         private NpgsqlDataReader _reader;
+        private NpgsqlDataAdapter _dataAdapter;
         private readonly Credentials _credentials;
         private static readonly string[] _defaultDatabaseNames = ["postgres", "retool", "template0", "template1"];
 
@@ -72,18 +72,20 @@ namespace DerbyApp.RacerDatabase
             return true;
         }
 
-        private bool ConnectToDatabase(string databaseName)
+        private bool ConnectToDatabase()
         {
-            try
+            if ((PostgresConn == null) || PostgresConn.State == ConnectionState.Closed)
             {
-                PostgresConn = new("Host=" + Host + "; Username=" + _credentials.DatabaseUsername + ";Password=" + _credentials.DatabasePassword + ";Database=" + databaseName.ToLower());
-                PostgresConn.Open();
+                try
+                {
+                    PostgresConn = new("Host=" + Host + "; Username=" + _credentials.DatabaseUsername + ";Password=" + _credentials.DatabasePassword + ";Database=" + EventName.ToLower());
+                    PostgresConn.Open();
+                }
+                catch
+                {
+                    return false;
+                }
             }
-            catch
-            {
-                return false;
-            }
-
             return true;
         }
 
@@ -92,9 +94,10 @@ namespace DerbyApp.RacerDatabase
             EventName = databaseName;
             _credentials = credentials;
 
+#warning CLEANUP: I'm not sure this try block will ever trigger
             try
             {
-                if (ConnectToDatabase(databaseName))
+                if (ConnectToDatabase())
                 {
                     InitGood = true;
                 }
@@ -105,9 +108,10 @@ namespace DerbyApp.RacerDatabase
             }
         }
 
-        public override string GetConnectionString()
+        public override string GetConnectionString(bool microsoftFormat)
         {
-            return "Host=" + Host + "; Username=" + _credentials.DatabaseUsername + ";Password=" + _credentials.DatabasePassword.ToString() + ";Database=" + EventName.ToLower();
+            if (microsoftFormat) return "Server=" + Host + "; User Id=" + _credentials.DatabaseUsername + ";Password=" + _credentials.DatabasePassword.ToString() + ";Database=" + EventName.ToLower();
+            else return "Host=" + Host + "; Username=" + _credentials.DatabaseUsername + ";Password=" + _credentials.DatabasePassword.ToString() + ";Database=" + EventName.ToLower();
         }
 
         public override bool TestConnection()
@@ -138,18 +142,7 @@ namespace DerbyApp.RacerDatabase
 
         public override int ExecuteNonQuery(string sql)
         {
-            if (PostgresConn.State == ConnectionState.Closed)
-            {
-                try
-                {
-                    PostgresConn = new("Host=" + Host + "; Username=" + _credentials.DatabaseUsername + ";Password=" + _credentials.DatabasePassword + ";Database=" + EventName.ToLower());
-                    PostgresConn.Open();
-                }
-                catch
-                {
-                    return -1;
-                }
-            }
+            if (!ConnectToDatabase()) return -1;
             try
             {
                 NpgsqlCommand command = new(sql.Replace('[', '"').Replace(']', '"'), PostgresConn)
@@ -167,45 +160,38 @@ namespace DerbyApp.RacerDatabase
 
         public override int ExecuteNonQueryWithParams(string sql, List<SqlParameter> parameters)
         {
-            if (PostgresConn.State == ConnectionState.Closed)
+            if (!ConnectToDatabase()) return -1;
+            try
             {
-                try
+                NpgsqlCommand command = new(sql.Replace('[', '"').Replace(']', '"'), PostgresConn);
+                _reader?.Close();
+                foreach (SqlParameter param in parameters)
                 {
-                    PostgresConn = new("Host=" + Host + "; Username=" + _credentials.DatabaseUsername + ";Password=" + _credentials.DatabasePassword + ";Database=" + EventName.ToLower());
-                    PostgresConn.Open();
+                    if (param.type == DataType.Real) command.Parameters.Add(param.name, GetPostgresType(param.type)).Value = Convert.ToDouble(param.value);
+                    else command.Parameters.Add(param.name, GetPostgresType(param.type)).Value = param.value;
                 }
-                catch
-                {
-                    return -1;
-                }
+                return command.ExecuteNonQuery();
             }
-            NpgsqlCommand command = new(sql.Replace('[', '"').Replace(']', '"'), PostgresConn);
-            _reader?.Close();
-            foreach (SqlParameter param in parameters)
+            catch
             {
-                if (param.type == DataType.Real) command.Parameters.Add(param.name, GetPostgresType(param.type)).Value = Convert.ToDouble(param.value);
-                else command.Parameters.Add(param.name, GetPostgresType(param.type)).Value = param.value;
+                return -1;
             }
-            return command.ExecuteNonQuery();
         }
 
-        public override void ExecuteReader(string sql)
+        public override bool ExecuteReader(string sql)
         {
-            if (PostgresConn.State == ConnectionState.Closed)
+            if (!ConnectToDatabase()) return false;
+            try
             {
-                try
-                {
-                    PostgresConn = new("Host=" + Host + "; Username=" + _credentials.DatabaseUsername + ";Password=" + _credentials.DatabasePassword + ";Database=" + EventName.ToLower());
-                    PostgresConn.Open();
-                }
-                catch
-                {
-                    return;
-                }
+                NpgsqlCommand command = new(sql.Replace('[', '"').Replace(']', '"'), PostgresConn);
+                _reader?.Close();
+                _reader = command.ExecuteReader();
             }
-            NpgsqlCommand command = new(sql.Replace('[', '"').Replace(']', '"'), PostgresConn);
-            _reader?.Close();
-            _reader = command.ExecuteReader();
+            catch
+            {
+                return false;
+            }
+            return true;
         }
 
         public override bool Read()
@@ -236,6 +222,7 @@ namespace DerbyApp.RacerDatabase
             else return "";
         }
 
+#warning CLEANUP: Can probably get rid of this eventually
         public override IDataReader GetDataReader()
         {
             return _reader;
@@ -246,22 +233,32 @@ namespace DerbyApp.RacerDatabase
             return EventName;
         }
 
+        public override void InitResultsTable(string raceName, DataTable table)
+        {
+            string sql = "SELECT * FROM \"" + raceName + "\"";
+            _reader?.Close();
+            _dataAdapter = new NpgsqlDataAdapter(sql, PostgresConn);
+            //SqlCommandBuilder builder = new(_sqlAdapter);
+            _dataAdapter.Fill(table);
+        }
+
         public ObservableCollection<string> GetEventList()
         {
             ObservableCollection<string> retVal = [];
             ConnectToRootDatabase(true);
-            try
+            string sql = "SELECT datname FROM pg_database;";
+            if (ExecuteReader(sql))
             {
-                string sql = "SELECT datname FROM pg_database;";
-                ExecuteReader(sql);
-                while (_reader.Read())
+                try
                 {
-                    string s = (string)_reader.GetValue(0);
-                    
-                    if (!_defaultDatabaseNames.Any(s.Contains)) retVal.Add(s);
+                    while (_reader.Read())
+                    {
+                        string s = (string)_reader.GetValue(0);
+                        if (!_defaultDatabaseNames.Any(s.Contains)) retVal.Add(s);
+                    }
                 }
+                catch { }
             }
-            catch { }
 
             return retVal;
         }
