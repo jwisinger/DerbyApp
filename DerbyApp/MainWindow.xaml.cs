@@ -1,26 +1,22 @@
-﻿#warning CLEANUP: Put breakpoints in every function in this file and confirm they work
-#warning CLEANUP: password is never stored to registry
-#warning CLEANUP: move xaml from Helpers to Windows
-#warning CLEANUP: Look into RaceStats/LeaderBoard.cs
-#warning CLEANUP: Look into RaceStats/RaceFormat.cs
-#warning CLEANUP: Look into Racer/Database/GenerateReport.cs
-#warning CLEANUP: Look into Pages/RaceTracker
-#warning CLEANUP: Look into Pages/Reports
+﻿#warning TEST(0): Put breakpoints in every function in this file and confirm they work
+#warning REPORTS: Look into Racer/Database/GenerateReport.cs
+#warning REPORTS: Look into Pages/Reports
 #warning FUTURE: Update software licenses
-#warning (0)TEST: What happens if I lose database connection when adding a racer
-#warning (0)TEST: Test network loss with auto-write from track
-#warning (1)TEST: Test complete run of race with Postgres
-#warning (1)TEST: Test adding racers with 2 computers (make sure refresh works)
-#warning (1)TEST: Test creating races with 2 computers (make sure refresh works)
-#warning (1)TEST: Test running race on one computer while someone is adding racers from another PC
-#warning (1)TEST: Check vercel usage when running full race with two computers
-#warning (1)TEST: Check reports
-#warning (1)TODO: Can I make reports go to Google Drive?
-#warning (1)TODO: Can I show a racers position in the app?
-#warning (2)TEST: Test complete run of race with Sqlite
-#warning (2.5)TEST: What happens when I click the 2 refresh buttons with sqlite?
-#warning (2.5)TEST: What happens with funny characters in database or table names?
-#warning FUTURE: Allow changing picture?
+#warning TEST(1): What happens if I lose database connection when adding a racer
+#warning TEST(1): Test network loss with auto-write from track
+#warning TEST(2): Test complete run of race with Postgres
+#warning TEST(2): Test adding racers with 2 computers (make sure refresh works)
+#warning TEST(2): Test creating races with 2 computers (make sure refresh works)
+#warning TEST(2): Test running race on one computer while someone is adding racers from another PC
+#warning TEST(2): Check vercel usage when running full race with two computers
+#warning TEST(2): Check reports
+#warning TODO(2): Can I make reports go to Google Drive?
+#warning TODO(2): Can I show a racers position in the app?
+#warning TEST(3): Test complete run of race with Sqlite
+#warning TEST(4): What happens when I click the 2 refresh buttons with sqlite?
+#warning TEST(4): What happens with funny characters in database or table names?
+#warning FUTURE: Add lots of logging to the catch statements
+#warning FUTURE: Allow changing picture (build this into the ImageDisplay?
 #warning FUTURE: Move videos from retool to Gdrive?
 #warning FUTURE: Add ability to copy local database to remote, mainly need a way to get a name for the remote database and then create it
 using ClippySharp;
@@ -223,9 +219,7 @@ namespace DerbyApp
         #region Tasks
         private async Task TrackStatusCheck()
         {
-            if (_db.TestConnection()) DatabaseStatusIcon = "/Images/DatabaseRun.png";
-            else DatabaseStatusIcon = "/Images/DatabaseStop.png";
-
+#warning A: Move portions of this into TrackController
             try
             {
                 using HttpClient client = new();
@@ -447,13 +441,13 @@ namespace DerbyApp
             _db.TimeBasedScoring = !_db.TimeBasedScoring;
             if (_db.TimeBasedScoring)
             {
-                TimeBasedScoringIcon = "/Images/Timer.png";
-                TimeBasedScoringText = "Time Based Scoring";
+                TimeBasedScoringIcon = "/Images/OrderedList.png";
+                TimeBasedScoringText = "Order Based Scoring";
             }
             else
             {
-                TimeBasedScoringIcon = "/Images/OrderedList.png";
-                TimeBasedScoringText = "Order Based Scoring";
+                TimeBasedScoringIcon = "/Images/Timer.png";
+                TimeBasedScoringText = "Time Based Scoring";
             }
             _raceTracker.SetTimeBasedScoring(_db.TimeBasedScoring);
         }
@@ -483,7 +477,6 @@ namespace DerbyApp
             if ((bool)input.ShowDialog()) _raceTracker.MaxRaceTime = input.Input;
         }
 
-#warning TODO (SIMPLIFY): Make this work again
         private void OutDirItem_Click(object sender, RoutedEventArgs e)
         {
             var folderDialog = new OpenFolderDialog
@@ -507,7 +500,7 @@ namespace DerbyApp
         }
         #endregion
 
-        #region Interpage Handlers
+        #region Child Event Handlers
         private void Racer_RacerAdded(object sender, EventArgs e)
         {
             _db.AddRacer(new Racer(_newRacer.Racer));
@@ -518,6 +511,13 @@ namespace DerbyApp
         {
             _editRace.buttonAddRacer.IsEnabled = false;
         }
+
+        private void Database_SyncChanged(object sender, EventArgs e)
+        {
+            if (_db.IsSynced) DatabaseStatusIcon = "/Images/DatabaseRun.png";
+            else DatabaseStatusIcon = "/Images/DatabaseStop.png";
+        }
+
         #endregion
 
         #region General Methods
@@ -530,7 +530,6 @@ namespace DerbyApp
                 string databaseName;
                 if (dbs.Sqlite) databaseName = dbs.DatabaseFile;
                 else databaseName = dbs.EventName;
-#warning CLEANUP: Should this call move into Database.cs
                 DatabaseRegistry.StoreDatabaseRegistry(databaseName, null, null, null, null, null, null, null, null);
                 if (ChangeDatabase()) break;
             }
@@ -544,6 +543,7 @@ namespace DerbyApp
         {
             DatabaseRegistry.GetDatabaseRegistry(out string databaseName, out string activeRace, out string outputFolderName, out bool timeBasedScoring, out int maxRaceTime, out string qrCodeLink, out string qrPrinterName, out string licensePrinterName, out string password);
             _credentials = new Credentials(password);
+            DatabaseRegistry.StoreDatabaseRegistry(null, null, null, null, null, null, null, null, _credentials.Password);
             _googleDriveAccess = new GoogleDriveAccess(_credentials);
             _videoHandler = new(_credentials);
             _db = new Database(databaseName, _credentials, _googleDriveAccess, outputFolderName);
@@ -551,10 +551,10 @@ namespace DerbyApp
             if (_db.InitGood)
             {
                 Title = "Current Event = " + Path.GetFileNameWithoutExtension(databaseName);
-#warning CLEANUP: Put this line back, but the issue is that setting CurrentRaceName has side effects
                 if (activeRace != null) _db.CurrentRaceName = activeRace;
                 if (_db.IsSqlite) CopyDatabaseText = "Upload Database to Remote";
                 else CopyDatabaseText = "Copy Database to Local";
+                _db.SyncStatusChanged += Database_SyncChanged;
 
                 _racerTableView = new RacerTableView(_db)
                 {
@@ -564,7 +564,7 @@ namespace DerbyApp
                 _newRacer = new NewRacer(_db, _videoHandler);
                 _newRacer.RacerAdded += Racer_RacerAdded;
 
-                _raceTracker = new RaceTracker(_db, _videoHandler.SelectedCamera, timeBasedScoring, _announcer, _credentials, _videoHandler)
+                _raceTracker = new RaceTracker(_db, timeBasedScoring, _announcer, _videoHandler)
                 {
                     MaxRaceTime = maxRaceTime,
                     DisplayPhotos = DisplayPhotosChecked ? Visibility.Visible : Visibility.Collapsed
@@ -586,8 +586,7 @@ namespace DerbyApp
         #region Main
         private void MainWindowName_Closed(object sender, EventArgs e)
         {
-#warning CLEANUP: Close database stuff    
-#warning CLEANUP: Figure out error related to extra camera interrupt
+            _db.Close();
             _raceTracker?.Shutdown();
             _videoHandler?.ReleaseCamera();
         }

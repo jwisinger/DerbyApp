@@ -1,4 +1,5 @@
 ﻿using DerbyApp.Helpers;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -71,7 +72,10 @@ namespace DerbyApp.RaceStats
                 }
                 Heats = newHeats;
             }
-            catch { }
+            catch (Exception ex)
+            {
+                ErrorLogger.LogError("RaceFormat.AddRunOffHeat", ex);
+            }
         }
     }
 }

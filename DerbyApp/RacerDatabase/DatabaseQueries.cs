@@ -1,27 +1,21 @@
-﻿using DerbyApp.Helpers;
-using DerbyApp.RaceStats;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
+using DerbyApp.Helpers;
+using DerbyApp.RaceStats;
 
 namespace DerbyApp.RacerDatabase
 {
     public static class DatabaseQueries
     {
-        public const string RacerTableName = "raceTable";
+        public const string RacerTableName = "racerTable";
+        public const string RaceTableName = "raceTable";
         public const string VideoTableName = "videoTable";
-        public const string SettingsTableName = "settingsTable";
 
         #region Support Table Queries
         public static string CreateVideoTable(bool isSqlite)
         {
-            if (isSqlite)    // These differ because of how autoincrement is different between postgres and sqlite
-            {
-                return "CREATE TABLE IF NOT EXISTS [" + VideoTableName + "] ([Number] INTEGER PRIMARY KEY AUTOINCREMENT, [RaceName] VARCHAR(50), [HeatNumber] INTEGER, [Url] VARCHAR(200), UNIQUE ([RaceName], [HeatNumber]))";
-            }
-            else
-            {
-                return "CREATE TABLE IF NOT EXISTS [" + VideoTableName + "] ([Number] INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY, [RaceName] VARCHAR(50), [HeatNumber] INTEGER, [Url] VARCHAR(200), UNIQUE ([RaceName], [HeatNumber]))";
-            }
+            string primaryKeyString = isSqlite ? "PRIMARY KEY AUTOINCREMENT" : "GENERATED ALWAYS AS IDENTITY PRIMARY KEY";
+            return "CREATE TABLE IF NOT EXISTS [" + VideoTableName + "] ([Number] INTEGER " + primaryKeyString + ", [RaceName] VARCHAR(50), [HeatNumber] INTEGER, [Url] VARCHAR(200), UNIQUE ([RaceName], [HeatNumber]))";
         }
 
         public static string CreateRacerTable(bool isSqlite)
@@ -36,24 +30,38 @@ namespace DerbyApp.RacerDatabase
             }
         }
 
-        public static string CreateSettingsTable()
+        public static string CreateRaceTable()
         {
-            return "CREATE TABLE IF NOT EXISTS [" + SettingsTableName + "] ([Number] INTEGER PRIMARY KEY, [Name] VARCHAR(500))";
+            return "CREATE TABLE IF NOT EXISTS [" + RaceTableName + "] ([Number] INTEGER PRIMARY KEY, [Name] VARCHAR(200), [Format] VARCHAR(200))";
         }
 
-        public static string StoreRaceSettings(string eventName, out List<DatabaseGeneric.SqlParameter> parameters)
+        public static string AddOrUpdateRace(string eventName, RaceFormat format, out List<DatabaseGeneric.SqlParameter> parameters)
         {
             parameters =
             [
                 new DatabaseGeneric.SqlParameter { name = "@Number", type = DatabaseGeneric.DataType.Integer, value = 1 },
                 new DatabaseGeneric.SqlParameter { name = "@Name", type = DatabaseGeneric.DataType.Text, value = eventName },
+                new DatabaseGeneric.SqlParameter { name = "@Format", type = DatabaseGeneric.DataType.Text, value = format },
             ];
-            return "REPLACE INTO [" + SettingsTableName + "] ([Number], [Name]) VALUES (@Number, @Name)";
+            return "REPLACE INTO [" + RaceTableName + "] ([Number], [Name], [Format]) VALUES (@Number, @Name, @Format)";
         }
 
-        public static string LoadRaceSettings()
+        public static string DeleteRace(string eventName, out List<DatabaseGeneric.SqlParameter> parameters)
         {
-            return "SELECT * FROM [" + SettingsTableName + "] ORDER BY [Number] ASC LIMIT 1";
+            parameters =
+            [
+                new DatabaseGeneric.SqlParameter { name = "@Name", type = DatabaseGeneric.DataType.Text, value = eventName },
+            ];
+            return "DELETE FROM [" + RaceTableName + "] WHERE [Name]=@Name";
+        }
+
+        public static string LoadRaceInfo(string eventName, out List<DatabaseGeneric.SqlParameter> parameters)
+        {
+            parameters =
+            [
+                new DatabaseGeneric.SqlParameter { name = "@Name", type = DatabaseGeneric.DataType.Text, value = eventName },
+            ];
+            return "SELECT * FROM [" + RaceTableName + "]WHERE [Name]=@Name";
         }
 
         public static string AddVideoToTable(VideoUploadedEventArgs e, out List<DatabaseGeneric.SqlParameter> parameters)
@@ -85,30 +93,23 @@ namespace DerbyApp.RacerDatabase
         #endregion
 
         #region Results Table Queries
+#warning B: Can this move to dataadapter?
         public static string AddRunOffHeat(string raceName, int heatCount)
         {
-            return "ALTER TABLE [" + raceName + "] ADD [Heat " + heatCount + "] DOUBLE";
+            return "ALTER TABLE [" + raceName + "] ADD [Heat " + heatCount + "] REAL";
         }
 
-        public static string CreateResultsTable(string raceName)
+        public static string CreateResultsTable(string raceName, int heatCount)
         {
-            return "CREATE TABLE IF NOT EXISTS [" + raceName + "] ([Number] INTEGER PRIMARY KEY, [RaceFormat] INTEGER)";
+            string sql = "CREATE TABLE IF NOT EXISTS [" + raceName + "] ([Number] INTEGER PRIMARY KEY";
+            for (int i = 1; i <= heatCount; i++) sql += ", [Heat " + i + "] REAL";
+            sql += ")";
+            return sql;
         }
 
         public static string DeleteResultsTable(string raceName)
         {
             return "DROP TABLE [" + raceName + "]";
-        }
-
-        public static string GetRaceFormat(string currentRaceName)
-        {
-            return "SELECT * FROM [" + currentRaceName + "] LIMIT 1";
-        }
-
-#warning CLEANUP: This may never get used
-        public static string LoadResultsTable(string currentRaceName)
-        {
-            return "SELECT *  FROM [" + RacerTableName + "] INNER JOIN [" + currentRaceName + "] ON [" + currentRaceName + "].[Number] = [" + RacerTableName + "].[Number]";
         }
         #endregion
 
@@ -129,11 +130,11 @@ namespace DerbyApp.RacerDatabase
 
             if (racer.Number == 0)
             {
-                sql = "INSERT INTO [" + RacerTableName + "] ([Name], [Weight(oz)], [Troop], [Level], [Email], [Image], [ImageKey]) VALUES (@Name, @Weight, @Troop, @Level, @Email, @Image, @ImageKey)";
+                sql = "INSERT INTO [" + RacerTableName + "] ([Name], [Weight(oz)], [Troop], [Level], [Email], [Image], [ImageKey]) VALUES (@Name, @Weight, @Troop, @Level, @Email, @Image, @ImageKey) RETURNING [Number]";
             }
             else
             {
-                sql = "UPDATE [" + RacerTableName + "] SET [Name] = @Name, [Weight(oz)] = @Weight, [Troop] =  @Troop, [Level] = @Level, [Email] = @Email, [Image] = @Image, [ImageKey] = @ImageKey WHERE [Number] = @Number";
+                sql = "UPDATE [" + RacerTableName + "] SET [Name] = @Name, [Weight(oz)] = @Weight, [Troop] =  @Troop, [Level] = @Level, [Email] = @Email, [Image] = @Image, [ImageKey] = @ImageKey WHERE [Number] = @Number RETURNING [Number]";
             }
 
             parameters =
@@ -166,6 +167,30 @@ namespace DerbyApp.RacerDatabase
                 new DatabaseGeneric.SqlParameter { name = "@Number", type = DatabaseGeneric.DataType.Integer, value = racer.Number },
             ];
             return "DELETE FROM [" + RacerTableName + "] WHERE [Number]=@Number";
+        }
+        #endregion
+
+        #region Race Table Queries
+        public static string AddRacerToRace(Racer r, string raceName, out List<DatabaseGeneric.SqlParameter> parameters)
+        {
+            string sql = "INSERT INTO [" + raceName + "] ([Number]) VALUES (@Number)";
+            parameters =
+[
+                new DatabaseGeneric.SqlParameter { name = "@Number", type = DatabaseGeneric.DataType.Integer, value = r.Number },
+            ];
+
+            return sql;
+        }
+
+        public static string DeleteRacerFromRace(Racer r, string raceName, out List<DatabaseGeneric.SqlParameter> parameters)
+        {
+            string sql = "DELETE FROM [" + raceName + "] WHERE [Number]=@Number";
+            parameters =
+            [
+                new DatabaseGeneric.SqlParameter { name = "@Number", type = DatabaseGeneric.DataType.Integer, value = r.Number },
+            ];
+
+            return sql;
         }
         #endregion
     }

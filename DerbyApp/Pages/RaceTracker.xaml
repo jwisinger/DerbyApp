@@ -235,13 +235,13 @@
                     <DropShadowEffect/>
                 </Button.Effect>
             </Button>
-            <Button Grid.Column="1" Grid.Row="5" Content="Slience Announcer" HorizontalAlignment="Right" Margin="0,0,245,0" VerticalAlignment="Center" Height="35" Width="160" FontSize="18" Click="ButtonSilenceAnnouncer_Click" IsEnabled="{Binding ElementName=raceTrackerWindow, Path=NextHeatEnabled, Mode=TwoWay}"/>
+            <Button Grid.Column="1" Grid.Row="5" Content="Slience Announcer" HorizontalAlignment="Right" Margin="0,0,245,0" VerticalAlignment="Center" Height="35" Width="160" FontSize="18" Click="ButtonSilenceAnnouncer_Click"/>
             <Button Grid.Column="1" Grid.Row="5" Content="" HorizontalAlignment="Right" Margin="0,0,75,0" VerticalAlignment="Center" Height="35" Width="160">
                 <Button.Effect>
                     <DropShadowEffect/>
                 </Button.Effect>
             </Button>
-            <Button Grid.Column="1" Grid.Row="5" Content="Announce Names" HorizontalAlignment="Right" Margin="0,0,75,0" VerticalAlignment="Center" Height="35" Width="160" FontSize="18" Click="ButtonAnnounceNames_Click" IsEnabled="{Binding ElementName=raceTrackerWindow, Path=NextHeatEnabled, Mode=TwoWay}"/>
+            <Button Grid.Column="1" Grid.Row="5" Content="Announce Names" HorizontalAlignment="Right" Margin="0,0,75,0" VerticalAlignment="Center" Height="35" Width="160" FontSize="18" Click="ButtonAnnounceNames_Click"/>
             <Slider Value="25" AutoToolTipPlacement="TopLeft" AutoToolTipPrecision="0" Grid.Row="4" Name="_zoom" Minimum="1" Maximum="100" VerticalAlignment="Bottom" Margin="5,0,5,5" />
         </Grid>
     </Viewbox>

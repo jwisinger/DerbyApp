@@ -1,4 +1,5 @@
-﻿#warning CLEANUP: Put breakpoints in every function in this file and confirm they work
+﻿#warning TEST NEWRACER: Check scale
+#warning TEST NEWRACER: Check license printing
 using System;
 using System.Windows;
 using System.Windows.Controls;
@@ -29,6 +30,7 @@ namespace DerbyApp
             _scaleTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
             _scaleTimer.Tick += ReadScale;
 
+            cbLevel.ItemsSource = _db.GirlScoutLevels;
             tbName.DataContext = Racer;
             tbTroop.DataContext = Racer;
             tbWeight.DataContext = Racer;

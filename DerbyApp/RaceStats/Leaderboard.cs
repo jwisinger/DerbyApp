@@ -7,96 +7,69 @@ using System.Linq;
 
 namespace DerbyApp.RaceStats
 {
-    public class Leaderboard
+    public class Leaderboard(ObservableCollection<Racer> racers, int laneCount, bool timeBasedScoring)
     {
-        public DataTable RaceScoreTable;
-        public TrulyObservableCollection<Racer> Board;
-        public bool TimeBasedScoring = false;
-        private readonly int _laneCount = 0;
+        public TrulyObservableCollection<Racer> Board = [.. racers];
+        public bool TimeBasedScoring = timeBasedScoring;
+        private readonly int _laneCount = laneCount;
 
-        public Leaderboard(ObservableCollection<Racer> racers, int heatCount, int laneCount, bool timeBasedScoring)
-        {
-            int racerNum = 0;
-
-            _laneCount = laneCount;
-            Board = [.. racers];
-            TimeBasedScoring = timeBasedScoring;
-
-            RaceScoreTable = new DataTable();
-            RaceScoreTable.Columns.Add("Number", Type.GetType("System.Int32"));
-            RaceScoreTable.Columns.Add("Name", Type.GetType("System.String"));
-
-            for (int i = 1; i <= heatCount; i++)
-            {
-                RaceScoreTable.Columns.Add("Heat " + i, Type.GetType("System.Int32"));
-            }
-
-            foreach (Racer r in racers)
-            {
-                DataRow row = RaceScoreTable.NewRow();
-                row["Number"] = r.Number;
-                row["Name"] = r.RacerName;
-                RaceScoreTable.Rows.Add(row);
-                r.RaceOrder = racerNum++;
-            }
-        }
-
+#warning TODO: Use or delete this
         public List<Racer> CheckForTie(int positionToCheck)
         {
             return [.. Board.Where(x => x.Score == Board[positionToCheck].Score)];
         }
 
-        public void AddRunOffHeat(int heatCount)
+        public void CalculateResults(DataTable raceResultsTable)
         {
-            RaceScoreTable.Columns.Add("Heat " + heatCount, Type.GetType("System.Int32"));
+            if (TimeBasedScoring) CalculateResultsTimeBased(raceResultsTable);
+            else CalculateResultsPlaceBased(raceResultsTable);
         }
 
-        public void CalculateResults(DataTable raceResultsTable, int heatCount)
+        private void CalculateResultsPlaceBased(DataTable raceResultsTable)
         {
-            for (int i = 1; i <= heatCount - 2; i++)
-            {
-                List<Tuple<double, string>> l = [];
-                foreach (DataRow dataRow in raceResultsTable.Rows)
-                {
-                    if (dataRow["Heat " + i] == DBNull.Value)
-                    {
-                        continue;
-                    }
-                    try
-                    {
-                        l.Add(Tuple.Create((double)dataRow["Heat " + i], (string)dataRow["Name"]));
-                    }
-                    catch { }
-                }
-                l.Sort();
+            DataTable raceScoreTable = raceResultsTable.Copy();
 
-                foreach (DataRow dataRow in RaceScoreTable.Rows)
+            foreach (DataColumn dc in raceResultsTable.Columns)
+            {
+                if (dc.ColumnName.Contains("Heat"))
                 {
-                    int index = l.FindIndex(x => x.Item2 == (string)dataRow["Name"]);
-                    if (index >= 0)
+                    List<Tuple<float, int>> l = [];
+                    foreach (DataRow dataRow in raceResultsTable.Rows)
                     {
-                        dataRow["Heat " + i] = _laneCount - index;
+                        if (dataRow[dc] == DBNull.Value)
+                        {
+                            continue;
+                        }
+                        try
+                        {
+                            l.Add(Tuple.Create((float)dataRow[dc], (int)dataRow["Number"]));
+                        }
+                        catch (Exception ex)
+                        {
+                            ErrorLogger.LogError("Leaderboard.CalculateResultsPlaceBased", ex);
+                        }
+                    }
+                    l.Sort();
+
+                    foreach (DataRow dataRow in raceScoreTable.Rows)
+                    {
+                        int index = l.FindIndex(x => x.Item2 == (int)dataRow["Number"]);
+                        if (index >= 0) dataRow[dc.Ordinal] = _laneCount - index;
                     }
                 }
             }
 
-            if (TimeBasedScoring) CalculateResultsTimeBased(raceResultsTable);
-            else CalculateResultsPlaceBased();
-        }
-
-        private void CalculateResultsPlaceBased()
-        {
-            foreach (DataRow dataRow in RaceScoreTable.Rows)
+            foreach (DataRow dataRow in raceScoreTable.Rows)
             {
                 Racer r = Board.Where(x => x.Number == (int)dataRow["Number"]).FirstOrDefault();
                 if (r != null)
                 {
-                    int total = 0;
+                    float total = 0;
                     for (int i = 2; i < dataRow.ItemArray.Length; i++)
                     {
-                        if (dataRow.ItemArray[i] != DBNull.Value) total += (int)dataRow.ItemArray[i];
+                        if (dataRow.ItemArray[i] != DBNull.Value) total += (float)dataRow.ItemArray[i];
                     }
-                    r.Score = total;
+                    r.Score = (int)total;
                 }
             }
         }
@@ -108,7 +81,7 @@ namespace DerbyApp.RaceStats
                 double total = 0;
                 foreach (object obj in dataRow.ItemArray)
                 {
-                    if (obj.GetType() == typeof(double)) total += (double)obj;
+                    if (obj.GetType() == typeof(float)) total += (float)obj;
                 }
 
                 Racer r = Board.Where(x => x.Number == (int)dataRow["Number"]).FirstOrDefault();

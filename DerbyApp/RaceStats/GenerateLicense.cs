@@ -102,7 +102,7 @@ namespace DerbyApp.RaceStats
 
         static public void Generate(Racer racer, Database db)
         {
-            string eventPath = Path.Combine(db.OutputFolderName, db.EventName, "licenses");
+            string eventPath = Path.Combine(db.LicenseFolderName);
             Directory.CreateDirectory(eventPath);
             ComponentInfo.SetLicense("FREE-LIMITED-KEY");
 

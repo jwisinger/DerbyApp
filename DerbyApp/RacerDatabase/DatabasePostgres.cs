@@ -16,6 +16,7 @@ namespace DerbyApp.RacerDatabase
         public NpgsqlConnection PostgresConn;
         private NpgsqlDataReader _reader;
         private NpgsqlDataAdapter _dataAdapter;
+        private NpgsqlCommandBuilder _builder;
         private readonly Credentials _credentials;
         private static readonly string[] _defaultDatabaseNames = ["postgres", "retool", "template0", "template1"];
 
@@ -41,6 +42,7 @@ namespace DerbyApp.RacerDatabase
             }
             catch (Exception ex)
             {
+                ErrorLogger.LogError("DatabasePostgres.ConnectToRootDatabase", ex);
                 if (showErrorMessage) MessageBox.Show(ex.Message, "Database Connection Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return false;
             }
@@ -64,8 +66,9 @@ namespace DerbyApp.RacerDatabase
                     ExecuteNonQuery(sql);
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                ErrorLogger.LogError("DatabasePostgres.AddNewDatabase", ex);
                 return false;
             }
 
@@ -81,8 +84,9 @@ namespace DerbyApp.RacerDatabase
                     PostgresConn = new("Host=" + Host + "; Username=" + _credentials.DatabaseUsername + ";Password=" + _credentials.DatabasePassword + ";Database=" + EventName.ToLower());
                     PostgresConn.Open();
                 }
-                catch
+                catch (Exception ex)
                 {
+                    ErrorLogger.LogError("DatabasePostgres.ConnectToDatabase", ex);
                     return false;
                 }
             }
@@ -93,18 +97,9 @@ namespace DerbyApp.RacerDatabase
         {
             EventName = databaseName;
             _credentials = credentials;
-
-#warning CLEANUP: I'm not sure this try block will ever trigger
-            try
+            if (ConnectToDatabase())
             {
-                if (ConnectToDatabase())
-                {
-                    InitGood = true;
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message);
+                InitGood = true;
             }
         }
 
@@ -112,32 +107,6 @@ namespace DerbyApp.RacerDatabase
         {
             if (microsoftFormat) return "Server=" + Host + "; User Id=" + _credentials.DatabaseUsername + ";Password=" + _credentials.DatabasePassword.ToString() + ";Database=" + EventName.ToLower();
             else return "Host=" + Host + "; Username=" + _credentials.DatabaseUsername + ";Password=" + _credentials.DatabasePassword.ToString() + ";Database=" + EventName.ToLower();
-        }
-
-        public override bool TestConnection()
-        {
-            try
-            {
-                NpgsqlCommand command = new("SELECT 1", PostgresConn)
-                {
-                    CommandTimeout = 3
-                };
-                command.ExecuteScalar();
-                return true;
-            }
-            catch
-            {
-                try
-                {
-                    PostgresConn.Close();
-                    PostgresConn.Open();
-                }
-                catch
-                {
-                    return false;
-                }
-                return false;
-            }
         }
 
         public override int ExecuteNonQuery(string sql)
@@ -152,8 +121,9 @@ namespace DerbyApp.RacerDatabase
                 _reader?.Close();
                 return command.ExecuteNonQuery();
             }
-            catch
+            catch (Exception ex)
             {
+                ErrorLogger.LogError("DatabasePostgres.ExecuteNonQuery", ex);
                 return -1;
             }
         }
@@ -172,8 +142,9 @@ namespace DerbyApp.RacerDatabase
                 }
                 return command.ExecuteNonQuery();
             }
-            catch
+            catch (Exception ex)
             {
+                ErrorLogger.LogError("DatabasePostgres.ExecuteNonQueryWithParams", ex);
                 return -1;
             }
         }
@@ -187,8 +158,31 @@ namespace DerbyApp.RacerDatabase
                 _reader?.Close();
                 _reader = command.ExecuteReader();
             }
-            catch
+            catch (Exception ex)
             {
+                ErrorLogger.LogError("DatabasePostgres.ExecuteReader", ex);
+                return false;
+            }
+            return true;
+        }
+
+        public override bool ExecuteReaderWithParams(string sql, List<SqlParameter> parameters)
+        {
+            if (!ConnectToDatabase()) return false;
+            try
+            {
+                NpgsqlCommand command = new(sql.Replace('[', '"').Replace(']', '"'), PostgresConn);
+                _reader?.Close();
+                foreach (SqlParameter param in parameters)
+                {
+                    if (param.type == DataType.Real) command.Parameters.Add(param.name, GetPostgresType(param.type)).Value = Convert.ToDouble(param.value);
+                    else command.Parameters.Add(param.name, GetPostgresType(param.type)).Value = param.value;
+                }
+                _reader = command.ExecuteReader();
+            }
+            catch (Exception ex)
+            {
+                ErrorLogger.LogError("DatabasePostgres.ExecuteReaderWithParams", ex);
                 return false;
             }
             return true;
@@ -222,12 +216,6 @@ namespace DerbyApp.RacerDatabase
             else return "";
         }
 
-#warning CLEANUP: Can probably get rid of this eventually
-        public override IDataReader GetDataReader()
-        {
-            return _reader;
-        }
-
         public override string GetDataBaseName()
         {
             return EventName;
@@ -235,11 +223,32 @@ namespace DerbyApp.RacerDatabase
 
         public override void InitResultsTable(string raceName, DataTable table)
         {
+#warning B: Need to handle the case when the database is disconnected here (really just need to test this)
             string sql = "SELECT * FROM \"" + raceName + "\"";
             _reader?.Close();
             _dataAdapter = new NpgsqlDataAdapter(sql, PostgresConn);
-            //SqlCommandBuilder builder = new(_sqlAdapter);
-            _dataAdapter.Fill(table);
+            _builder = new(_dataAdapter);
+            table.Clear();
+            try { _dataAdapter.Fill(table); }
+            catch (Exception ex)
+            {
+                ErrorLogger.LogError("DatabasePostgres.InitResultsTable", ex);
+            }
+        }
+
+        public override int UpdateResultsTable(DataTable table)
+        {
+#warning TEST(0): I think this works, but should check the actual database to confirm
+            try
+            {
+                if (_dataAdapter == null) return -1;
+                return _dataAdapter.Update(table);
+            }
+            catch (Exception ex)
+            {
+                ErrorLogger.LogError("DatabasePostgres.UpdateResultsTable", ex);
+                return -1;
+            }
         }
 
         public ObservableCollection<string> GetEventList()
@@ -257,10 +266,20 @@ namespace DerbyApp.RacerDatabase
                         if (!_defaultDatabaseNames.Any(s.Contains)) retVal.Add(s);
                     }
                 }
-                catch { }
+                catch (Exception ex)
+                {
+                    ErrorLogger.LogError("DatabasePostgres.GetEventList", ex);
+                }
             }
 
             return retVal;
+        }
+
+        public override void Close()
+        {
+            _reader?.Close();
+            PostgresConn?.Close();
+            PostgresConn?.Dispose();
         }
 
     }

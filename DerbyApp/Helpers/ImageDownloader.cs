@@ -39,7 +39,10 @@ namespace DerbyApp.Helpers
                     {
                         racer.Photo = photo;
                     }
-                    catch { }
+                    catch (Exception ex)
+                    {
+                        ErrorLogger.LogError("ImageDownload.SetPhoto", ex);
+                    }
                 }));
             }
             else
@@ -73,7 +76,10 @@ namespace DerbyApp.Helpers
                     await mediaStream.CopyToAsync(fileStream);
                     fileStream.Close();
                 }
-                catch { }
+                catch (Exception ex)
+                {
+                    ErrorLogger.LogError("ImageDownload.DownloadImageAsync", ex);
+                }
 
                 foreach (Racer r in toUpdate.RacerToUpdate)
                 {

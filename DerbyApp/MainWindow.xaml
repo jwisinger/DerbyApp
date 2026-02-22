@@ -60,17 +60,22 @@
                             <Image Width="20" Height="20" Source="/Images/Settings.png" />
                         </StackPanel>
                     </MenuItem.Header>
-                    <MenuItem Click="SetRaceName_Click" Header="Race Name">
+                    <MenuItem Click="SetRaceName_Click" Header="Race Name...">
                         <MenuItem.Icon>
                             <Image Source="/Images/UIEditor.png"/>
                         </MenuItem.Icon>
                     </MenuItem>
-                    <MenuItem Click="SelectCamera_Click" Header="Select Camera">
+                    <MenuItem Click="OutDirItem_Click" Header="Set Output Directory...">
+                        <MenuItem.Icon>
+                            <Image Source="/Images/UIEditor.png"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    <MenuItem Click="SelectCamera_Click" Header="Select Camera...">
                         <MenuItem.Icon>
                             <Image Source="/Images/RectangularScreenshot.png"/>
                         </MenuItem.Icon>
                     </MenuItem>
-                    <MenuItem Click="SetMaxRaceTime_Click" Header="Set Max Race Time">
+                    <MenuItem Click="SetMaxRaceTime_Click" Header="Set Max Race Time...">
                         <MenuItem.Icon>
                             <Image Source="/Images/StopTime.png"/>
                         </MenuItem.Icon>

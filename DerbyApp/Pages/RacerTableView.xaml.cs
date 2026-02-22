@@ -1,4 +1,7 @@
-﻿#warning CLEANUP: Put breakpoints in every function in this file and confirm they work
+﻿#warning BUG RACERTABLEVIEW: Make sure we can still edit racer details on this page in local
+#warning TEST RACERTABLEVIEW: make sure we can print license
+#warning TEST RACERTABLEVIEW: make sure we can refresh database
+
 using DerbyApp.Windows;
 using DerbyApp.RacerDatabase;
 using DerbyApp.RaceStats;
@@ -30,6 +33,7 @@ namespace DerbyApp
             InitializeComponent();
             _db = db;
             dataGridRacerTable.DataContext = _db.Racers;
+            LevelComboBox.ItemsSource = _db.GirlScoutLevels;
         }
 
         private void DataGridRacerTable_RowEditEnding(object sender, DataGridRowEditEndingEventArgs e)

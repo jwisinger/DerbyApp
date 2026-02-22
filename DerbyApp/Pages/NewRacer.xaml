@@ -37,7 +37,7 @@
  
             <TextBox Name="tbName" Grid.Column="1" FontSize="24" HorizontalAlignment="Stretch" Margin="0,0,0,0" Grid.Row="0" Text="{Binding RacerName, Mode=TwoWay}" VerticalAlignment="Stretch"/>
             <TextBox Name="tbTroop" Grid.Column="1" FontSize="24" HorizontalAlignment="Stretch" Margin="0,0,0,0" Grid.Row="1" Text="{Binding Troop, Mode=TwoWay}" VerticalAlignment="Stretch"/>
-            <ComboBox Name="cbLevel" Grid.Column="1" FontSize="24" HorizontalAlignment="Stretch" Margin="0,0,0,0" Grid.Row="2" SelectedValue="{Binding Level, Mode=TwoWay}" ItemsSource="{Binding Source={x:Static racestats:GirlScoutLevels.ScoutLevels}}" DisplayMemberPath="Level" SelectedValuePath="Level" VerticalAlignment="Stretch"/>
+            <ComboBox Name="cbLevel" Grid.Column="1" FontSize="24" HorizontalAlignment="Stretch" Margin="0,0,0,0" Grid.Row="2" SelectedValue="{Binding Level, Mode=TwoWay}" DisplayMemberPath="Level" SelectedValuePath="Level" VerticalAlignment="Stretch"/>
             <TextBox Name="tbWeight" Grid.Column="1" FontSize="24" HorizontalAlignment="Stretch" Margin="0,0,0,0" Grid.Row="3" Text="{Binding Weight, Mode=TwoWay}" VerticalAlignment="Stretch"/>
             <TextBox Name="tbEmail" Grid.Column="1" FontSize="24" HorizontalAlignment="Stretch" Margin="0,0,0,0" Grid.Row="4" Text="{Binding Email, Mode=TwoWay}" VerticalAlignment="Stretch"/>
         </Grid>

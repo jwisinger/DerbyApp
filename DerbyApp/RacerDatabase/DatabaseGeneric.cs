@@ -38,11 +38,6 @@ namespace DerbyApp.RacerDatabase
             return "";
         }
 
-        public virtual bool TestConnection()
-        {
-            return false;
-        }
-
         public virtual int ExecuteNonQuery(string sql)
         {
             return -1;
@@ -57,6 +52,12 @@ namespace DerbyApp.RacerDatabase
         {
             return false;
         }
+
+        public virtual bool ExecuteReaderWithParams(string sql, List<SqlParameter> parameters)
+        {
+            return false;
+        }
+        
 
         public virtual bool Read()
         {
@@ -78,17 +79,22 @@ namespace DerbyApp.RacerDatabase
             return "";
         }
 
-        public virtual IDataReader GetDataReader()
-        {
-            return null;
-        }
-
         public virtual string GetDataBaseName()
         {
             return "";
         }
 
         public virtual void InitResultsTable(string raceName, DataTable table)
+        {
+            return;
+        }
+
+        public virtual int UpdateResultsTable(DataTable table)
+        {
+            return -1;
+        }
+
+        public virtual void Close()
         {
             return;
         }

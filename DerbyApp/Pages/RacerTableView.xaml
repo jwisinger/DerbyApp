@@ -42,7 +42,7 @@
                     <DataGridTextColumn Header="Name" Width="150" Binding="{Binding RacerName}"></DataGridTextColumn>
                     <DataGridTextColumn Header="Weight" Width="80" Binding="{Binding Weight}"></DataGridTextColumn>
                     <DataGridTextColumn Header="Troop" Width="80" Binding="{Binding Troop}"></DataGridTextColumn>
-                    <DataGridComboBoxColumn Header="Level" Width="100" SelectedValueBinding="{Binding Level}" ItemsSource="{Binding Source={x:Static racestats:GirlScoutLevels.ScoutLevels}}" DisplayMemberPath="Level" SelectedValuePath="Level"></DataGridComboBoxColumn>
+                    <DataGridComboBoxColumn Header="Level" Width="100" x:Name="LevelComboBox" SelectedValueBinding="{Binding Level}" ItemsSource="{Binding Path=.}" DisplayMemberPath="Level" SelectedValuePath="Level"></DataGridComboBoxColumn>
                     <DataGridTextColumn Header="Email" Width="100" Binding="{Binding Email}"></DataGridTextColumn>
                     <DataGridTemplateColumn Header="Photo" Width="1*" IsReadOnly="True" Visibility="{Binding Data.DisplayPhotos, Source={StaticResource proxy}, UpdateSourceTrigger=PropertyChanged}">
                         <DataGridTemplateColumn.CellTemplate>

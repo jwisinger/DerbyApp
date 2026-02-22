@@ -2,9 +2,9 @@
 
 namespace DerbyApp.RaceStats
 {
-    internal class GirlScoutLevels
+    public class GirlScoutLevels
     {
-        public static ObservableCollection<GirlScoutLevel> ScoutLevels { get; set; } =
+        public ObservableCollection<GirlScoutLevel> ScoutLevels { get; set; } =
             [
                 new("Daisy"),
                 new("Brownie"),

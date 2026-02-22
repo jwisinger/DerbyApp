@@ -49,11 +49,6 @@ namespace DerbyApp.RacerDatabase
             }
         }
 
-        public override bool TestConnection()
-        {
-            return true;
-        }
-
         public override int ExecuteNonQuery(string sql)
         {
             SqliteCommand command = new(sql, SqliteConn);
@@ -96,11 +91,6 @@ namespace DerbyApp.RacerDatabase
         public override string GetReadFieldName(int column)
         {
             return _reader.GetName(column);
-        }
-
-        public override IDataReader GetDataReader()
-        {
-            return _reader;
         }
 
         public override string GetDataBaseName()

@@ -1,10 +1,5 @@
-﻿using DerbyApp.Assistant;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+﻿using System;
 using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
@@ -18,17 +13,28 @@ namespace DerbyApp.Helpers
         public int TrackStateNumber = 0;
 
         private readonly DispatcherTimer _raceTimer;
-        private bool _manualControlEnabled = false;
         private int _raceCountDownTime = 0;
+        private bool _manualControlEnabled = false;
 
         public event EventHandler<int> TrackStateUpdated;
+        public event EventHandler<float[]> TrackTimesUpdated;
 
-        public string TrackStateString
+        public bool ManualControlEnabled
         {
-            get
+            get => _manualControlEnabled;
+            set
             {
-                if (TrackStateNumber < TrackStates.Length) return TrackStates[TrackStateNumber];
-                else return "";
+                if (value != _manualControlEnabled)
+                {
+                    _manualControlEnabled = value;
+                    if (_manualControlEnabled)
+                    {
+                        DispatcherTimer t = new() { Interval = TimeSpan.FromMilliseconds(250) };
+                        t.Tick += CheckSwitch;
+                        t.Start();
+                    }
+                    else _ = TrackMessage("cancel");
+                }
             }
         }
 
@@ -60,6 +66,7 @@ namespace DerbyApp.Helpers
                 }
                 catch (HttpRequestException e)
                 {
+                    ErrorLogger.LogError("TrackController.TrackMessage", e);
                     MessageBox.Show(e.Message, "Track Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
@@ -75,15 +82,15 @@ namespace DerbyApp.Helpers
                 if (_raceCountDownTime == 0)
                 {
                     _raceTimer.Stop();
-                    //ButtonGetTimes_Click(sender, null);
+                    _ = GetTimes();
                 }
-                _raceCountDownTime--;
+                else _raceCountDownTime--;
             }
         }
 
         private async void CheckSwitch(object sender, EventArgs e)
         {
-            if (_manualControlEnabled)
+            if (ManualControlEnabled)
             {
                 string response = await TrackMessage("switch");
                 if (response != null)
@@ -111,6 +118,47 @@ namespace DerbyApp.Helpers
             else
             {
                 (sender as DispatcherTimer).Stop();
+            }
+        }
+
+        public async Task GetTimes()
+        {
+            int success = 0;
+            float [] result = new float[4];
+            if (TrackConnected)
+            {
+                try
+                {
+                    using HttpClient client2 = new();
+                    client2.Timeout = TimeSpan.FromSeconds(5);
+                    string reponse = await client2.GetStringAsync(new Uri("http://192.168.0.1/read"));
+                    if (reponse.Contains("Times"))
+                    {
+                        string[] times = reponse.Split(' ');
+                        if (times.Length == 2)
+                        {
+                            times = times[1].Split(',');
+                            if (times.Length == 4)
+                            {
+                                for (int i = 0; i < 4; i++)
+                                {
+                                    if (float.TryParse(times[i], out result[i]))
+                                    {
+                                        if (result[i] < 0.1) result[i] = 10.0F;
+                                        success++;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if (success == 4) TrackTimesUpdated?.Invoke(this, result);
+                    else MessageBox.Show("Received a bad response from track.", "Track Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+                catch (HttpRequestException e)
+                {
+                    ErrorLogger.LogError("TrackController.GetTimes", e);
+                    MessageBox.Show(e.Message, "Track Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
             }
         }
     }

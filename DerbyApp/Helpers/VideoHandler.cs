@@ -56,12 +56,11 @@ namespace DerbyApp.Helpers
         private struct RecordedVideoInfo
         {
             public string FilePath;
-            public string FileUrl;
             public string RaceName;
             public int HeatNumber;
         }
 
-#warning TODO: Can this be a struct (and still work with JSON)?
+#warning B: Can this be a struct (and still work with JSON)?
         private class VideoLink
         {
             public string Id { get; set; }
@@ -124,8 +123,8 @@ namespace DerbyApp.Helpers
 
         public void ReleaseCamera()
         {
-            _videoCapture.Stop();
-            _videoCapture.Dispose();
+            _videoCapture?.Stop();
+            _videoCapture?.Dispose();
             _videoCapture = null;
         }
 
@@ -142,7 +141,10 @@ namespace DerbyApp.Helpers
                     new System.Drawing.Size(_videoCapture.Width, _videoCapture.Height), true);
                 _videoState = VideoState.Recording;
             }
-            catch { }
+            catch (Exception ex)
+            {
+                ErrorLogger.LogError("VideoHandler.StartRecording", ex);
+            }
         }
 
         public void StopRecording()
@@ -199,7 +201,10 @@ namespace DerbyApp.Helpers
                                                                            _recordedVideoInfo.RaceName, _recordedVideoInfo.HeatNumber));
                 }
             }
-            catch { }
+            catch (Exception ex)
+            {
+                ErrorLogger.LogError("VideoHandler.UploadVideo", ex);
+            }
         }
     }
 }

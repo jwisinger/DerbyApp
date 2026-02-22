@@ -7,18 +7,15 @@ namespace DerbyApp.Helpers
         public static void StoreDatabaseRegistry(string database, string activeRace, string outputFolderName, bool? timeBasedScoring, int? maxRaceTime, string qrCodeLink, string qrPrinterName, string licensePrinterName, string password)
         {
             RegistryKey key = Registry.CurrentUser.CreateSubKey(@"SOFTWARE\DerbyApp");
-            if (database != null)
-            {
-                key.SetValue("database", database);
-                if (activeRace != null) key.SetValue("activeRace", activeRace);
-                if (outputFolderName != null) key.SetValue("outputFolderName", outputFolderName);
-                if (timeBasedScoring != null) key.SetValue("timeBasedScoring", timeBasedScoring);
-                if (maxRaceTime != null) key.SetValue("maxRaceTime", maxRaceTime);
-                if (qrCodeLink != null) key.SetValue("qrCodeLink", qrCodeLink);
-                if (qrPrinterName != null) key.SetValue("qrPrinterName", qrPrinterName);
-                if (licensePrinterName != null) key.SetValue("licensePrinterName", licensePrinterName);
-                if (password != null) key.SetValue("password", password);
-            }
+            if (database != null) key.SetValue("database", database);
+            if (activeRace != null) key.SetValue("activeRace", activeRace);
+            if (outputFolderName != null) key.SetValue("outputFolderName", outputFolderName);
+            if (timeBasedScoring != null) key.SetValue("timeBasedScoring", timeBasedScoring);
+            if (maxRaceTime != null) key.SetValue("maxRaceTime", maxRaceTime);
+            if (qrCodeLink != null) key.SetValue("qrCodeLink", qrCodeLink);
+            if (qrPrinterName != null) key.SetValue("qrPrinterName", qrPrinterName);
+            if (licensePrinterName != null) key.SetValue("licensePrinterName", licensePrinterName);
+            if (password != null) key.SetValue("password", password);
             key.Close();
         }
 
