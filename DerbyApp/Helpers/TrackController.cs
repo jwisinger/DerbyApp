@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
@@ -12,12 +14,14 @@ namespace DerbyApp.Helpers
         public bool TrackConnected = false;
         public int TrackStateNumber = 0;
 
+        private const string _trackIp = "http://192.168.0.1/";
         private readonly DispatcherTimer _raceTimer;
         private int _raceCountDownTime = 0;
         private bool _manualControlEnabled = false;
 
         public event EventHandler<int> TrackStateUpdated;
         public event EventHandler<float[]> TrackTimesUpdated;
+        public event EventHandler<bool> TrackStatusUpdated;
 
         public bool ManualControlEnabled
         {
@@ -42,6 +46,23 @@ namespace DerbyApp.Helpers
         {
             _raceTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
             _raceTimer.Tick += TimeTickRace;
+            _ = Task.Delay(1000).ContinueWith(t => CheckStatus());
+        }
+
+        public async Task CheckStatus()
+        {
+            try
+            {
+                _ = Task.Delay(5000).ContinueWith(t => CheckStatus());
+                using HttpClient client = new();
+                client.Timeout = TimeSpan.FromSeconds(4);
+                string response = await client.GetStringAsync(new Uri("http://192.168.0.1/ping"));
+                TrackStatusUpdated?.Invoke(this, true);
+            }
+            catch
+            {
+                TrackStatusUpdated?.Invoke(this, false);
+            }
         }
 
         public async Task StartHeat(int maxRaceTime)
@@ -61,7 +82,7 @@ namespace DerbyApp.Helpers
                     await Task.Delay(200);
                     using HttpClient client = new();
                     client.Timeout = TimeSpan.FromSeconds(5);
-                    string response = await client.GetStringAsync(new Uri("http://192.168.0.1/" + step));
+                    string response = await client.GetStringAsync(new Uri(_trackIp + step));
                     return response;
                 }
                 catch (HttpRequestException e)
@@ -131,7 +152,7 @@ namespace DerbyApp.Helpers
                 {
                     using HttpClient client2 = new();
                     client2.Timeout = TimeSpan.FromSeconds(5);
-                    string reponse = await client2.GetStringAsync(new Uri("http://192.168.0.1/read"));
+                    string reponse = await client2.GetStringAsync(new Uri(_trackIp + "read"));
                     if (reponse.Contains("Times"))
                     {
                         string[] times = reponse.Split(' ');

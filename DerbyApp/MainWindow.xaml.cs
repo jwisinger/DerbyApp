@@ -216,28 +216,6 @@ namespace DerbyApp
         }
         #endregion
 
-        #region Tasks
-        private async Task TrackStatusCheck()
-        {
-#warning A: Move portions of this into TrackController
-            try
-            {
-                using HttpClient client = new();
-                client.Timeout = TimeSpan.FromSeconds(5);
-                string response = await client.GetStringAsync(new Uri("http://192.168.0.1/ping"));
-                TrackStatusIcon = "/Images/Connected.png";
-                if (_raceTracker != null) _raceTracker.TrackConnected = true;
-            }
-            catch
-            {
-                TrackStatusIcon = "/Images/Disconnected.png";
-                if (_raceTracker != null) _raceTracker.TrackConnected = false;
-            }
-
-            _ = Task.Delay(5000).ContinueWith(t => TrackStatusCheck());
-        }
-        #endregion
-
         #region Navigation Handlers
         private void ButtonAddRacer_Click(object sender, RoutedEventArgs e)
         {
@@ -517,7 +495,6 @@ namespace DerbyApp
             if (_db.IsSynced) DatabaseStatusIcon = "/Images/DatabaseRun.png";
             else DatabaseStatusIcon = "/Images/DatabaseStop.png";
         }
-
         #endregion
 
         #region General Methods
@@ -570,6 +547,11 @@ namespace DerbyApp
                     DisplayPhotos = DisplayPhotosChecked ? Visibility.Visible : Visibility.Collapsed
                 };
                 _raceTracker.HeatChanged += RaceTracker_HeatChanged;
+                _raceTracker.TrackStatusChanged += (s, e) =>
+                {
+                    if (e) TrackStatusIcon = "/Images/Connected.png";
+                    else TrackStatusIcon = "/Images/Disconnected.png";
+                };
 
                 _editRace = new EditRace(_db)
                 {
@@ -623,7 +605,6 @@ namespace DerbyApp
             InitializeComponent();
             CreateMenu();
             if (!ChangeDatabase()) SelectDatabase();
-            _ = Task.Delay(500).ContinueWith(t => TrackStatusCheck());
         }
         #endregion
     }

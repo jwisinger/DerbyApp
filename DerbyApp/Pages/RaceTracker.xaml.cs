@@ -72,7 +72,11 @@ namespace DerbyApp
         public bool TrackConnected
         {
             get => _trackController.TrackConnected;
-            set => _trackController.TrackConnected = value;
+            set
+            {
+                _trackController.TrackConnected = value;
+                TrackStatusChanged?.Invoke(this, value);
+            }
         }
         #endregion
 
@@ -184,6 +188,7 @@ namespace DerbyApp
         #region Events
         public event PropertyChangedEventHandler PropertyChanged;
         public event EventHandler HeatChanged;
+        public event EventHandler<bool> TrackStatusChanged;
         #endregion
 
         #region Event Handlers
@@ -231,6 +236,12 @@ namespace DerbyApp
         private void RaceTrackerWindow_Unloaded(object sender, RoutedEventArgs e)
         {
             _videoHandler.ImageCaptured -= OnImageCaptured;
+        }
+
+        private void TrackController_TrackStatusUpdated(object sender, bool e)
+        {
+            if (e) TrackConnected = true;
+            else TrackConnected = false;
         }
 
         private void TrackController_TrackStateUpdated(object sender, int raceCountdownTime)
@@ -301,7 +312,7 @@ namespace DerbyApp
 
         private void Datagrid_AutoGeneratingColumn(object sender, DataGridAutoGeneratingColumnEventArgs e)
         {
-#warning A: Do I need this?
+#warning RUNOFF: Do I need this?
             if (e.Column is DataGridTextColumn col && e.PropertyType == typeof(double))
             {
                 col.Binding = new Binding(e.PropertyName) { StringFormat = "N3" };
@@ -316,7 +327,7 @@ namespace DerbyApp
 
         private void ResultsColumnAdded(object sender, PropertyChangedEventArgs e)
         {
-#warning A: Do I need this?
+#warning RUNOFF: Do I need this?
             gridRaceResults.Columns.Add(new DataGridTextColumn() { Header = e.PropertyName, Binding = new Binding(e.PropertyName) { StringFormat = "N3" } });
         }
 
@@ -362,7 +373,7 @@ namespace DerbyApp
 
         private void UpdateUI()
         {
-#warning A: Check that these are all correct
+#warning Track: Check that these are all correct
             PreviousHeatEnabled = false;
             NextHeatEnabled = false;
             EnableBoxButtonText = "Cancel";
@@ -488,6 +499,7 @@ namespace DerbyApp
             _trackController = new TrackController();
             _trackController.TrackStateUpdated += TrackController_TrackStateUpdated;
             _trackController.TrackTimesUpdated += GetTimeHandler;
+            _trackController.TrackStatusUpdated += TrackController_TrackStatusUpdated;
 
             _db.RaceFormat.UpdateDisplayedHeat(_db.CurrentHeatNumber, db.CurrentRaceRacers);
             _db.RaceFormat.CurrentRacers.CollectionChanged += CurrentRacers_CollectionChanged;
