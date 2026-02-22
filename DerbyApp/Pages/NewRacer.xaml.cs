@@ -1,12 +1,12 @@
 ﻿#warning TEST NEWRACER: Check scale
 #warning TEST NEWRACER: Check license printing
+using DerbyApp.Helpers;
+using DerbyApp.RacerDatabase;
+using DerbyApp.RaceStats;
 using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Threading;
-using DerbyApp.Helpers;
-using DerbyApp.RacerDatabase;
-using DerbyApp.RaceStats;
 
 namespace DerbyApp
 {

@@ -16,7 +16,7 @@ namespace DerbyApp.Windows
             get => _input;
             set => _input = value;
         }
-        
+
         public String Prompt
         {
             get => _prompt;

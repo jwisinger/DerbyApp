@@ -2,9 +2,9 @@
 #warning TEST RACERTABLEVIEW: make sure we can print license
 #warning TEST RACERTABLEVIEW: make sure we can refresh database
 
-using DerbyApp.Windows;
 using DerbyApp.RacerDatabase;
 using DerbyApp.RaceStats;
+using DerbyApp.Windows;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
@@ -67,7 +67,7 @@ namespace DerbyApp
                 GenerateLicense.Generate(r, _db);
             }
         }
-        
+
         private void ZoomPicture(object sender, RoutedEventArgs e)
         {
             new ImageDisplay((sender as Image).Source, (sender as Image).DataContext as Racer).ShowDialog();

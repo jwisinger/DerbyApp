@@ -5,7 +5,6 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace DerbyApp.Helpers
@@ -18,7 +17,7 @@ namespace DerbyApp.Helpers
             public List<Racer> RacerToUpdate;
         }
         private static readonly HttpClient _httpClient = new();
-        private static readonly List<RacersToUpdate> _racersInProgress= [];
+        private static readonly List<RacersToUpdate> _racersInProgress = [];
 
         public static void SetPhoto(Racer racer, string fileName)
         {

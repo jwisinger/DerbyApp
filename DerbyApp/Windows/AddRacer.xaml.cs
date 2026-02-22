@@ -1,7 +1,6 @@
-﻿using System.Collections.Generic;
-using System.Collections.ObjectModel;
+﻿using DerbyApp.RaceStats;
+using System.Collections.Generic;
 using System.Windows;
-using DerbyApp.RaceStats;
 
 namespace DerbyApp.Windows
 {

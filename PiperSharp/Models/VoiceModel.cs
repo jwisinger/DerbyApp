@@ -12,28 +12,28 @@ namespace PiperSharp.Models
     {
         [JsonPropertyName("key")]
         public string? Key { get; set; }
-    
+
         [JsonPropertyName("name")]
         public string? Name { get; set; }
-    
+
         [JsonPropertyName("num_speakers")]
         public int NumSpeakers { get; set; }
-    
+
         [JsonPropertyName("speaker_id_map")]
         public Dictionary<string, int>? SpeakerIdMap { get; set; }
-    
+
         [JsonPropertyName("files")]
         public Dictionary<string, dynamic>? Files { get; set; }
-    
+
         [JsonPropertyName("language")]
         public VoiceLanguage? Language { get; set; }
-    
-        [JsonPropertyName("audio")]  
+
+        [JsonPropertyName("audio")]
         public VoiceAudio? Audio { get; set; }
-    
+
         [JsonIgnore]
         public string? ModelLocation { get; set; }
-    
+
         public string GetModelLocation()
         {
             if (ModelLocation is null) throw new FileNotFoundException("Model not downloaded!");
@@ -43,7 +43,7 @@ namespace PiperSharp.Models
         }
 
 
-        public static Task<VoiceModel> LoadModelByKey(string modelKey) 
+        public static Task<VoiceModel> LoadModelByKey(string modelKey)
             => LoadModel(Path.Join(PiperDownloader.DefaultModelLocation, modelKey));
         public static async Task<VoiceModel> LoadModel(string directory)
         {

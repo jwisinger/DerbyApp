@@ -3,15 +3,15 @@
 #warning TEST EDITRACE: Need to create a race and ensure it has the correct number of heats and max racers
 #warning TEST EDITRACE: Refresh database
 
+using DerbyApp.RacerDatabase;
+using DerbyApp.RaceStats;
+using DerbyApp.Windows;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
-using DerbyApp.RacerDatabase;
-using DerbyApp.RaceStats;
-using DerbyApp.Windows;
 
 namespace DerbyApp.Pages
 {
@@ -75,7 +75,7 @@ namespace DerbyApp.Pages
             _db.CheckSyncStatus();
             if (!_db.IsSynced)
             {
-                if(MessageBoxResult.Cancel == MessageBox.Show("Connection to the database has been lost. If you continue, any results from this race will be lost.",
+                if (MessageBoxResult.Cancel == MessageBox.Show("Connection to the database has been lost. If you continue, any results from this race will be lost.",
                                 "Database Connection Lost", MessageBoxButton.OKCancel, MessageBoxImage.Warning))
                 {
                     cbName.SelectionChanged -= ComboBoxRaceName_SelectionChanged;
@@ -136,9 +136,9 @@ namespace DerbyApp.Pages
         private void ButtonNewRace_Click(object sender, RoutedEventArgs e)
         {
             NewRace nr = new();
-            if((bool)nr.ShowDialog())
+            if ((bool)nr.ShowDialog())
             {
-                if(!_db.AddRace(nr.RaceName, nr.RaceFormatIndex))
+                if (!_db.AddRace(nr.RaceName, nr.RaceFormatIndex))
                 {
                     MessageBox.Show("A race with that name already exists.", "Name Exists",
                         MessageBoxButton.OK, MessageBoxImage.Error);
@@ -150,7 +150,7 @@ namespace DerbyApp.Pages
         {
             if (cbName.SelectedItem != null)
             {
-                if(MessageBox.Show("This will delete the race named " + cbName.SelectedItem + " and all associated data. Are you sure?",
+                if (MessageBox.Show("This will delete the race named " + cbName.SelectedItem + " and all associated data. Are you sure?",
                     "Delete Race", MessageBoxButton.OKCancel, MessageBoxImage.Question) == MessageBoxResult.OK)
                 {
                     _db.DeleteCurrentRace();

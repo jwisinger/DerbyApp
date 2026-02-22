@@ -1,12 +1,9 @@
-﻿using NAudio.Gui;
-using System;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace DerbyApp.RaceStats
 {

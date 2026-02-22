@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Emgu.CV;
+using System;
 using System.Drawing;
 using System.IO;
 using System.Net.Http;
@@ -7,11 +8,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
-using Emgu.CV;
 
 namespace DerbyApp.Helpers
 {
-    public class VideoHandler (Credentials credentials)
+    public class VideoHandler(Credentials credentials)
     {
         private const string _webhookUrl = "https://api.retool.com/v1/workflows/5e126bc0-067c-45f8-a4be-cea4aec7f395/startTrigger";
         private const double FRAME_RATE = 15.0;
@@ -94,7 +94,8 @@ namespace DerbyApp.Helpers
                         case VideoState.None:
                             break;
                         case VideoState.Recording:
-                            Application.Current.Dispatcher.Invoke(new Action(() => {
+                            Application.Current.Dispatcher.Invoke(new Action(() =>
+                            {
                                 if (_videoWriter.IsOpened) _videoWriter.Write(currentFrame);
                             }));
                             break;

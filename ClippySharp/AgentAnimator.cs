@@ -103,7 +103,7 @@ namespace ClippySharp
 
             return true;
         }
-        
+
         public bool ShowAnimation(string animationName)
         {
             _exiting = false;

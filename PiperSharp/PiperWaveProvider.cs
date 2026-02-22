@@ -1,10 +1,10 @@
+using NAudio.Wave;
+using PiperSharp.Models;
 using System;
 using System.Diagnostics;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using NAudio.Wave;
-using PiperSharp.Models;
 
 namespace PiperSharp
 {
@@ -47,7 +47,7 @@ namespace PiperSharp
         {
             return _process.WaitForExitAsync(token);
         }
-    
+
         public int Read(byte[] buffer, int offset, int count)
         {
             if (!Started) throw new ApplicationException("Piper process not initialized!");

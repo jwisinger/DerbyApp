@@ -1,11 +1,11 @@
-﻿using System;
+﻿using NAudio.Wave;
+using PiperSharp.Models;
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using NAudio.Wave;
-using PiperSharp.Models;
 
 namespace PiperSharp
 {
@@ -17,7 +17,7 @@ namespace PiperSharp
         {
             if (configuration.Model is null)
                 throw new ArgumentNullException(configuration.Model?.Name, "VoiceModel not configured!");
-        
+
             return new Process()
             {
                 StartInfo = new ProcessStartInfo()
@@ -34,7 +34,7 @@ namespace PiperSharp
                 },
             };
         }
-    
+
         public async Task<byte[]> InferAsync(string text, AudioOutputType outputType = AudioOutputType.Wav, CancellationToken token = default)
         {
             var process = ConfigureProcess(Configuration);
@@ -46,7 +46,7 @@ namespace PiperSharp
             await process.StandardOutput.BaseStream.CopyToAsync(ms, token);
             await process.WaitForExitAsync(token);
             ms.Seek(0, SeekOrigin.Begin);
-        
+
             await using var fs = new RawSourceWaveStream(ms, new WaveFormat((int)(Configuration.Model.Audio?.SampleRate ?? 16000), 1));
             return await ConvertToArray(fs, outputType, token);
         }
@@ -57,23 +57,26 @@ namespace PiperSharp
             switch (outputType)
             {
                 case AudioOutputType.Mp3:
-                {
-                    await stream.FlushAsync(token);
-                    MediaFoundationEncoder.EncodeToMp3(stream, output);
-                } break;
+                    {
+                        await stream.FlushAsync(token);
+                        MediaFoundationEncoder.EncodeToMp3(stream, output);
+                    }
+                    break;
                 case AudioOutputType.Raw:
-                {
-                    await stream.CopyToAsync(output, token);
-                    await stream.FlushAsync(token);
-                } break;
+                    {
+                        await stream.CopyToAsync(output, token);
+                        await stream.FlushAsync(token);
+                    }
+                    break;
                 case AudioOutputType.Wav:
                 default:
-                {
-                    var waveStream = new WaveFileWriter(output, stream.WaveFormat);
-                    await stream.CopyToAsync(waveStream, token);
-                    await stream.FlushAsync(token);
-                    await waveStream.FlushAsync(token);
-                } break;
+                    {
+                        var waveStream = new WaveFileWriter(output, stream.WaveFormat);
+                        await stream.CopyToAsync(waveStream, token);
+                        await stream.FlushAsync(token);
+                        await waveStream.FlushAsync(token);
+                    }
+                    break;
             }
             await output.FlushAsync(token);
             return output.ToArray();

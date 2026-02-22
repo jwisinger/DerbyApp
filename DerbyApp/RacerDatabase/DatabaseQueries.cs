@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
-using System.IO;
-using DerbyApp.Helpers;
+﻿using DerbyApp.Helpers;
 using DerbyApp.RaceStats;
+using System.Collections.Generic;
+using System.IO;
 
 namespace DerbyApp.RacerDatabase
 {

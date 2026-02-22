@@ -233,7 +233,7 @@ namespace DerbyApp
                 TrackStatusIcon = "/Images/Disconnected.png";
                 if (_raceTracker != null) _raceTracker.TrackConnected = false;
             }
-            
+
             _ = Task.Delay(5000).ContinueWith(t => TrackStatusCheck());
         }
         #endregion
@@ -339,7 +339,7 @@ namespace DerbyApp
                 _racerTableView.DisplayPhotos = Visibility.Visible;
                 _editRace.DisplayPhotos = Visibility.Visible;
                 _raceTracker.DisplayPhotos = Visibility.Visible;
-                CameraEnabledIcon ="/Images/CameraEnabled.png";
+                CameraEnabledIcon = "/Images/CameraEnabled.png";
 
             }
             else
@@ -403,12 +403,12 @@ namespace DerbyApp
                 agentImage.Visibility = Visibility.Collapsed;
             }
         }
-       
+
         private void Item_VoiceChanged(object sender, string e)
         {
             _ = _announcer.SelectVoice(e);
         }
-        
+
         private void SetRaceName_Click(object sender, RoutedEventArgs e)
         {
             InputBox ib = new("Please enter a name for this event:", _db.EventName);
@@ -420,7 +420,7 @@ namespace DerbyApp
         {
             _db.CopyDatabaseToLocal();
         }
-        
+
         private void ButtonChangeDatabase_Click(object sender, RoutedEventArgs e)
         {
             SelectDatabase();
@@ -485,7 +485,7 @@ namespace DerbyApp
                 Multiselect = false,
                 Title = "Select Output Folder",
                 ValidateNames = true
-            }; 
+            };
 
             if (folderDialog.ShowDialog() == true)
             {
@@ -570,7 +570,7 @@ namespace DerbyApp
                     DisplayPhotos = DisplayPhotosChecked ? Visibility.Visible : Visibility.Collapsed
                 };
                 _raceTracker.HeatChanged += RaceTracker_HeatChanged;
-            
+
                 _editRace = new EditRace(_db)
                 {
                     DisplayPhotos = DisplayPhotosChecked ? Visibility.Visible : Visibility.Collapsed
@@ -590,7 +590,7 @@ namespace DerbyApp
             _raceTracker?.Shutdown();
             _videoHandler?.ReleaseCamera();
         }
-        
+
         private void CreateMenu()
         {
             CharacterMenuItems = [];
@@ -617,12 +617,12 @@ namespace DerbyApp
             DataContext = this;
             _agentInterface = new AgentInterface(agentImage);
         }
-        
+
         public MainWindow()
         {
             InitializeComponent();
             CreateMenu();
-            if(!ChangeDatabase()) SelectDatabase();
+            if (!ChangeDatabase()) SelectDatabase();
             _ = Task.Delay(500).ContinueWith(t => TrackStatusCheck());
         }
         #endregion

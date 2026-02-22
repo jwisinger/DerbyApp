@@ -4,6 +4,11 @@
 #warning Track: Race run doesn't work
 #warning Track: Need to test this with manual control, button clicks and automated run, I've lost track of how it all works
 #warning Track: Put breakpoints in every function in this file and confirm they work
+using DerbyApp.Assistant;
+using DerbyApp.Helpers;
+using DerbyApp.RacerDatabase;
+using DerbyApp.RaceStats;
+using DerbyApp.Windows;
 using System;
 using System.ComponentModel;
 using System.Data;
@@ -13,11 +18,6 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Media;
-using DerbyApp.Assistant;
-using DerbyApp.Helpers;
-using DerbyApp.RacerDatabase;
-using DerbyApp.RaceStats;
-using DerbyApp.Windows;
 
 namespace DerbyApp
 {
@@ -209,7 +209,8 @@ namespace DerbyApp
 
         private void OnImageCaptured(object sender, EventArgs e)
         {
-            Application.Current.Dispatcher.Invoke(new Action(() => {
+            Application.Current.Dispatcher.Invoke(new Action(() =>
+            {
                 frameVideo.Source = _videoHandler.CurrentImageSource;
             }));
         }
@@ -393,7 +394,7 @@ namespace DerbyApp
                 case TrackState.ShowingReplay:
                     RecordingVisibility = Visibility.Visible;
                     CancelReplayEnabled = true;
-                break;
+                    break;
             }
         }
 

@@ -23,7 +23,8 @@ namespace PiperSharp.Models
                 $"--model {Model.GetModelLocation()}"
             };
             if (SpeakerId > 0) args.Add($"--speaker {SpeakerId}");
-            if (SpeakingRate != 1f) {
+            if (SpeakingRate != 1f)
+            {
                 var lengthScaleStr = SpeakingRate.ToString("0.00").Replace(',', '.');
                 args.Add($"--length_scale {lengthScaleStr}");
             }

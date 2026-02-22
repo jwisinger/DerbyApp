@@ -1,6 +1,4 @@
 ﻿using ClippySharp.Models;
-using System.Drawing;
-using System.Windows.Media;
 
 namespace ClippySharp
 {

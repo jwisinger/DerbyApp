@@ -50,7 +50,7 @@ namespace DerbyApp.Helpers
             if (matchingEntries.Any())
             {
                 DatabaseUsername = matchingEntries.First().Strings.ReadSafe("UserName");
-                DatabasePassword= matchingEntries.First().Strings.ReadSafe("Password");
+                DatabasePassword = matchingEntries.First().Strings.ReadSafe("Password");
             }
 
             matchingEntries = from entry in db.RootGroup.GetEntries(true)

@@ -100,7 +100,8 @@ namespace DerbyApp.Assistant
 
         private void Agent_NeedsRender(object sender, EventArgs e)
         {
-            Application.Current.Dispatcher.Invoke(() => {
+            Application.Current.Dispatcher.Invoke(() =>
+            {
                 var image = Agent.GetCurrentImage();
                 if (image != null)
                     AgentImage.Source = image;

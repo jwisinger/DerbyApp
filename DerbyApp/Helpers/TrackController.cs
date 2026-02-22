@@ -124,7 +124,7 @@ namespace DerbyApp.Helpers
         public async Task GetTimes()
         {
             int success = 0;
-            float [] result = new float[4];
+            float[] result = new float[4];
             if (TrackConnected)
             {
                 try

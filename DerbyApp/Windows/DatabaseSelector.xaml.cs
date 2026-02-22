@@ -68,7 +68,7 @@ namespace DerbyApp.Windows
         private void ButtonConnect_Click(object sender, RoutedEventArgs e)
         {
             EventList.Clear();
-            foreach(string s in _dbConnect.GetEventList()) EventList.Add(s);
+            foreach (string s in _dbConnect.GetEventList()) EventList.Add(s);
         }
 
         private void PasswordBox_PasswordChanged(object sender, RoutedEventArgs e)

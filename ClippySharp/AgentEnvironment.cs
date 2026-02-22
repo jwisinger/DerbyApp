@@ -1,6 +1,4 @@
-﻿using System.IO;
-
-namespace ClippySharp
+﻿namespace ClippySharp
 {
     public interface ISoundPlayer
     {

@@ -1,10 +1,6 @@
 ﻿#warning REPORT: Could I somehow generate winners certificates along with "appearance" winners?
 
 using DerbyApp.RacerDatabase;
-using DerbyApp.RaceStats;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 

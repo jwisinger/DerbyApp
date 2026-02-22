@@ -1,14 +1,14 @@
-﻿using System;
+﻿using PiperSharp.Models;
+using SharpCompress.Common;
+using SharpCompress.Readers;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Net.Http;
-using System.Text.RegularExpressions;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using PiperSharp.Models;
-using SharpCompress.Common;
-using SharpCompress.Readers;
 
 namespace PiperSharp
 {
@@ -101,13 +101,13 @@ namespace PiperSharp
             await GetHuggingFaceModelList();
             return _voiceModels?.GetValueOrDefault(modelName);
         }
-    
+
         public static async Task<VoiceModel?> TryGetModelByKey(string modelKey)
         {
             await GetHuggingFaceModelList();
             return _voiceModels?.GetValueOrDefault(modelKey);
         }
-    
+
         public static async Task<Dictionary<string, VoiceModel>?> GetHuggingFaceModelList()
         {
             if (_voiceModels != null) return _voiceModels;
@@ -157,12 +157,12 @@ namespace PiperSharp
                 else
                 {
                     await using var fs = File.OpenWrite(filePath);
-                    await downloadStream.CopyToAsync(fs);    
+                    await downloadStream.CopyToAsync(fs);
                     fs.Close();
                 }
                 downloadStream.Close();
             }
-        
+
             model.ModelLocation = path;
             await using var modelInfoFile = File.OpenWrite(Path.Join(path, "model.json"));
             await JsonSerializer.SerializeAsync<VoiceModel>(modelInfoFile, model, _jsonOptions);

@@ -3,16 +3,8 @@ using DerbyApp.RaceStats;
 using MigraDoc.DocumentObjectModel;
 using MigraDoc.DocumentObjectModel.Shapes;
 using MigraDoc.DocumentObjectModel.Tables;
-using MigraDoc.Rendering;
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Data;
-using System.Diagnostics;
 using System.Drawing;
-using System.IO;
-using System.Linq;
-using System.Text;
 using Image = MigraDoc.DocumentObjectModel.Shapes.Image;
 
 namespace DerbyApp.RacerDatabase

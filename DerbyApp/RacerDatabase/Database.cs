@@ -1,6 +1,8 @@
 ﻿#warning TEST(0): Confirm every function in this file for local and remote
 #warning RUNOFF: If database connection is lost when addrunoff, the column lets you fill it out on the screen, but it never gets added to the database
 #warning RUNOFF: I'm not sure the addrunoffheat and heatcount stuff is done correctly
+using DerbyApp.Helpers;
+using DerbyApp.RaceStats;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -10,8 +12,6 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Threading;
-using DerbyApp.Helpers;
-using DerbyApp.RaceStats;
 
 namespace DerbyApp.RacerDatabase
 {
@@ -173,8 +173,8 @@ namespace DerbyApp.RacerDatabase
             if (databaseFile.Contains(':')) IsSqlite = true;
             else IsSqlite = false;
 
-            if (IsSqlite) _databaseGeneric = new DatabaseSqlite(databaseFile); 
-            else 
+            if (IsSqlite) _databaseGeneric = new DatabaseSqlite(databaseFile);
+            else
             {
                 _googleDriveAccess = gda;
                 _databaseGeneric = new DatabasePostgres(databaseFile, credentials);
@@ -240,7 +240,7 @@ namespace DerbyApp.RacerDatabase
             }
         }
         #endregion
-                
+
         #region Video Management
         private void CreateVideoTable()
         {
@@ -315,7 +315,7 @@ namespace DerbyApp.RacerDatabase
             Races.Remove(CurrentRaceName);
             CurrentRaceName = "";
         }
-        
+
         public void AddRacerToCurrentRace(Racer r)
         {
             CurrentRaceRacers.Add(r);
@@ -450,7 +450,7 @@ namespace DerbyApp.RacerDatabase
         #region Results Table Management
         public void AddRunOffHeat()
         {
-            #warning RUNOFF: This could work through sqldataadapter
+#warning RUNOFF: This could work through sqldataadapter
             _databaseGeneric.ExecuteNonQuery(DatabaseQueries.AddRunOffHeat(CurrentRaceName, HeatCount++));
             RaceFormat.AddRunOffHeat([.. CurrentRaceRacers]);
             ResultsTable.Columns.Add("Heat " + RaceFormat.HeatCount, Type.GetType("System.Double"));
