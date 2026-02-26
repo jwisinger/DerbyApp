@@ -414,9 +414,8 @@ namespace DerbyApp
             _announcer.Speak(announcement);
         }
 
-        private void TimeBasedScoring_Click(object sender, RoutedEventArgs e)
+        private void UpdateTimeBasedScoringInfo()
         {
-            _db.TimeBasedScoring = !_db.TimeBasedScoring;
             if (_db.TimeBasedScoring)
             {
                 TimeBasedScoringIcon = "/Images/OrderedList.png";
@@ -427,7 +426,12 @@ namespace DerbyApp
                 TimeBasedScoringIcon = "/Images/Timer.png";
                 TimeBasedScoringText = "Time Based Scoring";
             }
-            _raceTracker.SetTimeBasedScoring(_db.TimeBasedScoring);
+        }
+
+        private void TimeBasedScoring_Click(object sender, RoutedEventArgs e)
+        {
+            _db.TimeBasedScoring = !_db.TimeBasedScoring;
+            UpdateTimeBasedScoringInfo();
         }
 
         private void AboutItem_Click(object sender, RoutedEventArgs e)
@@ -523,7 +527,8 @@ namespace DerbyApp
             DatabaseRegistry.StoreDatabaseRegistry(null, null, null, null, null, null, null, null, _credentials.Password);
             _googleDriveAccess = new GoogleDriveAccess(_credentials);
             _videoHandler = new(_credentials);
-            _db = new Database(databaseName, _credentials, _googleDriveAccess, outputFolderName);
+            _db = new Database(databaseName, _credentials, _googleDriveAccess, outputFolderName, timeBasedScoring);
+            UpdateTimeBasedScoringInfo();
 
             if (_db.InitGood)
             {
@@ -541,7 +546,7 @@ namespace DerbyApp
                 _newRacer = new NewRacer(_db, _videoHandler);
                 _newRacer.RacerAdded += Racer_RacerAdded;
 
-                _raceTracker = new RaceTracker(_db, timeBasedScoring, _announcer, _videoHandler)
+                _raceTracker = new RaceTracker(_db, _announcer, _videoHandler)
                 {
                     MaxRaceTime = maxRaceTime,
                     DisplayPhotos = DisplayPhotosChecked ? Visibility.Visible : Visibility.Collapsed

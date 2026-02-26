@@ -226,7 +226,10 @@ namespace DerbyApp.RacerDatabase
 #warning B: Need to handle the case when the database is disconnected here (really just need to test this)
             string sql = "SELECT * FROM \"" + raceName + "\"";
             _reader?.Close();
-            _dataAdapter = new NpgsqlDataAdapter(sql, PostgresConn);
+            _dataAdapter = new NpgsqlDataAdapter(sql, PostgresConn)
+            {
+                MissingSchemaAction = MissingSchemaAction.AddWithKey
+            };
             _builder = new(_dataAdapter);
             table.Clear();
             try { _dataAdapter.Fill(table); }

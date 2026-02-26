@@ -1,5 +1,5 @@
 ﻿#warning TODO: Deleting racer from main list does not remove if already added to a race
-#warning TEST EDITRACE: Check race names with funny characters (with videos and photos and such)
+#warning TEST EDITRACE: Check race names with funny characters (with videos and photos and such) / in race name causes two races to be created
 #warning TEST EDITRACE: Need to create a race and ensure it has the correct number of heats and max racers
 #warning TEST EDITRACE: Refresh database
 

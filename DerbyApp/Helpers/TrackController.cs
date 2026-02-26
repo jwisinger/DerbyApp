@@ -17,11 +17,22 @@ namespace DerbyApp.Helpers
         private const string _trackIp = "http://192.168.0.1/";
         private readonly DispatcherTimer _raceTimer;
         private int _raceCountDownTime = 0;
+        private int _maxRaceTime = 10;
         private bool _manualControlEnabled = false;
 
         public event EventHandler<int> TrackStateUpdated;
         public event EventHandler<float[]> TrackTimesUpdated;
         public event EventHandler<bool> TrackStatusUpdated;
+
+        public int MaxRaceTime
+        {
+            get => _maxRaceTime;
+            set
+            {
+                _maxRaceTime = value;
+                DatabaseRegistry.StoreDatabaseRegistry(null, null, null, null, value, null, null, null, null);
+            }
+        }
 
         public bool ManualControlEnabled
         {
@@ -33,6 +44,9 @@ namespace DerbyApp.Helpers
                     _manualControlEnabled = value;
                     if (_manualControlEnabled)
                     {
+                        TrackStateNumber = 0;
+                        _raceCountDownTime = _maxRaceTime;
+                        _ = TrackMessage(TrackStates[TrackStateNumber++]);
                         DispatcherTimer t = new() { Interval = TimeSpan.FromMilliseconds(250) };
                         t.Tick += CheckSwitch;
                         t.Start();
@@ -65,11 +79,11 @@ namespace DerbyApp.Helpers
             }
         }
 
-        public async Task StartHeat(int maxRaceTime)
+        public async Task StartHeat()
         {
             TrackStateNumber = 0;
             await TrackMessage(TrackStates[TrackStateNumber++]);
-            _raceCountDownTime = maxRaceTime;
+            _raceCountDownTime = _maxRaceTime;
             _raceTimer.Start();
         }
 
@@ -97,7 +111,7 @@ namespace DerbyApp.Helpers
         private void TimeTickRace(object sender, EventArgs e)
         {
             TrackStateUpdated?.Invoke(this, _raceCountDownTime);
-            if (TrackStateNumber < TrackStates.Length) TrackStateNumber++;
+            if (TrackStateNumber < TrackStates.Length) _ = TrackMessage(TrackStates[TrackStateNumber++]);
             else
             {
                 if (_raceCountDownTime == 0)

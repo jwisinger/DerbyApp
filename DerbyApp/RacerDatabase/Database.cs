@@ -27,7 +27,6 @@ namespace DerbyApp.RacerDatabase
         private string _qrPrinter = "";
         private string _qrCodeLink = "";
         private string _outputFolderName;
-        private bool _timeBasedScoring = false;
         private bool _isSynced = false;
         private int _currentHeatNumber = 1;
 
@@ -49,6 +48,7 @@ namespace DerbyApp.RacerDatabase
         #endregion
 
         #region Public Properties
+        public Leaderboard LdrBoard { get; set; }
         public bool IsSynced { get => _isSynced; }
         public string CurrentRaceName
         {
@@ -116,10 +116,11 @@ namespace DerbyApp.RacerDatabase
 
         public bool TimeBasedScoring
         {
-            get => _timeBasedScoring;
+            get => LdrBoard.TimeBasedScoring;
             set
             {
-                _timeBasedScoring = value;
+                LdrBoard.TimeBasedScoring = value;
+                LdrBoard.CalculateResults(ResultsTable);
                 DatabaseRegistry.StoreDatabaseRegistry(null, null, null, value, null, null, null, null, null);
             }
         }
@@ -166,7 +167,7 @@ namespace DerbyApp.RacerDatabase
         #endregion
 
         #region Constructor
-        public Database(string databaseFile, Credentials credentials, GoogleDriveAccess gda, string outputFolderName)
+        public Database(string databaseFile, Credentials credentials, GoogleDriveAccess gda, string outputFolderName, bool timeBasedScoring)
         {
             OutputFolderName = outputFolderName;
             _databaseName = databaseFile;
@@ -187,6 +188,8 @@ namespace DerbyApp.RacerDatabase
                 CreateVideoTable();
                 RefreshDatabase();
                 LoadRaceInfo();
+                LdrBoard = new Leaderboard(CurrentRaceRacers, RaceFormat.LaneCount, timeBasedScoring);
+
                 _updateTimer = new Timer((e) =>
                 {
                     if (ResultsTable != null)
@@ -459,9 +462,16 @@ namespace DerbyApp.RacerDatabase
 
         private void CreateResultsTable()
         {
-            int order = 1;
+            int order = 0;
             _databaseGeneric.InitResultsTable(CurrentRaceName, ResultsTable);
             foreach (Racer racer in CurrentRaceRacers) racer.RaceOrder = order++;
+            foreach (DataRow r in ResultsTable.Rows)
+            {
+                long number = Convert.ToInt64(r["Number"]);
+                Racer racer = CurrentRaceRacers.Where(x => x.Number == number).FirstOrDefault();
+                if (racer != null) r["Name"] = racer.RacerName;
+            }
+            LdrBoard.CalculateResults(ResultsTable);
         }
 
         public void UpdateResultsTable(string newString, int column, int row)
@@ -471,6 +481,7 @@ namespace DerbyApp.RacerDatabase
                 ResultsTable.Rows[row][column] = newString;
                 RaceInProgress = true;
             }
+            LdrBoard.CalculateResults(ResultsTable);
         }
         #endregion
     }

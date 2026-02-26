@@ -22,11 +22,11 @@ namespace DerbyApp.RacerDatabase
         {
             if (isSqlite)    // These differ because of how autoincrement is different between postgres and sqlite
             {
-                return "CREATE TABLE IF NOT EXISTS [" + RacerTableName + "] ([Number] INTEGER PRIMARY KEY AUTOINCREMENT, [Name] VARCHAR(50), [Weight(oz)] DECIMAL(5, 3), [Troop] VARCHAR(10), [Level] VARCHAR(20), [Email] VARCHAR(100), [Image] MEDIUMBLOB, [ImageKey] VARCHAR(50))";
+                return "CREATE TABLE IF NOT EXISTS [" + RacerTableName + "] ([Number] INTEGER PRIMARY KEY AUTOINCREMENT, [Name] VARCHAR(100), [Weight(oz)] DECIMAL(5, 3), [Troop] VARCHAR(10), [Level] VARCHAR(20), [Email] VARCHAR(100), [Image] MEDIUMBLOB, [ImageKey] VARCHAR(50))";
             }
             else
             {
-                return "CREATE TABLE IF NOT EXISTS [" + RacerTableName + "] ([Number] INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY, [Name] VARCHAR(50), [Weight(oz)] DECIMAL(5, 3), [Troop] VARCHAR(10), [Level] VARCHAR(20), [Email] VARCHAR(100), [Image] VARCHAR(150), [ImageKey] VARCHAR(50))";
+                return "CREATE TABLE IF NOT EXISTS [" + RacerTableName + "] ([Number] INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY, [Name] VARCHAR(100), [Weight(oz)] DECIMAL(5, 3), [Troop] VARCHAR(10), [Level] VARCHAR(20), [Email] VARCHAR(100), [Image] VARCHAR(150), [ImageKey] VARCHAR(50))";
             }
         }
 
@@ -101,7 +101,7 @@ namespace DerbyApp.RacerDatabase
 
         public static string CreateResultsTable(string raceName, int heatCount)
         {
-            string sql = "CREATE TABLE IF NOT EXISTS [" + raceName + "] ([Number] INTEGER PRIMARY KEY";
+            string sql = "CREATE TABLE IF NOT EXISTS [" + raceName + "] ([Number] INTEGER PRIMARY KEY, [Name] VARCHAR(100)";
             for (int i = 1; i <= heatCount; i++) sql += ", [Heat " + i + "] REAL";
             sql += ")";
             return sql;

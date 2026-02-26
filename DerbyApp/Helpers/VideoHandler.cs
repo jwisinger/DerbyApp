@@ -89,26 +89,27 @@ namespace DerbyApp.Helpers
                     if (FlipImage) CurrentImageBitmap.RotateFlip(RotateFlipType.Rotate180FlipNone);
                     CurrentImageSource = ImageHandler.ImageSourceFromBitmap(CurrentImageBitmap);
                     _imageCaptured?.Invoke(this, null);
-                    switch (_videoState)
-                    {
-                        case VideoState.None:
-                            break;
-                        case VideoState.Recording:
-                            Application.Current.Dispatcher.Invoke(new Action(() =>
-                            {
-                                if (_videoWriter.IsOpened) _videoWriter.Write(currentFrame);
-                            }));
-                            break;
-                        case VideoState.Viewing:
-                            Thread.Sleep((int)(3000.0 / _playbackFrameRate)); // Wait to display correct framerate (1/3rd speed)
-                            if (_playbackTotalFrames == _videoCapture.Get(Emgu.CV.CvEnum.CapProp.PosFrames))
-                            {
-                                ReplayEnded?.Invoke(this, null);
-                                if (_imageCaptured != null) GetCamera();
-                            }
-                            break;
-                    }
                 }));
+                switch (_videoState)
+                {
+                    case VideoState.None:
+                        break;
+                    case VideoState.Recording:
+                        Application.Current.Dispatcher.Invoke(new Action(() =>
+                        {
+                            if (_videoWriter.IsOpened) _videoWriter.Write(currentFrame);
+                        }));
+                        break;
+                    case VideoState.Viewing:
+                        if (_playbackTotalFrames == _videoCapture.Get(Emgu.CV.CvEnum.CapProp.PosFrames))
+                        {
+                            ReplayEnded?.Invoke(this, null);
+                            if (_imageCaptured != null) GetCamera();
+                        }
+                        Thread.Sleep((int)(3000.0 / _playbackFrameRate)); // Wait to display correct framerate (1/3rd speed)
+                        break;
+                }
+
             }
             catch { }
         }
@@ -124,6 +125,7 @@ namespace DerbyApp.Helpers
 
         public void ReleaseCamera()
         {
+            _videoState = VideoState.None;
             _videoCapture?.Stop();
             _videoCapture?.Dispose();
             _videoCapture = null;
@@ -155,24 +157,27 @@ namespace DerbyApp.Helpers
             if (File.Exists(_recordedVideoInfo.FilePath)) _ = UploadVideo();
         }
 
-        public void ShowReplay()
+        public bool ShowReplay()
         {
-            _videoState = VideoState.Viewing;
             if (File.Exists(_recordedVideoInfo.FilePath))
             {
                 if (_videoCapture != null) ReleaseCamera();
+                _videoState = VideoState.Viewing;
                 _videoCapture = new VideoCapture(_recordedVideoInfo.FilePath);
                 _videoCapture.ImageGrabbed += VideoCapture_NewFrame;
                 _playbackFrameRate = _videoCapture.Get(Emgu.CV.CvEnum.CapProp.Fps);
                 _playbackTotalFrames = (int)_videoCapture.Get(Emgu.CV.CvEnum.CapProp.FrameCount);
                 _videoCapture.Start();
+                return true;
             }
+            return false;
         }
 
         public void CancelReplay()
         {
             ReplayEnded?.Invoke(this, null);
             _videoState = VideoState.None;
+            if (_imageCaptured != null) GetCamera();
         }
 
         private async Task UploadVideo()

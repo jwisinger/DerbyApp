@@ -7,9 +7,9 @@ using System.Linq;
 
 namespace DerbyApp.RaceStats
 {
-    public class Leaderboard(ObservableCollection<Racer> racers, int laneCount, bool timeBasedScoring)
+    public class Leaderboard(TrulyObservableCollection<Racer> racers, int laneCount, bool timeBasedScoring)
     {
-        public TrulyObservableCollection<Racer> Board = [.. racers];
+        public TrulyObservableCollection<Racer> Board = racers;// [.. racers];
         public bool TimeBasedScoring = timeBasedScoring;
         private readonly int _laneCount = laneCount;
 
