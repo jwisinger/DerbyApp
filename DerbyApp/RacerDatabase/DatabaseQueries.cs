@@ -94,7 +94,7 @@ namespace DerbyApp.RacerDatabase
         #endregion
 
         #region Results Table Queries
-#warning RUNOFF: Can this move to dataadapter?
+#warning X-RUNOFF: Can this move to dataadapter?
         public static string AddRunOffHeat(string raceName, int heatCount)
         {
             return "ALTER TABLE [" + raceName + "] ADD [Heat " + heatCount + "] REAL";

@@ -1,4 +1,4 @@
-﻿#warning REPORT: Could I somehow generate winners certificates along with "appearance" winners?
+﻿#warning Y-REPORT: Could I somehow generate winners certificates along with "appearance" winners?
 
 using DerbyApp.RacerDatabase;
 using System.Windows;
@@ -27,7 +27,7 @@ namespace DerbyApp.Pages
             cbRace2.DataContext = _db.Races;
             cbRace3.DataContext = _db.Races;
 
-#warning REPORT: Fix report
+#warning Y-REPORT: Fix report
             /*foreach (string raceName in _db.Races)
             {
                 _db.CurrentRaceName = raceName;
@@ -45,13 +45,13 @@ namespace DerbyApp.Pages
 
         private void ButtonReport_Click(object sender, RoutedEventArgs e)
         {
-#warning REPORT: Fix report
+#warning Y-REPORT: Fix report
             //GenerateReport.Generate(_eventName, _db.GetName(), _outputFolderName, _db.Racers, _races, _timeBasedScoring);
         }
 
         private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-#warning REPORT: Fix report
+#warning Y-REPORT: Fix report
             /*
             if (_races.Count == 0) return;
             RaceResults result = _races.Where(x => x.RaceName == ((sender as ComboBox).SelectedItem as string)).First();
@@ -116,7 +116,7 @@ namespace DerbyApp.Pages
 
         private void SlideShow_Click(object sender, RoutedEventArgs e)
         {
-#warning REPORT: Add a slideshow
+#warning Y-REPORT: Add a slideshow
         }
     }
 }

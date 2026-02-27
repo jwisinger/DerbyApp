@@ -1,7 +1,4 @@
 ﻿#warning TEST(0): Put breakpoints in every function in this file and confirm they work
-#warning REPORT: Look into Racer/Database/GenerateReport.cs
-#warning REPORT: Look into Pages/Reports
-#warning FUTURE: Update software licenses
 #warning TEST(1): What happens if I lose database connection when adding a racer
 #warning TEST(1): Test network loss with auto-write from track
 #warning TEST(2): Test complete run of race with Postgres
@@ -13,10 +10,13 @@
 #warning TODO(2): Can I show a racers position in the app?
 #warning TEST(3): Test complete run of race with Sqlite
 #warning TEST(4): What happens when I click the 2 refresh buttons with sqlite?
-#warning FUTURE: Add lots of logging to the catch statements
-#warning FUTURE: Allow changing picture (build this into the ImageDisplay?
-#warning FUTURE: Move videos from retool to Gdrive?
-#warning FUTURE: Add ability to copy local database to remote, mainly need a way to get a name for the remote database and then create it
+#warning Y-REPORT: Look into Racer/Database/GenerateReport.cs
+#warning Y-REPORT: Look into Pages/Reports
+#warning Z-FUTURE: Update software licenses
+#warning Z-FUTURE: Add lots of logging to the catch statements
+#warning Z-FUTURE: Allow changing picture (build this into the ImageDisplay?
+#warning Z-FUTURE: Move videos from retool to Gdrive?
+#warning Z-FUTURE: Add ability to copy local database to remote, mainly need a way to get a name for the remote database and then create it
 using ClippySharp;
 using DerbyApp.Assistant;
 using DerbyApp.Helpers;
@@ -247,7 +247,7 @@ namespace DerbyApp
 
         private void ButtonReport_Click(object sender, RoutedEventArgs e)
         {
-#warning REPORT: Fix this
+#warning Y-REPORT: Fix this
             //_reports = new Reports(_db);
             //mainFrame.Navigate(_reports);
             _agentInterface.ReportAction();

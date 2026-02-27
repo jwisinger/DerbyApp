@@ -60,7 +60,6 @@ namespace DerbyApp.Helpers
             public int HeatNumber;
         }
 
-#warning B: Can this be a struct (and still work with JSON)?
         private class VideoLink
         {
             public string Id { get; set; }

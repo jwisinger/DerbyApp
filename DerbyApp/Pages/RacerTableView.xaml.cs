@@ -1,6 +1,4 @@
-﻿#warning BUG RACERTABLEVIEW: Make sure we can still edit racer details on this page in local
-#warning TEST RACERTABLEVIEW: make sure we can print license
-#warning TEST RACERTABLEVIEW: make sure we can refresh database
+﻿#warning TEST RACERTABLEVIEW: Make sure we can still edit racer details on this page in local
 
 using DerbyApp.RacerDatabase;
 using DerbyApp.RaceStats;

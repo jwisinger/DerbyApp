@@ -1,6 +1,6 @@
 ﻿#warning TEST(0): Confirm every function in this file for local and remote
-#warning RUNOFF: If database connection is lost when addrunoff, the column lets you fill it out on the screen, but it never gets added to the database
-#warning RUNOFF: I'm not sure the addrunoffheat and heatcount stuff is done correctly
+#warning X-RUNOFF: If database connection is lost when addrunoff, the column lets you fill it out on the screen, but it never gets added to the database
+#warning X-RUNOFF: I'm not sure the addrunoffheat and heatcount stuff is done correctly
 using DerbyApp.Helpers;
 using DerbyApp.RaceStats;
 using System;
@@ -283,6 +283,7 @@ namespace DerbyApp.RacerDatabase
 
         private void GetListOfRaces()
         {
+            string current = CurrentRaceName;
             string sql = DatabaseQueries.GetListOfRaces(IsSqlite, out string tableName);
             _databaseGeneric.ExecuteReader(sql);
             Races.Clear();
@@ -290,6 +291,7 @@ namespace DerbyApp.RacerDatabase
             Races.Remove(DatabaseQueries.RacerTableName);
             Races.Remove(DatabaseQueries.RaceTableName);
             Races.Remove(DatabaseQueries.VideoTableName);
+            CurrentRaceName = current;
         }
 
         private void CreateRaceTable()
@@ -451,7 +453,7 @@ namespace DerbyApp.RacerDatabase
         #region Results Table Management
         public void AddRunOffHeat()
         {
-#warning RUNOFF: This could work through sqldataadapter
+#warning X-RUNOFF: This could work through sqldataadapter
             _databaseGeneric.ExecuteNonQuery(DatabaseQueries.AddRunOffHeat(CurrentRaceName, HeatCount++));
             RaceFormat.AddRunOffHeat([.. CurrentRaceRacers]);
             ResultsTable.Columns.Add("Heat " + RaceFormat.HeatCount, Type.GetType("System.Double"));
