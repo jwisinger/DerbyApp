@@ -1,7 +1,6 @@
 ﻿using DerbyApp.Helpers;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Data;
 using System.Linq;
 
@@ -13,7 +12,7 @@ namespace DerbyApp.RaceStats
         public bool TimeBasedScoring = timeBasedScoring;
         private readonly int _laneCount = laneCount;
 
-#warning TODO: Use or delete this
+#warning FUTURE: Use or delete this
         public List<Racer> CheckForTie(int positionToCheck)
         {
             return [.. Board.Where(x => x.Score == Board[positionToCheck].Score)];

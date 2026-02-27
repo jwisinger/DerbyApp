@@ -241,7 +241,6 @@ namespace DerbyApp.RacerDatabase
 
         public override int UpdateResultsTable(DataTable table)
         {
-#warning TEST(0): I think this works, but should check the actual database to confirm
             try
             {
                 if (_dataAdapter == null) return -1;

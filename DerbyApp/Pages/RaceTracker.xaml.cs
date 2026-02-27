@@ -183,13 +183,16 @@ namespace DerbyApp
         #region Event Handlers
         private void GetTimeHandler(object sender, float[] times)
         {
-            for (int i = 0; i < times.Length; i++)
+            if (times != null)
             {
-                DataRow dr = _db.ResultsTable.Rows.Find(_db.RaceFormat.CurrentRacers[i].Number);
-                if (dr != null) dr["Heat " + _db.CurrentHeatNumber] = times[i];
+                for (int i = 0; i < times.Length; i++)
+                {
+                    DataRow dr = _db.ResultsTable.Rows.Find(_db.RaceFormat.CurrentRacers[i].Number);
+                    if (dr != null) dr["Heat " + _db.CurrentHeatNumber] = times[i];
+                }
+                _db.UpdateResultsTable(null, 0, 0);
             }
-            _db.UpdateResultsTable(null, 0, 0);
-            if (_db.CurrentHeatNumber<_db.RaceFormat.HeatCount) ButtonNextHeat_Click(null, null);
+            if (_db.CurrentHeatNumber < _db.RaceFormat.HeatCount) ButtonNextHeat_Click(null, null);
             if (_videoHandler.ShowReplay()) _trackState = TrackState.ShowingReplay;
             else _trackState = TrackState.Idle;
             UpdateUI();
@@ -235,7 +238,7 @@ namespace DerbyApp
                 if (_trackController.TrackStateNumber == _trackController.TrackStates.Length - 1)
                 {
                     _trackState = TrackState.RaceInProgress;
-                    _videoHandler.StartRecording(_db.VideoFolderName, _db.EventName, _db.CurrentHeatNumber);
+                    _videoHandler.StartRecording(_db.VideoFolderName, _db.CurrentRaceName, _db.CurrentHeatNumber);
                 }
                 RaceCountDownString = raceCountdownTime.ToString() + " seconds remaining.";
             }
@@ -472,6 +475,18 @@ namespace DerbyApp
             InitializeComponent();
             _announcer = announcer;
             _db = db;
+            _db.PropertyChanged += (sender, e) =>
+            {
+                if (e.PropertyName == nameof(Database.CurrentRaceName))
+                {
+                    _db.RaceFormat.CurrentRacers.CollectionChanged += CurrentRacers_CollectionChanged;
+#warning TODO: When changing race, reset to heat 1
+                    //_db.CurrentHeatNumber = 1;
+                    _trackState = TrackState.Idle;
+                    UpdateUI();
+                    //SetActiveHeatColumn();
+                }
+            };
 
             CurrentHeatLabel.DataContext = this;
             gridLeaderBoard.DataContext = _db.LdrBoard.Board;

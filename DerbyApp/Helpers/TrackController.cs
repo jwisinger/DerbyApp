@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Net.Http;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
@@ -187,14 +185,20 @@ namespace DerbyApp.Helpers
                         }
                     }
                     if (success == 4) TrackTimesUpdated?.Invoke(this, result);
-                    else MessageBox.Show("Received a bad response from track.", "Track Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    else
+                    {
+                        MessageBox.Show("Received a bad response from track.", "Track Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        TrackTimesUpdated?.Invoke(this, null);
+                    }
                 }
                 catch (HttpRequestException e)
                 {
                     ErrorLogger.LogError("TrackController.GetTimes", e);
                     MessageBox.Show(e.Message, "Track Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    TrackTimesUpdated?.Invoke(this, null);
                 }
             }
+            else TrackTimesUpdated?.Invoke(this, null);
         }
     }
 }

@@ -41,10 +41,10 @@ namespace DerbyApp.Assistant
         public async Task Start()
         {
             var playbackThread = new Thread(PlaybackThread);
-            _provider.Start();
+            _provider?.Start();
             cancellationTokenSource = new();
             playbackThread.Start(cancellationTokenSource.Token);
-            await _provider.WaitForExit(cancellationTokenSource.Token);
+            await _provider?.WaitForExit(cancellationTokenSource.Token);
         }
 
         public async Task Restart()
@@ -77,7 +77,7 @@ namespace DerbyApp.Assistant
 
         public void Speak(string text)
         {
-            _provider.InferPlayback(text).GetAwaiter().GetResult();
+            _provider?.InferPlayback(text).GetAwaiter().GetResult();
         }
     }
 }

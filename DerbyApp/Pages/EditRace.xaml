@@ -42,7 +42,7 @@
             <Line Grid.Row="3" X1="692.5" Y1="-1" X2="692.5" Y2="30" Stroke="#FF688CAF" StrokeThickness="5"/>
 
             <Label Grid.Row="0" Content="Race Name" HorizontalAlignment="Left" Margin="10,6,0,2" VerticalAlignment="Center"/>
-            <ComboBox Name="cbName" Grid.Row="0" IsEditable="False" SelectedValue="{Binding Path=CurrentRaceName, Mode=TwoWay}" ItemsSource="{Binding Path=., Mode=TwoWay}" Height="24" HorizontalAlignment="Left" Margin="100,8,0,0" Width="240" SelectionChanged="ComboBoxRaceName_SelectionChanged" KeyUp="CbName_KeyUp"/>
+            <ComboBox Name="cbName" Grid.Row="0" IsEditable="False" SelectedValue="{Binding Path=CurrentRaceName, Mode=TwoWay}" ItemsSource="{Binding Path=Races, Mode=TwoWay}" Height="24" HorizontalAlignment="Left" Margin="100,8,0,0" Width="240" SelectionChanged="ComboBoxRaceName_SelectionChanged" KeyUp="CbName_KeyUp"/>
             <Button Name="buttonNewRace" Content="New Race" Grid.Row="1" Width="110" Height="24" HorizontalAlignment="Left" Margin="100,6,0,0" Click="ButtonNewRace_Click" />
             <Button Name="buttonDeleteRace" Content="Delete Race" Grid.Row="1" Width="110" Height="24" HorizontalAlignment="Left" Margin="230,6,0,0" IsEnabled="False" Click="ButtonDeleteRace_Click"/>
 

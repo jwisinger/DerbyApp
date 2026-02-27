@@ -1,6 +1,6 @@
 ﻿#warning TEST(0): Put breakpoints in every function in this file and confirm they work
-#warning REPORTS: Look into Racer/Database/GenerateReport.cs
-#warning REPORTS: Look into Pages/Reports
+#warning REPORT: Look into Racer/Database/GenerateReport.cs
+#warning REPORT: Look into Pages/Reports
 #warning FUTURE: Update software licenses
 #warning TEST(1): What happens if I lose database connection when adding a racer
 #warning TEST(1): Test network loss with auto-write from track
@@ -9,12 +9,10 @@
 #warning TEST(2): Test creating races with 2 computers (make sure refresh works)
 #warning TEST(2): Test running race on one computer while someone is adding racers from another PC
 #warning TEST(2): Check vercel usage when running full race with two computers
-#warning TEST(2): Check reports
 #warning TODO(2): Can I make reports go to Google Drive?
 #warning TODO(2): Can I show a racers position in the app?
 #warning TEST(3): Test complete run of race with Sqlite
 #warning TEST(4): What happens when I click the 2 refresh buttons with sqlite?
-#warning TEST(4): What happens with funny characters in database or table names?
 #warning FUTURE: Add lots of logging to the catch statements
 #warning FUTURE: Allow changing picture (build this into the ImageDisplay?
 #warning FUTURE: Move videos from retool to Gdrive?
@@ -31,8 +29,6 @@ using System;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
-using System.Net.Http;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Threading;
@@ -251,7 +247,7 @@ namespace DerbyApp
 
         private void ButtonReport_Click(object sender, RoutedEventArgs e)
         {
-#warning REPORTS: Fix this
+#warning REPORT: Fix this
             //_reports = new Reports(_db);
             //mainFrame.Navigate(_reports);
             _agentInterface.ReportAction();
@@ -528,12 +524,11 @@ namespace DerbyApp
             _googleDriveAccess = new GoogleDriveAccess(_credentials);
             _videoHandler = new(_credentials);
             _db = new Database(databaseName, _credentials, _googleDriveAccess, outputFolderName, timeBasedScoring);
-            UpdateTimeBasedScoringInfo();
 
             if (_db.InitGood)
             {
+                UpdateTimeBasedScoringInfo();
                 Title = "Current Event = " + Path.GetFileNameWithoutExtension(databaseName);
-                if (activeRace != null) _db.CurrentRaceName = activeRace;
                 if (_db.IsSqlite) CopyDatabaseText = "Upload Database to Remote";
                 else CopyDatabaseText = "Copy Database to Local";
                 _db.SyncStatusChanged += Database_SyncChanged;
@@ -563,6 +558,7 @@ namespace DerbyApp
                     DisplayPhotos = DisplayPhotosChecked ? Visibility.Visible : Visibility.Collapsed
                 };
 
+                if (activeRace != null) _db.CurrentRaceName = activeRace;
                 mainFrame.Navigate(_default);
                 return true;
             }

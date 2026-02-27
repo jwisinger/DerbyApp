@@ -33,7 +33,6 @@ namespace DerbyApp.RacerDatabase
         public ObservableCollection<GirlScoutLevel> GirlScoutLevels = new GirlScoutLevels().ScoutLevels;
         public TrulyObservableCollection<Racer> Racers = [];
         public TrulyObservableCollection<Racer> CurrentRaceRacers = [];
-        public ObservableCollection<string> Races = [];
         public RaceFormat RaceFormat = RaceFormats.Formats[RaceFormats.DefaultFormat].Clone();
         public DataTable ResultsTable = new();
         public readonly bool IsSqlite;
@@ -48,6 +47,7 @@ namespace DerbyApp.RacerDatabase
         #endregion
 
         #region Public Properties
+        public ObservableCollection<string> Races { get; set; } = [];
         public Leaderboard LdrBoard { get; set; }
         public bool IsSynced { get => _isSynced; }
         public string CurrentRaceName
@@ -55,7 +55,6 @@ namespace DerbyApp.RacerDatabase
             get => _currentRaceName;
             set
             {
-#warning TODO: The cbName combobox in EditRace should get updated here, but the binding is broken
                 _currentRaceName = value;
                 DatabaseRegistry.StoreDatabaseRegistry(null, _currentRaceName, null, null, null, null, null, null, null);
                 if ((_currentRaceName != null) && (_currentRaceName != ""))
@@ -70,6 +69,7 @@ namespace DerbyApp.RacerDatabase
                     ResultsTable.Clear();
                     RaceInProgress = false;
                 }
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CurrentRaceName)));
             }
         }
 
@@ -260,20 +260,18 @@ namespace DerbyApp.RacerDatabase
         #region Race Management
         public void AddOrUpdateRace()
         {
-            string sql = DatabaseQueries.AddOrUpdateRace(EventName, RaceFormat, out List<DatabaseGeneric.SqlParameter> parameters);
+            string sql = DatabaseQueries.AddOrUpdateRace(IsSqlite, EventName, RaceFormat, out List<DatabaseGeneric.SqlParameter> parameters);
             _databaseGeneric.ExecuteNonQueryWithParams(sql, parameters);
         }
 
         public void LoadRaceInfo()
         {
-            string sql = DatabaseQueries.LoadRaceInfo(EventName, out List<DatabaseGeneric.SqlParameter> parameters);
-#warning B: This doesn't ever seem to read
+            string sql = DatabaseQueries.LoadRaceInfo(CurrentRaceName, out List<DatabaseGeneric.SqlParameter> parameters);
             _databaseGeneric.ExecuteReaderWithParams(sql, parameters);
             if (_databaseGeneric.Read())
             {
                 _eventName = (string)_databaseGeneric.GetReadValue("Name");
                 RaceFormat = RaceFormats.Formats.FirstOrDefault(x => x.Name == (string)_databaseGeneric.GetReadValue("Format"));
-#warning B: Make sure if the raceformat is not found, the default is null or the next line won't work
                 RaceFormat ??= RaceFormats.Formats[RaceFormats.DefaultFormat].Clone();
             }
             else
@@ -303,7 +301,7 @@ namespace DerbyApp.RacerDatabase
         {
             if (Races.Contains(raceName)) return false;
             Races.Add(raceName);
-            string sql = DatabaseQueries.AddOrUpdateRace(raceName, RaceFormats.Formats[raceFormatIndex], out List<DatabaseGeneric.SqlParameter> parameters);
+            string sql = DatabaseQueries.AddOrUpdateRace(IsSqlite, raceName, RaceFormats.Formats[raceFormatIndex], out List<DatabaseGeneric.SqlParameter> parameters);
             _databaseGeneric.ExecuteNonQueryWithParams(sql, parameters);
             _databaseGeneric.ExecuteNonQuery(DatabaseQueries.CreateResultsTable(raceName, RaceFormats.Formats[raceFormatIndex].HeatCount));
             CurrentRaceName = raceName;

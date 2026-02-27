@@ -35,15 +35,16 @@ namespace DerbyApp.RacerDatabase
             return "CREATE TABLE IF NOT EXISTS [" + RaceTableName + "] ([Number] INTEGER PRIMARY KEY, [Name] VARCHAR(200), [Format] VARCHAR(200))";
         }
 
-        public static string AddOrUpdateRace(string eventName, RaceFormat format, out List<DatabaseGeneric.SqlParameter> parameters)
+        public static string AddOrUpdateRace(bool isSqlite, string eventName, RaceFormat format, out List<DatabaseGeneric.SqlParameter> parameters)
         {
             parameters =
             [
                 new DatabaseGeneric.SqlParameter { name = "@Number", type = DatabaseGeneric.DataType.Integer, value = 1 },
                 new DatabaseGeneric.SqlParameter { name = "@Name", type = DatabaseGeneric.DataType.Text, value = eventName },
-                new DatabaseGeneric.SqlParameter { name = "@Format", type = DatabaseGeneric.DataType.Text, value = format },
+                new DatabaseGeneric.SqlParameter { name = "@Format", type = DatabaseGeneric.DataType.Text, value = format.Name },
             ];
-            return "REPLACE INTO [" + RaceTableName + "] ([Number], [Name], [Format]) VALUES (@Number, @Name, @Format)";
+            if (isSqlite) return "REPLACE INTO [" + RaceTableName + "] ([Number], [Name], [Format]) VALUES (@Number, @Name, @Format)";
+            else return "INSERT INTO [" + RaceTableName + "] ([Number], [Name], [Format]) VALUES (@Number, @Name, @Format) ON CONFLICT ([Number]) DO UPDATE SET ([Number], [Name], [Format]) = ROW(EXCLUDED.*)";
         }
 
         public static string DeleteRace(string eventName, out List<DatabaseGeneric.SqlParameter> parameters)
@@ -61,7 +62,7 @@ namespace DerbyApp.RacerDatabase
             [
                 new DatabaseGeneric.SqlParameter { name = "@Name", type = DatabaseGeneric.DataType.Text, value = eventName },
             ];
-            return "SELECT * FROM [" + RaceTableName + "]WHERE [Name]=@Name";
+            return "SELECT * FROM [" + RaceTableName + "] WHERE [Name]=@Name";
         }
 
         public static string AddVideoToTable(VideoUploadedEventArgs e, out List<DatabaseGeneric.SqlParameter> parameters)
@@ -93,7 +94,7 @@ namespace DerbyApp.RacerDatabase
         #endregion
 
         #region Results Table Queries
-#warning B: Can this move to dataadapter?
+#warning RUNOFF: Can this move to dataadapter?
         public static string AddRunOffHeat(string raceName, int heatCount)
         {
             return "ALTER TABLE [" + raceName + "] ADD [Heat " + heatCount + "] REAL";
