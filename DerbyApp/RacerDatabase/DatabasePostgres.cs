@@ -223,7 +223,6 @@ namespace DerbyApp.RacerDatabase
 
         public override void InitResultsTable(string raceName, DataTable table)
         {
-#warning 0: Need to handle the case when the database is disconnected here (really just need to test this)
             string sql = "SELECT * FROM \"" + raceName + "\"";
             _reader?.Close();
             _dataAdapter = new NpgsqlDataAdapter(sql, PostgresConn)
@@ -239,7 +238,7 @@ namespace DerbyApp.RacerDatabase
             }
         }
 
-        public override int UpdateResultsTable(DataTable table)
+        public override int UpdateResultsTable(DataTable table, string raceName, int heatCount)
         {
             try
             {

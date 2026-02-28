@@ -1,4 +1,5 @@
 ﻿using DerbyApp.Helpers;
+using DerbyApp.RacerDatabase;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -83,7 +84,11 @@ namespace DerbyApp.RaceStats
                     if (obj.GetType() == typeof(float)) total += (float)obj;
                 }
 
-                Racer r = Board.Where(x => x.Number == (int)dataRow["Number"]).FirstOrDefault();
+                object o = dataRow["Number"];
+                long number = 0;
+                if (o is int i) number = i;
+                else if (o is long l) number = l;
+                Racer r = Board.Where(x => x.Number == number).FirstOrDefault();
                 if (r != null) r.Score = (decimal)total;
             }
         }

@@ -17,6 +17,10 @@
 #warning Z-FUTURE: Allow changing picture (build this into the ImageDisplay?
 #warning Z-FUTURE: Move videos from retool to Gdrive?
 #warning Z-FUTURE: Add ability to copy local database to remote, mainly need a way to get a name for the remote database and then create it
+#warning W-FUTURE: Option to load results table from XML ... will this automatically update to external database when connection re-establishes?
+#warning W-FUTURE: Ensure track network command documented
+#warning W-FUTURE: Ensure various logins documented 
+#warning W-FUTURE: Fix database name in app
 using ClippySharp;
 using DerbyApp.Assistant;
 using DerbyApp.Helpers;

@@ -1,5 +1,5 @@
 ﻿#warning TODO: Deleting racer from main list does not remove if already added to a race
-#warning 0 - BUG EDITRACE: Need to create a race and ensure it has the correct number of max racers
+#warning 0 - BUG EDITRACE: Heat format only seems correct for the initial race, and never changes when we select a new race
 using DerbyApp.RacerDatabase;
 using DerbyApp.RaceStats;
 using DerbyApp.Windows;

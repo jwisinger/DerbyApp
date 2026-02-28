@@ -88,7 +88,7 @@ namespace DerbyApp.RacerDatabase
             return;
         }
 
-        public virtual int UpdateResultsTable(DataTable table)
+        public virtual int UpdateResultsTable(DataTable table, string raceName, int heatCount)
         {
             return -1;
         }

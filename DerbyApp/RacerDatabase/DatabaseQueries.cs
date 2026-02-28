@@ -131,7 +131,7 @@ namespace DerbyApp.RacerDatabase
 
             if (racer.Number == 0)
             {
-                sql = "INSERT INTO [" + RacerTableName + "] ([Name], [Weight(oz)], [Troop], [Level], [Email], [Image], [ImageKey]) VALUES (@Name, @Weight, @Troop, @Level, @Email, @Image, @ImageKey) RETURNING [Number]";
+                sql = "INSERT INTO [" + RacerTableName + "] ([Name], [Weight(oz)], [Troop], [Level], [Email], [Image]) VALUES (@Name, @Weight, @Troop, @Level, @Email, @Image) RETURNING [Number]";
             }
             else
             {

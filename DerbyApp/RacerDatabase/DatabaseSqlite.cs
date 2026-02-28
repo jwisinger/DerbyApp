@@ -1,7 +1,8 @@
-﻿using Microsoft.Data.Sqlite;
+﻿using DerbyApp.Helpers;
+using Microsoft.Data.Sqlite;
 using System;
 using System.Collections.Generic;
-using System.IO;
+using System.Data;
 using System.Windows;
 
 namespace DerbyApp.RacerDatabase
@@ -40,61 +41,160 @@ namespace DerbyApp.RacerDatabase
 
         public DatabaseSqlite(string databaseFile)
         {
-            if (File.Exists(databaseFile))
-            {
-                EventFile = databaseFile;
-                SqliteConn = new SqliteConnection("Data Source = " + databaseFile);
-                CreateConnection();
-            }
+            EventFile = databaseFile;
+            SqliteConn = new SqliteConnection("Data Source = " + databaseFile);
+            CreateConnection();
         }
 
         public override int ExecuteNonQuery(string sql)
         {
-            SqliteCommand command = new(sql, SqliteConn);
-            return command.ExecuteNonQuery();
+            try
+            {
+                SqliteCommand command = new(sql, SqliteConn);
+                return command.ExecuteNonQuery();
+            }
+            catch (Exception ex)
+            {
+                ErrorLogger.LogError("DatabaseSqlite.ExecuteNonQuery", ex);
+                return -1;
+            }
         }
 
         public override int ExecuteNonQueryWithParams(string sql, List<SqlParameter> parameters)
         {
-            SqliteCommand command = new(sql, SqliteConn);
-            foreach (SqlParameter param in parameters)
+            try
             {
+                SqliteCommand command = new(sql, SqliteConn);
+                foreach (SqlParameter param in parameters)
+                {
 
-                command.Parameters.Add(param.name, GetSqliteType(param.type)).Value = param.value;
+                    command.Parameters.Add(param.name, GetSqliteType(param.type)).Value = param.value;
+                }
+                return command.ExecuteNonQuery();
             }
-            return command.ExecuteNonQuery();
+            catch (Exception ex)
+            {
+                ErrorLogger.LogError("DatabaseSqlite.ExecuteNonQueryWithParams", ex);
+                return -1;
+            }
         }
 
         public override bool ExecuteReader(string sql)
         {
-            SqliteCommand command = new(sql, SqliteConn);
-            _reader = command.ExecuteReader();
+            try
+            {
+                SqliteCommand command = new(sql, SqliteConn);
+                _reader = command.ExecuteReader();
+            }
+            catch (Exception ex)
+            {
+                ErrorLogger.LogError("DatabaseSqlite.ExecuteReader", ex);
+                return false;
+            }
+            return true;
+        }
+
+        public override bool ExecuteReaderWithParams(string sql, List<SqlParameter> parameters)
+        {
+            try
+            {
+                SqliteCommand command = new(sql, SqliteConn);
+                foreach (SqlParameter param in parameters)
+                {
+                    command.Parameters.Add(param.name, GetSqliteType(param.type)).Value = param.value;
+                }
+                _reader = command.ExecuteReader();
+            }
+            catch (Exception ex)
+            {
+                ErrorLogger.LogError("DatabaseSqlite.ExecuteReaderWithParams", ex);
+                return false;
+            }
             return true;
         }
 
         public override bool Read()
         {
-            return _reader.Read();
+            if (_reader == null) return false;
+            if (!_reader.IsClosed) return _reader.Read();
+            else return false;
         }
 
         public override object GetReadValue(string name)
         {
-            return _reader[name];
+            if (_reader == null) return false;
+            if (!_reader.IsClosed) return _reader.GetValue(name);
+            else return null;
         }
 
         public override int GetReadFieldCount()
         {
-            return _reader.FieldCount;
+            if (_reader == null) return 0;
+            if (!_reader.IsClosed) return _reader.FieldCount;
+            else return 0;
         }
 
         public override string GetReadFieldName(int column)
         {
-            return _reader.GetName(column);
+            if (_reader == null) return "";
+            if (!_reader.IsClosed) return _reader.GetName(column);
+            else return "";
         }
 
         public override string GetDataBaseName()
         {
             return EventFile;
+        }
+
+        public override void InitResultsTable(string raceName, DataTable table)
+        {
+            table.Clear();
+            ExecuteReader("SELECT * FROM [" + raceName + "]");
+            try
+            {
+                table.Load(_reader);
+            }
+            catch (Exception ex)
+            {
+                ErrorLogger.LogError("DatabaseSqlite.InitResultsTable", ex);
+            }
+        }
+
+        public override int UpdateResultsTable(DataTable table, string raceName, int heatCount)
+        {
+#warning: FUTURE: This should really be inside DatabaseQueries, or autogenerated in some way
+            int retVal = 0;
+            try
+            {
+                using (var transaction = SqliteConn.BeginTransaction())
+                {
+                    string sql = "REPLACE INTO [" + raceName + "] ([Number], [Name] ";
+                    for (int i = 1; i <= heatCount; i++) sql += ", [Heat " + i + "]";
+                    sql += ") VALUES (@Number, @Name";
+                    for (int i = 1; i <= heatCount; i++) sql += ", @Heat" + i;
+                    sql += ")";
+                    SqliteCommand command = new (sql, SqliteConn, transaction);
+
+                    command.Parameters.Add("@Number", SqliteType.Integer);
+                    command.Parameters.Add("@Name", SqliteType.Text);
+                    for (int i = 1; i <= heatCount; i++) command.Parameters.Add("@Heat" + i, SqliteType.Real);
+
+                    foreach (DataRow row in table.Rows)
+                    {
+                        command.Parameters["@Number"].Value = row["Number"];
+                        command.Parameters["@Name"].Value = row["Name"];
+                        for (int i = 1; i <= heatCount; i++) command.Parameters["@Heat" + i].Value = row["Heat " + i];
+                        retVal += command.ExecuteNonQuery();
+                    }
+                    transaction.Commit(); // Commit all changes at once
+                }
+                return retVal;
+            }
+            catch (Exception ex)
+            {
+                ErrorLogger.LogError("DatabaseSqlite.UpdateResultsTable", ex);
+                return -1;
+            }
         }
     }
 }
