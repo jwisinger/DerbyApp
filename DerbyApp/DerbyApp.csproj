@@ -57,6 +57,7 @@
     <None Remove="Images\SelectRace.png" />
     <None Remove="Images\SelectRace2.png" />
     <None Remove="Images\Settings.png" />
+    <None Remove="Images\SlowMotion.png" />
     <None Remove="Images\Sound.png" />
     <None Remove="Images\StartRace.png" />
     <None Remove="Images\StartRace2.png" />
@@ -143,6 +144,7 @@
     <Resource Include="Images\SelectRace.png" />
     <Resource Include="Images\SelectRace2.png" />
     <Resource Include="Images\Settings.png" />
+    <Resource Include="Images\SlowMotion.png" />
     <Resource Include="Images\Sound.png" />
     <Resource Include="Images\StartRace.png" />
     <Resource Include="Images\StartRace2.png" />

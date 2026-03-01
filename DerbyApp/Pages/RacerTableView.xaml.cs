@@ -1,6 +1,4 @@
-﻿#warning TEST RACERTABLEVIEW: Make sure we can still edit racer details on this page in local
-
-using DerbyApp.RacerDatabase;
+﻿using DerbyApp.RacerDatabase;
 using DerbyApp.RaceStats;
 using DerbyApp.Windows;
 using System.ComponentModel;

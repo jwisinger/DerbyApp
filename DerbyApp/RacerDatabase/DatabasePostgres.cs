@@ -12,7 +12,7 @@ namespace DerbyApp.RacerDatabase
 {
     public class DatabasePostgres : DatabaseGeneric
     {
-        public readonly string EventName = "";
+        public readonly string DatabaseName = "";
         public NpgsqlConnection PostgresConn;
         private NpgsqlDataReader _reader;
         private NpgsqlDataAdapter _dataAdapter;
@@ -81,7 +81,7 @@ namespace DerbyApp.RacerDatabase
             {
                 try
                 {
-                    PostgresConn = new("Host=" + Host + "; Username=" + _credentials.DatabaseUsername + ";Password=" + _credentials.DatabasePassword + ";Database=" + EventName.ToLower());
+                    PostgresConn = new("Host=" + Host + "; Username=" + _credentials.DatabaseUsername + ";Password=" + _credentials.DatabasePassword + ";Database=" + DatabaseName.ToLower());
                     PostgresConn.Open();
                 }
                 catch (Exception ex)
@@ -95,7 +95,7 @@ namespace DerbyApp.RacerDatabase
 
         public DatabasePostgres(string databaseName, Credentials credentials)
         {
-            EventName = databaseName;
+            DatabaseName = databaseName;
             _credentials = credentials;
             if (ConnectToDatabase())
             {
@@ -105,8 +105,8 @@ namespace DerbyApp.RacerDatabase
 
         public override string GetConnectionString(bool microsoftFormat)
         {
-            if (microsoftFormat) return "Server=" + Host + "; User Id=" + _credentials.DatabaseUsername + ";Password=" + _credentials.DatabasePassword.ToString() + ";Database=" + EventName.ToLower();
-            else return "Host=" + Host + "; Username=" + _credentials.DatabaseUsername + ";Password=" + _credentials.DatabasePassword.ToString() + ";Database=" + EventName.ToLower();
+            if (microsoftFormat) return "Server=" + Host + "; User Id=" + _credentials.DatabaseUsername + ";Password=" + _credentials.DatabasePassword.ToString() + ";Database=" + DatabaseName.ToLower();
+            else return "Host=" + Host + "; Username=" + _credentials.DatabaseUsername + ";Password=" + _credentials.DatabasePassword.ToString() + ";Database=" + DatabaseName.ToLower();
         }
 
         public override int ExecuteNonQuery(string sql)
@@ -218,7 +218,7 @@ namespace DerbyApp.RacerDatabase
 
         public override string GetDataBaseName()
         {
-            return EventName;
+            return DatabaseName;
         }
 
         public override void InitResultsTable(string raceName, DataTable table)
@@ -231,6 +231,9 @@ namespace DerbyApp.RacerDatabase
             };
             _builder = new(_dataAdapter);
             table.Clear();
+            List<DataColumn> columnsToRemove = [];
+            foreach (DataColumn column in table.Columns) if (column.ColumnName.Contains("Heat")) columnsToRemove.Add(column);
+            foreach (DataColumn column in columnsToRemove) table.Columns.Remove(column);
             try { _dataAdapter.Fill(table); }
             catch (Exception ex)
             {

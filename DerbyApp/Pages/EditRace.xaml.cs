@@ -1,6 +1,4 @@
-﻿#warning TODO: Deleting racer from main list does not remove if already added to a race
-#warning 0 - BUG EDITRACE: Heat format only seems correct for the initial race, and never changes when we select a new race
-using DerbyApp.RacerDatabase;
+﻿using DerbyApp.RacerDatabase;
 using DerbyApp.RaceStats;
 using DerbyApp.Windows;
 using System.Collections.Generic;
@@ -82,7 +80,7 @@ namespace DerbyApp.Pages
                     return;
                 }
             }
-            _db.CurrentRaceName = cbName.SelectedValue as string;
+            if (_db.CurrentRaceName != cbName.SelectedValue as string) _db.CurrentRaceName = cbName.SelectedValue as string;
             try
             {
                 if (_db.CurrentRaceName == null) buttonDeleteRace.IsEnabled = false;
@@ -151,6 +149,12 @@ namespace DerbyApp.Pages
                     "Delete Race", MessageBoxButton.OKCancel, MessageBoxImage.Question) == MessageBoxResult.OK)
                 {
                     _db.DeleteCurrentRace();
+                    if (cbName.Items.Count == 0) buttonAddRacer.IsEnabled = false;
+                    else
+                    {
+                        cbName.SelectedIndex = 0;
+                        buttonAddRacer.IsEnabled = true;
+                    }
                 }
             }
         }

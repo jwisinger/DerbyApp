@@ -1,6 +1,9 @@
 ﻿#warning Y-REPORT: Could I somehow generate winners certificates along with "appearance" winners?
 
 using DerbyApp.RacerDatabase;
+using DerbyApp.RaceStats;
+using System.Collections.Generic;
+using System.Data;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -11,6 +14,14 @@ namespace DerbyApp.Pages
     /// </summary>
     public partial class Reports : Page
     {
+        struct RaceResults
+        {
+            public string RaceName;
+            public List<Racer> Racers;
+            public RaceFormat RaceFormat;
+            public DataTable ResultsTable;
+        }
+
         private readonly Database _db;
         private readonly bool _timeBasedScoring;
         private readonly string _eventName;
@@ -32,10 +43,15 @@ namespace DerbyApp.Pages
             {
                 _db.CurrentRaceName = raceName;
                 if (_db.CurrentRaceRacers.Count == 0) continue;
-                RaceResults results = new(raceName, _db.CurrentRaceRacers, RaceFormats.Formats[_db.RaceFormatIndex].Clone(), _db.GetHeatCount(_db.CurrentRaceName));
-                int heatCount = _db.GetHeatCount(results.RaceName);
-                while (results.RaceFormat.HeatCount < heatCount) results.AddRunOffHeat(null);
-                _db.LoadResultsTable(results);
+                RaceResults results = new()
+                {
+                    RaceName = raceName,
+                    Racers = [.. _db.CurrentRaceRacers],
+                    RaceFormat = _db.RaceFormat,
+                    ResultsTable = _db.ResultsTable
+                };
+                //int heatCount = _db.GetHeatCount(results.RaceName);
+                //while (results.RaceFormat.HeatCount < heatCount) results.AddRunOffHeat(null);
                 _races.Add(results);
             }
             if (_races.Count > 0) cbRace1.SelectedItem = _races[0].RaceName;

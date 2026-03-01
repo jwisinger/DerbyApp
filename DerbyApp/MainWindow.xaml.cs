@@ -1,15 +1,12 @@
-﻿#warning TEST(0): Put breakpoints in every function in this file and confirm they work
-#warning TEST(1): What happens if I lose database connection when adding a racer
-#warning TEST(1): Test network loss with auto-write from track
-#warning TEST(2): Test complete run of race with Postgres
-#warning TEST(2): Test adding racers with 2 computers (make sure refresh works)
-#warning TEST(2): Test creating races with 2 computers (make sure refresh works)
-#warning TEST(2): Test running race on one computer while someone is adding racers from another PC
-#warning TEST(2): Check vercel usage when running full race with two computers
-#warning TODO(2): Can I make reports go to Google Drive?
-#warning TODO(2): Can I show a racers position in the app?
-#warning TEST(3): Test complete run of race with Sqlite
-#warning TEST(4): What happens when I click the 2 refresh buttons with sqlite?
+﻿#warning TEST(NETWORK): What happens if I lose database connection when adding a racer
+#warning TEST(NETWORK): Test network loss with auto-write from track
+#warning TEST(2 PC): Test adding racers with 2 computers (make sure refresh works)
+#warning TEST(2 PC): Test creating races with 2 computers (make sure refresh works)
+#warning TEST(2 PC): Test running race on one computer while someone is adding racers from another PC
+#warning TEST(2 PC): Check vercel usage when running full race with two computers
+#warning TEST(FULL): Test complete run of race with Postgres
+#warning TEST(FULL): Test complete run of race with Sqlite
+#warning Y-REPORT: Can I make reports go to Google Drive?
 #warning Y-REPORT: Look into Racer/Database/GenerateReport.cs
 #warning Y-REPORT: Look into Pages/Reports
 #warning Z-FUTURE: Update software licenses
@@ -17,10 +14,13 @@
 #warning Z-FUTURE: Allow changing picture (build this into the ImageDisplay?
 #warning Z-FUTURE: Move videos from retool to Gdrive?
 #warning Z-FUTURE: Add ability to copy local database to remote, mainly need a way to get a name for the remote database and then create it
+#warning W-FUTURE: Can I show a racers position in the app?
 #warning W-FUTURE: Option to load results table from XML ... will this automatically update to external database when connection re-establishes?
 #warning W-FUTURE: Ensure track network command documented
 #warning W-FUTURE: Ensure various logins documented 
 #warning W-FUTURE: Fix database name in app
+#warning W-FUTURE Add ability to delete remote event?
+
 using ClippySharp;
 using DerbyApp.Assistant;
 using DerbyApp.Helpers;
@@ -510,7 +510,7 @@ namespace DerbyApp
             {
                 string databaseName;
                 if (dbs.Sqlite) databaseName = dbs.DatabaseFile;
-                else databaseName = dbs.EventName;
+                else databaseName = dbs.DatabaseName;
                 DatabaseRegistry.StoreDatabaseRegistry(databaseName, null, null, null, null, null, null, null, null);
                 if (ChangeDatabase()) break;
             }

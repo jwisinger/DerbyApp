@@ -14,7 +14,8 @@ namespace DerbyApp.Windows
         private readonly DatabasePostgres _dbConnect;
         public string DatabaseFile = "";
         public ObservableCollection<string> EventList = [];
-        public string EventName = "";
+        public string DatabaseName
+            = "";
         public bool Sqlite = false;
 
         public DatabaseSelector(Credentials credentials)
@@ -83,7 +84,7 @@ namespace DerbyApp.Windows
             if (selectedEvent != null)
             {
                 DialogResult = true;
-                EventName = selectedEvent;
+                DatabaseName = selectedEvent;
                 Sqlite = false;
                 Close();
             }

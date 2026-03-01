@@ -30,37 +30,43 @@ namespace DerbyApp.RacerDatabase
             }
         }
 
-        public static string CreateRaceTable()
+        public static string CreateRaceTable(bool isSqlite)
         {
-            return "CREATE TABLE IF NOT EXISTS [" + RaceTableName + "] ([Number] INTEGER PRIMARY KEY, [Name] VARCHAR(200), [Format] VARCHAR(200))";
+            if (isSqlite)    // These differ because of how autoincrement is different between postgres and sqlite
+            {
+                return "CREATE TABLE IF NOT EXISTS [" + RaceTableName + "] ([Number] INTEGER PRIMARY KEY AUTOINCREMENT, [Name] VARCHAR(200), [Format] VARCHAR(200))";
+            }
+            else
+            {
+                return "CREATE TABLE IF NOT EXISTS [" + RaceTableName + "] ([Number] INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY, [Name] VARCHAR(200), [Format] VARCHAR(200))";
+
+            }
         }
 
-        public static string AddOrUpdateRace(bool isSqlite, string eventName, RaceFormat format, out List<DatabaseGeneric.SqlParameter> parameters)
+        public static string AddOrUpdateRace(string raceName, RaceFormat format, out List<DatabaseGeneric.SqlParameter> parameters)
         {
             parameters =
             [
-                new DatabaseGeneric.SqlParameter { name = "@Number", type = DatabaseGeneric.DataType.Integer, value = 1 },
-                new DatabaseGeneric.SqlParameter { name = "@Name", type = DatabaseGeneric.DataType.Text, value = eventName },
+                new DatabaseGeneric.SqlParameter { name = "@Name", type = DatabaseGeneric.DataType.Text, value = raceName },
                 new DatabaseGeneric.SqlParameter { name = "@Format", type = DatabaseGeneric.DataType.Text, value = format.Name },
             ];
-            if (isSqlite) return "REPLACE INTO [" + RaceTableName + "] ([Number], [Name], [Format]) VALUES (@Number, @Name, @Format)";
-            else return "INSERT INTO [" + RaceTableName + "] ([Number], [Name], [Format]) VALUES (@Number, @Name, @Format) ON CONFLICT ([Number]) DO UPDATE SET ([Number], [Name], [Format]) = ROW(EXCLUDED.*)";
-        }
+            return "INSERT INTO [" + RaceTableName + "] ([Name], [Format]) VALUES (@Name, @Format)";
+       }
 
-        public static string DeleteRace(string eventName, out List<DatabaseGeneric.SqlParameter> parameters)
+        public static string DeleteRace(string raceName, out List<DatabaseGeneric.SqlParameter> parameters)
         {
             parameters =
             [
-                new DatabaseGeneric.SqlParameter { name = "@Name", type = DatabaseGeneric.DataType.Text, value = eventName },
+                new DatabaseGeneric.SqlParameter { name = "@Name", type = DatabaseGeneric.DataType.Text, value = raceName },
             ];
             return "DELETE FROM [" + RaceTableName + "] WHERE [Name]=@Name";
         }
 
-        public static string LoadRaceInfo(string eventName, out List<DatabaseGeneric.SqlParameter> parameters)
+        public static string LoadRaceInfo(string raceName, out List<DatabaseGeneric.SqlParameter> parameters)
         {
             parameters =
             [
-                new DatabaseGeneric.SqlParameter { name = "@Name", type = DatabaseGeneric.DataType.Text, value = eventName },
+                new DatabaseGeneric.SqlParameter { name = "@Name", type = DatabaseGeneric.DataType.Text, value = raceName },
             ];
             return "SELECT * FROM [" + RaceTableName + "] WHERE [Name]=@Name";
         }
@@ -131,7 +137,7 @@ namespace DerbyApp.RacerDatabase
 
             if (racer.Number == 0)
             {
-                sql = "INSERT INTO [" + RacerTableName + "] ([Name], [Weight(oz)], [Troop], [Level], [Email], [Image]) VALUES (@Name, @Weight, @Troop, @Level, @Email, @Image) RETURNING [Number]";
+                sql = "INSERT INTO [" + RacerTableName + "] ([Name], [Weight(oz)], [Troop], [Level], [Email], [Image], [ImageKey]) VALUES (@Name, @Weight, @Troop, @Level, @Email, @Image, @ImageKey) RETURNING [Number]";
             }
             else
             {
@@ -151,6 +157,7 @@ namespace DerbyApp.RacerDatabase
             if (isSqlite)
             {
                 parameters.Add(new DatabaseGeneric.SqlParameter { name = "@Image", type = DatabaseGeneric.DataType.Blob, value = ms.ToArray() });
+                parameters.Add(new DatabaseGeneric.SqlParameter { name = "@ImageKey", type = DatabaseGeneric.DataType.Text, value = "" });
             }
             else
             {

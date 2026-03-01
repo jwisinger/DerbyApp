@@ -1,4 +1,5 @@
-﻿#warning TEST(0): Confirm every function in this file for local and remote
+﻿#warning 0 - Setting event name doesn't work right anymore
+#warning W-FUTURE: Try writing to SQLite instead of XML
 #warning X-RUNOFF: If database connection is lost when addrunoff, the column lets you fill it out on the screen, but it never gets added to the database
 #warning X-RUNOFF: I'm not sure the addrunoffheat and heatcount stuff is done correctly
 using DerbyApp.Helpers;
@@ -42,6 +43,7 @@ namespace DerbyApp.RacerDatabase
         #region Events
         public event PropertyChangedEventHandler PropertyChanged;
         public event PropertyChangedEventHandler ColumnAdded;
+        public event PropertyChangedEventHandler ColumnRemoved;
         public event EventHandler SyncStatusChanged;
         #endregion
 
@@ -78,6 +80,7 @@ namespace DerbyApp.RacerDatabase
             set
             {
                 _eventName = value;
+#warning 0 - This mixes the concept of event name and current race ... it's a problem throughout this particular file
                 AddOrUpdateRace();
             }
         }
@@ -241,7 +244,7 @@ namespace DerbyApp.RacerDatabase
 
                 if (postGresConnStr != "")
                 {
-                    DatabaseMigrator.Migrate(MigrationDirection.PostgresToSqlite, Path.Combine(EventFolderName, EventName + "_" + DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss") + ".sqlite"), postGresConnStr);
+                    DatabaseMigrator.Migrate(MigrationDirection.PostgresToSqlite, Path.Combine(EventFolderName, _databaseName + "_" + DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss") + ".sqlite"), postGresConnStr);
                 }
             }
         }
@@ -263,7 +266,7 @@ namespace DerbyApp.RacerDatabase
         #region Race Management
         public void AddOrUpdateRace()
         {
-            string sql = DatabaseQueries.AddOrUpdateRace(IsSqlite, EventName, RaceFormat, out List<DatabaseGeneric.SqlParameter> parameters);
+            string sql = DatabaseQueries.AddOrUpdateRace(EventName, RaceFormat, out List<DatabaseGeneric.SqlParameter> parameters);
             _databaseGeneric.ExecuteNonQueryWithParams(sql, parameters);
         }
 
@@ -300,14 +303,14 @@ namespace DerbyApp.RacerDatabase
 
         private void CreateRaceTable()
         {
-            _databaseGeneric.ExecuteNonQuery(DatabaseQueries.CreateRaceTable());
+            _databaseGeneric.ExecuteNonQuery(DatabaseQueries.CreateRaceTable(IsSqlite));
         }
 
         public bool AddRace(string raceName, int raceFormatIndex)
         {
             if (Races.Contains(raceName)) return false;
             Races.Add(raceName);
-            string sql = DatabaseQueries.AddOrUpdateRace(IsSqlite, raceName, RaceFormats.Formats[raceFormatIndex], out List<DatabaseGeneric.SqlParameter> parameters);
+            string sql = DatabaseQueries.AddOrUpdateRace(raceName, RaceFormats.Formats[raceFormatIndex], out List<DatabaseGeneric.SqlParameter> parameters);
             _databaseGeneric.ExecuteNonQueryWithParams(sql, parameters);
             _databaseGeneric.ExecuteNonQuery(DatabaseQueries.CreateResultsTable(raceName, RaceFormats.Formats[raceFormatIndex].HeatCount));
             CurrentRaceName = raceName;
@@ -446,7 +449,6 @@ namespace DerbyApp.RacerDatabase
             _databaseGeneric.ExecuteReaderWithParams(sql, parameters);
             if (_databaseGeneric.Read())
             {
-#warning TEST: Make sure these two lines still work with postgres and sqlite
                 object o = _databaseGeneric.GetReadValue("Number");
                 if (o is int i) racer.Number = i;
                 else if (o is long l) racer.Number = l;
@@ -476,7 +478,10 @@ namespace DerbyApp.RacerDatabase
         private void CreateResultsTable()
         {
             int order = 0;
+            bool columnsExist = ResultsTable.Columns.Count > 0;
+            ResultsTable.Columns.Cast<DataColumn>().Select(x => x.ColumnName).ToList().ForEach(x => ColumnRemoved?.Invoke(this, new PropertyChangedEventArgs(x)));
             _databaseGeneric.InitResultsTable(CurrentRaceName, ResultsTable);
+            if (columnsExist) ResultsTable.Columns.Cast<DataColumn>().Select(x => x.ColumnName).ToList().ForEach(x => ColumnAdded?.Invoke(this, new PropertyChangedEventArgs(x)));
             foreach (Racer racer in CurrentRaceRacers) racer.RaceOrder = order++;
             foreach (DataRow r in ResultsTable.Rows)
             {

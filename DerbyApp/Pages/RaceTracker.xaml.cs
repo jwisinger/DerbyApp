@@ -7,6 +7,7 @@ using DerbyApp.Windows;
 using System;
 using System.ComponentModel;
 using System.Data;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
@@ -39,6 +40,7 @@ namespace DerbyApp
 
         #region Private Properties
         private Visibility _recordingVisibility = Visibility.Collapsed;
+        private Visibility _playBackVisibility = Visibility.Collapsed;
         private Visibility _buttonVisibility = Visibility.Visible;
         private Visibility _cancelButtonVisibility = Visibility.Visible;
         private Visibility _displayPhotos = Visibility.Collapsed;
@@ -106,6 +108,16 @@ namespace DerbyApp
             set
             {
                 _recordingVisibility = value;
+                NotifyPropertyChanged();
+            }
+        }
+
+        public Visibility PlayBackVisibility
+        {
+            get => _playBackVisibility;
+            set
+            {
+                _playBackVisibility = value;
                 NotifyPropertyChanged();
             }
         }
@@ -312,10 +324,13 @@ namespace DerbyApp
 
         private void ResultsColumnAdded(object sender, PropertyChangedEventArgs e)
         {
-#warning X-RUNOFF: Do I need this?
             gridRaceResults.Columns.Add(new DataGridTextColumn() { Header = e.PropertyName, Binding = new Binding(e.PropertyName) { StringFormat = "N3" } });
         }
 
+        private void ResultsColumnRemoved(object sender, PropertyChangedEventArgs e)
+        {
+            gridRaceResults.Columns.Where(c => c.Header.ToString() == e.PropertyName).ToList().ForEach(c => gridRaceResults.Columns.Remove(c));
+        }
         #endregion
 
         #region Public Methods
@@ -359,6 +374,7 @@ namespace DerbyApp
             EnableBoxButtonVisibility = Visibility.Visible;
             CancelReplayEnabled = false;
             RecordingVisibility = Visibility.Collapsed;
+            PlayBackVisibility = Visibility.Collapsed;
             switch (_trackState)
             {
                 case TrackState.Idle:
@@ -383,8 +399,7 @@ namespace DerbyApp
                     break;
                 case TrackState.ShowingReplay:
                     EnableBoxButtonVisibility = Visibility.Hidden;
-#warning TODO: Maybe put a special replay happening icon
-                    //RecordingVisibility = Visibility.Visible;
+                    PlayBackVisibility = Visibility.Visible;
                     CancelReplayEnabled = true;
                     break;
             }
@@ -480,18 +495,15 @@ namespace DerbyApp
                 if (e.PropertyName == nameof(Database.CurrentRaceName))
                 {
                     _db.RaceFormat.CurrentRacers.CollectionChanged += CurrentRacers_CollectionChanged;
-#warning TODO: When changing race, reset to heat 1
-                    //_db.CurrentHeatNumber = 1;
+                    _db.CurrentHeatNumber = 1;
                     _trackState = TrackState.Idle;
                     UpdateUI();
-                    //SetActiveHeatColumn();
                 }
             };
 
             CurrentHeatLabel.DataContext = this;
             gridLeaderBoard.DataContext = _db.LdrBoard.Board;
             gridRaceResults.DataContext = _db.ResultsTable.DefaultView;
-            gridRaceResults.AutoGeneratingColumn += Datagrid_AutoGeneratingColumn;
 
             _trackController = new TrackController();
             _trackController.TrackStateUpdated += TrackController_TrackStateUpdated;
@@ -501,6 +513,7 @@ namespace DerbyApp
             _db.RaceFormat.UpdateDisplayedHeat(_db.CurrentHeatNumber, db.CurrentRaceRacers);
             _db.RaceFormat.CurrentRacers.CollectionChanged += CurrentRacers_CollectionChanged;
             _db.ColumnAdded += ResultsColumnAdded;
+            _db.ColumnRemoved += ResultsColumnRemoved;
 
             _videoHandler = videoHandler;
             _videoHandler.ReplayEnded += ReplayEnded;
