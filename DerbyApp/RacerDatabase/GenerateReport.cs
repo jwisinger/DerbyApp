@@ -3,14 +3,38 @@ using DerbyApp.RaceStats;
 using MigraDoc.DocumentObjectModel;
 using MigraDoc.DocumentObjectModel.Shapes;
 using MigraDoc.DocumentObjectModel.Tables;
+using MigraDoc.Rendering;
+using Org.BouncyCastle.Tls;
+using SharpCompress.Compressors.ZStandard.Unsafe;
+using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Data;
+using System.Diagnostics;
 using System.Drawing;
+using System.IO;
+using System.Linq;
+using System.Text;
 using Image = MigraDoc.DocumentObjectModel.Shapes.Image;
 
 namespace DerbyApp.RacerDatabase
 {
     internal class GenerateReport
     {
+        public struct RaceResults
+        {
+            public int OverallPosition;
+            public bool Tie;
+            public List<int> Heats;
+            public List<float> Times;
+        }
+
+        public struct RacerResults
+        {
+            public Racer Racer;
+            public List<RaceResults> Results;
+        }
+
         public static void DefineStyles(Document document)
         {
             // Get the predefined style Normal.
@@ -151,14 +175,87 @@ namespace DerbyApp.RacerDatabase
             return document;
         }
 
-        static public void Generate(string eventName, string eventFile, string outputFolderName, ObservableCollection<Racer> racers, bool timeBasedScoring)
+        static private void GetResultsForRacer(Racer r, Database db)
+        {
+            RacerResults racerResults = new()
+            {
+                Racer = r,
+                Results = []
+            };
+
+            foreach (string raceName in db.Races)
+            {
+                db.CurrentRaceName = raceName;
+                db.LdrBoard.CalculateResults(db.ResultsTable);
+
+                int overallPosition = db.LdrBoard.Board.IndexOf(db.LdrBoard.Board.Where(x => x.Number == r.Number).FirstOrDefault());
+                if (overallPosition > -1)
+                {
+                    RaceResults results = new()
+                    {
+                        OverallPosition = overallPosition,
+                        Tie = false,
+                        Times = [],
+                        Heats = []
+                    };
+                    if (db.LdrBoard.Board.Where(x => x.Score == db.LdrBoard.Board[results.OverallPosition].Score).Count() > 1)
+                    {
+                        results.Tie = true;
+                    }
+
+                    DataRow[] rows = db.ResultsTable.Select($"Number = {r.Number}");
+                    if (rows.Length > 0)
+                    {
+                        for (int i = 0; i < db.RaceFormat.HeatCount; i++)
+                        {
+                            if (rows[0][i + 2] != DBNull.Value)
+                            {
+                                results.Times.Add((float)rows[0][i + 2]);
+                                results.Heats.Add(i + 1);
+                            }
+                        }
+                    }
+                    racerResults.Results.Add(results);
+
+                    /*switch (racerPosition)
+                    {
+                        case 0:
+                            paragraph = row.Cells[1].AddParagraph();
+                            row.Cells[1].Format.Alignment = ParagraphAlignment.Center;
+                            image = paragraph.AddImage(ImageHandler.LoadImageFromBytes(ImageHandler.ImageToByteArray(new Bitmap(Properties.Resources.first))));
+                            image.Height = "2.5cm";
+                            image.LockAspectRatio = true;
+                            break;
+                        case 1:
+                            paragraph = row.Cells[1].AddParagraph();
+                            row.Cells[1].Format.Alignment = ParagraphAlignment.Center;
+                            image = paragraph.AddImage(ImageHandler.LoadImageFromBytes(ImageHandler.ImageToByteArray(new Bitmap(Properties.Resources.second))));
+                            image.Height = "2.5cm";
+                            image.LockAspectRatio = true;
+                            break;
+                        case 2:
+                            paragraph = row.Cells[1].AddParagraph();
+                            row.Cells[1].Format.Alignment = ParagraphAlignment.Center;
+                            image = paragraph.AddImage(ImageHandler.LoadImageFromBytes(ImageHandler.ImageToByteArray(new Bitmap(Properties.Resources.third))));
+                            image.Height = "2.5cm";
+                            image.LockAspectRatio = true;
+                            break;
+                        default:
+                            break;
+                    }*/
+                }
+            }
+        }
+
+        static public void Generate(Database db)
         {
 #warning Y-REPORT: Fix report
-            /*string eventPath = Path.Combine(outputFolderName, Path.GetFileNameWithoutExtension(eventFile), "reports");
-            Directory.CreateDirectory(eventPath);
-            foreach (Racer r in racers)
+            string reportFolder = Path.Combine(db.OutputFolderName, "reports");
+            Directory.CreateDirectory(reportFolder);
+            foreach (Racer r in db.Racers)
             {
-                Document document = CreateDocument(r, races, eventName, timeBasedScoring);
+                GetResultsForRacer(r, db);
+                /*Document document = CreateDocument(r, db);
                 PdfDocumentRenderer pdfRenderer = new()
                 {
                     Document = document
@@ -166,16 +263,8 @@ namespace DerbyApp.RacerDatabase
                 Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
                 pdfRenderer.RenderDocument();
 
-                pdfRenderer.PdfDocument.Save(Path.Combine(eventPath, r.RacerName + ".pdf"));
-                var p = new Process
-                {
-                    StartInfo = new ProcessStartInfo(Path.Combine(eventPath, r.RacerName + ".pdf"))
-                    {
-                        UseShellExecute = true
-                    }
-                };
-                p.Start();
-            }*/
+                pdfRenderer.PdfDocument.Save(Path.Combine(reportFolder, r.RacerName + ".pdf"));*/
+            }
         }
     }
 }

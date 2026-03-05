@@ -254,6 +254,7 @@ namespace DerbyApp
 #warning Y-REPORT: Fix this
             //_reports = new Reports(_db);
             //mainFrame.Navigate(_reports);
+            GenerateReport.Generate(_db);
             _agentInterface.ReportAction();
         }
 

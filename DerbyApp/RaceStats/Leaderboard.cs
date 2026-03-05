@@ -1,5 +1,4 @@
 ﻿using DerbyApp.Helpers;
-using DerbyApp.RacerDatabase;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -9,7 +8,7 @@ namespace DerbyApp.RaceStats
 {
     public class Leaderboard(TrulyObservableCollection<Racer> racers, int laneCount, bool timeBasedScoring)
     {
-        public TrulyObservableCollection<Racer> Board = racers;// [.. racers];
+        public TrulyObservableCollection<Racer> Board = racers;
         public bool TimeBasedScoring = timeBasedScoring;
         private readonly int _laneCount = laneCount;
 

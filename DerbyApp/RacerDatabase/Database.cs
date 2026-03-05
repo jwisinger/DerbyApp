@@ -331,7 +331,7 @@ namespace DerbyApp.RacerDatabase
             CurrentRaceRacers.Add(r);
             int order = 1;
             foreach (Racer racer in CurrentRaceRacers) racer.RaceOrder = order++;
-            ResultsTable.Rows.Add(r.Number);
+            ResultsTable.Rows.Add([r.Number, r.RacerName]);
         }
 
         public void DeleteRacerFromCurrentRace(Racer r)

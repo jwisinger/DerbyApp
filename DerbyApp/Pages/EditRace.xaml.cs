@@ -101,7 +101,7 @@ namespace DerbyApp.Pages
         {
             if (CheckRaceInProgress())
             {
-                if (_db.CurrentRaceRacers.Count > RaceFormats.Formats[RaceFormatIndex].RacerCount)
+                if (_db.CurrentRaceRacers.Count >= _db.RaceFormat.RacerCount)
                 {
                     MessageBox.Show("Max number of racers already added.", "Max Racers Exceeded", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
@@ -109,6 +109,12 @@ namespace DerbyApp.Pages
 
                 AddRacer addRacerWindow = new(_db.GetFilteredRacers(), RaceFormats.Formats[RaceFormatIndex].RacerCount - _db.CurrentRaceRacers.Count);
                 addRacerWindow.ShowDialog();
+
+                if (_db.CurrentRaceRacers.Count + addRacerWindow.SelectedRacers.Count > _db.RaceFormat.RacerCount)
+                {
+                    MessageBox.Show("You selected more than the allowed number of racers.", "Max Racers Exceeded", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
 
                 // Check if added racer already in list
                 foreach (Racer racer in addRacerWindow.SelectedRacers)
