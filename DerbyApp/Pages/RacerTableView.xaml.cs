@@ -1,4 +1,6 @@
-﻿using DerbyApp.RacerDatabase;
+﻿#warning 0 - Changes on this page don't propogate to other tabs or the database
+using DerbyApp.Helpers;
+using DerbyApp.RacerDatabase;
 using DerbyApp.RaceStats;
 using DerbyApp.Windows;
 using System.ComponentModel;
@@ -10,6 +12,7 @@ namespace DerbyApp
     public partial class RacerTableView : Page, INotifyPropertyChanged
     {
         private readonly Database _db;
+        private readonly VideoHandler _videoHandler;
         private bool _editHandle = true;
         private Visibility _displayPhotos = Visibility.Visible;
         public event PropertyChangedEventHandler PropertyChanged;
@@ -24,12 +27,13 @@ namespace DerbyApp
             }
         }
 
-        public RacerTableView(Database db)
+        public RacerTableView(Database db, VideoHandler videoHandler)
         {
             InitializeComponent();
             _db = db;
             dataGridRacerTable.DataContext = _db.Racers;
             LevelComboBox.ItemsSource = _db.GirlScoutLevels;
+            _videoHandler = videoHandler;
         }
 
         private void DataGridRacerTable_RowEditEnding(object sender, DataGridRowEditEndingEventArgs e)
@@ -66,7 +70,7 @@ namespace DerbyApp
 
         private void ZoomPicture(object sender, RoutedEventArgs e)
         {
-            new ImageDisplay((sender as Image).Source, (sender as Image).DataContext as Racer).ShowDialog();
+            new ImageDisplay((sender as Image).Source, (sender as Image).DataContext as Racer, _videoHandler).ShowDialog();
         }
 
         private void RefreshDatabase(object sender, System.Windows.Input.MouseButtonEventArgs e)

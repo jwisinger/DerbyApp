@@ -21,6 +21,7 @@ namespace DerbyApp.RacerDatabase
         private readonly DatabaseGeneric _databaseGeneric;
         private readonly GoogleDriveAccess _googleDriveAccess;
         private readonly Timer _updateTimer;
+        private RaceFormat _raceFormat;
         private readonly string _databaseName = "";
         private string _currentRaceName = "";
         private string _eventName = "";
@@ -34,7 +35,6 @@ namespace DerbyApp.RacerDatabase
         public ObservableCollection<GirlScoutLevel> GirlScoutLevels = new GirlScoutLevels().ScoutLevels;
         public TrulyObservableCollection<Racer> Racers = [];
         public TrulyObservableCollection<Racer> CurrentRaceRacers = [];
-        public RaceFormat RaceFormat = RaceFormats.Formats[RaceFormats.DefaultFormat].Clone();
         public DataTable ResultsTable = new();
         public readonly bool IsSqlite;
         public bool InitGood = false;
@@ -51,6 +51,16 @@ namespace DerbyApp.RacerDatabase
         public ObservableCollection<string> Races { get; set; } = [];
         public Leaderboard LdrBoard { get; set; }
         public bool IsSynced { get => _isSynced; }
+        public RaceFormat RaceFormat
+        {
+            get => _raceFormat;
+            set
+            {
+                _raceFormat = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(RaceFormat)));
+            }
+        }
+
         public string CurrentRaceName
         {
             get => _currentRaceName;
@@ -185,6 +195,7 @@ namespace DerbyApp.RacerDatabase
 
             if (_databaseGeneric.InitGood)
             {
+                RaceFormat = RaceFormats.Formats[RaceFormats.DefaultFormat].Clone();
                 CreateRacerTable();
                 CreateRaceTable();
                 CreateVideoTable();

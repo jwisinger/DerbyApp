@@ -23,6 +23,7 @@ namespace DerbyApp.RacerDatabase
             }
             catch (Exception ex)
             {
+                ErrorLogger.LogError("DatabaseSqlite.CreateConnection", ex);
                 MessageBox.Show(ex.Message);
             }
             return SqliteConn;

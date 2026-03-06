@@ -197,7 +197,7 @@ namespace DerbyApp
         {
             if (times != null)
             {
-                for (int i = 0; i < times.Length; i++)
+                for (int i = 0; i < _db.RaceFormat.CurrentRacers.Count; i++)
                 {
                     DataRow dr = _db.ResultsTable.Rows.Find(_db.RaceFormat.CurrentRacers[i].Number);
                     if (dr != null) dr["Heat " + _db.CurrentHeatNumber] = times[i];
@@ -480,7 +480,7 @@ namespace DerbyApp
 
         private void ZoomPicture(object sender, RoutedEventArgs e)
         {
-            new ImageDisplay((sender as Image).Source, ((sender as Image).DataContext as Racer)).ShowDialog();
+            new ImageDisplay((sender as Image).Source, ((sender as Image).DataContext as Racer), _videoHandler).ShowDialog();
         }
         #endregion
 

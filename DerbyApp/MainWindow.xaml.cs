@@ -4,14 +4,11 @@
 #warning TEST(2 PC): Test creating races with 2 computers (make sure refresh works)
 #warning TEST(2 PC): Test running race on one computer while someone is adding racers from another PC
 #warning TEST(2 PC): Check vercel usage when running full race with two computers
-#warning TEST(FULL): Test complete run of race with Postgres
 #warning TEST(FULL): Test complete run of race with Sqlite
 #warning Y-REPORT: Can I make reports go to Google Drive?
 #warning Y-REPORT: Look into Racer/Database/GenerateReport.cs
 #warning Y-REPORT: Look into Pages/Reports
 #warning Z-FUTURE: Update software licenses
-#warning Z-FUTURE: Add lots of logging to the catch statements
-#warning Z-FUTURE: Allow changing picture (build this into the ImageDisplay?
 #warning Z-FUTURE: Move videos from retool to Gdrive?
 #warning Z-FUTURE: Add ability to copy local database to remote, mainly need a way to get a name for the remote database and then create it
 #warning W-FUTURE: Can I show a racers position in the app?
@@ -538,7 +535,7 @@ namespace DerbyApp
                 else CopyDatabaseText = "Copy Database to Local";
                 _db.SyncStatusChanged += Database_SyncChanged;
 
-                _racerTableView = new RacerTableView(_db)
+                _racerTableView = new RacerTableView(_db, _videoHandler)
                 {
                     DisplayPhotos = DisplayPhotosChecked ? Visibility.Visible : Visibility.Collapsed
                 };
@@ -558,7 +555,7 @@ namespace DerbyApp
                     else TrackStatusIcon = "/Images/Disconnected.png";
                 };
 
-                _editRace = new EditRace(_db)
+                _editRace = new EditRace(_db, _videoHandler)
                 {
                     DisplayPhotos = DisplayPhotosChecked ? Visibility.Visible : Visibility.Collapsed
                 };

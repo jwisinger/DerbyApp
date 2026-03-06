@@ -110,7 +110,10 @@ namespace DerbyApp.Helpers
                 }
 
             }
-            catch { }
+            catch (Exception ex)
+            {
+                ErrorLogger.LogError("VideoHandler.VideoCapture_NewFrame", ex);
+            }
         }
 
         public void GetCamera()

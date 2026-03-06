@@ -5,8 +5,18 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:DerbyApp.Windows"
         mc:Ignorable="d"
-        Title="Image Zoom" Height="340" Width="340">
+        Title="Image Zoom" Height="340" Width="340" Loaded="ImageDisplay_Loaded" Unloaded="ImageDisplay_Unloaded">
     <Grid>
-        <Image Name="Picture" Margin="10,10,10,10" Grid.ColumnSpan="2"/>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1*"/>
+            <ColumnDefinition Width="1*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="25"/>
+        </Grid.RowDefinitions>
+        <Image Name="Picture" Grid.Row="0" Grid.Column="0" Margin="10,10,10,10" Grid.ColumnSpan="2"/>
+        <Button Name="ChangePhotoButton" Grid.Row ="1" Grid.Column="0" Content="Change Photo" HorizontalAlignment="Center" Width="100" VerticalAlignment="Center" Click="ButtonCapture_Click"/>
+        <Button Name="CloseCancelButton" Grid.Row ="1" Grid.Column="1" Content="Close" HorizontalAlignment="Center" Width="100" VerticalAlignment="Center" Click="ButtonCloseCancel_Click"/>
     </Grid>
 </Window>

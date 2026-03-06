@@ -1,4 +1,5 @@
-﻿using DerbyApp.RacerDatabase;
+﻿using DerbyApp.Helpers;
+using DerbyApp.RacerDatabase;
 using DerbyApp.RaceStats;
 using DerbyApp.Windows;
 using System.Collections.Generic;
@@ -14,24 +15,13 @@ namespace DerbyApp.Pages
     {
         #region Private Fields & Events
         private readonly Database _db;
-        private int _raceFormatIndex = 0;
+        private readonly VideoHandler _videoHandler;
         private Visibility _displayPhotos = Visibility.Visible;
         public event PropertyChangedEventHandler PropertyChanged;
         #endregion
 
         #region Public Properties
         public string RaceFormatNameString { get; set; }
-
-        public int RaceFormatIndex
-        {
-            get => _raceFormatIndex;
-            set
-            {
-                _raceFormatIndex = value;
-                RaceFormatNameString = RaceFormats.Formats[_raceFormatIndex].Name;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(RaceFormatNameString)));
-            }
-        }
 
         public Visibility DisplayPhotos
         {
@@ -45,14 +35,15 @@ namespace DerbyApp.Pages
         #endregion
 
         #region Constructor
-        public EditRace(Database db)
+        public EditRace(Database db, VideoHandler videoHandler)
         {
             _db = db;
             InitializeComponent();
             cbName.DataContext = _db;
             dataGridRacers.DataContext = _db.CurrentRaceRacers;
             cbLevels.ItemsSource = _db.GirlScoutLevels;
-            tbFormat.DataContext = this;
+            tbFormat.DataContext = _db;
+            _videoHandler = videoHandler;
         }
         #endregion
 
@@ -107,7 +98,7 @@ namespace DerbyApp.Pages
                     return;
                 }
 
-                AddRacer addRacerWindow = new(_db.GetFilteredRacers(), RaceFormats.Formats[RaceFormatIndex].RacerCount - _db.CurrentRaceRacers.Count);
+                AddRacer addRacerWindow = new(_db.GetFilteredRacers(), _db.RaceFormat.RacerCount - _db.CurrentRaceRacers.Count);
                 addRacerWindow.ShowDialog();
 
                 if (_db.CurrentRaceRacers.Count + addRacerWindow.SelectedRacers.Count > _db.RaceFormat.RacerCount)
@@ -172,7 +163,7 @@ namespace DerbyApp.Pages
 
         private void ZoomPicture(object sender, RoutedEventArgs e)
         {
-            new ImageDisplay((sender as Image).Source, ((sender as Image).DataContext as Racer)).ShowDialog();
+            new ImageDisplay((sender as Image).Source, (sender as Image).DataContext as Racer, _videoHandler).ShowDialog();
         }
         #endregion
 
