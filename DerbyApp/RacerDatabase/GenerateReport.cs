@@ -1,40 +1,23 @@
-﻿using DerbyApp.Helpers;
+﻿#warning Y-REPORT: Can I make reports go to Google Drive?
+using System;
+using System.Data;
+using System.Drawing;
+using System.IO;
+using System.Linq;
+using System.Text;
+using DerbyApp.Helpers;
 using DerbyApp.RaceStats;
 using MigraDoc.DocumentObjectModel;
 using MigraDoc.DocumentObjectModel.Shapes;
 using MigraDoc.DocumentObjectModel.Tables;
 using MigraDoc.Rendering;
-using Org.BouncyCastle.Tls;
-using SharpCompress.Compressors.ZStandard.Unsafe;
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Data;
-using System.Diagnostics;
-using System.Drawing;
-using System.IO;
-using System.Linq;
-using System.Text;
+using static DerbyApp.RaceStats.Leaderboard;
 using Image = MigraDoc.DocumentObjectModel.Shapes.Image;
 
 namespace DerbyApp.RacerDatabase
 {
     internal class GenerateReport
     {
-        public struct RaceResults
-        {
-            public int OverallPosition;
-            public bool Tie;
-            public List<int> Heats;
-            public List<float> Times;
-        }
-
-        public struct RacerResults
-        {
-            public Racer Racer;
-            public List<RaceResults> Results;
-        }
-
         public static void DefineStyles(Document document)
         {
             // Get the predefined style Normal.
@@ -63,7 +46,7 @@ namespace DerbyApp.RacerDatabase
             style.ParagraphFormat.SpaceAfter = 3;
         }
 
-        static Document CreateDocument(Racer r, string eventName, bool timeBasedScoring)
+        static Document CreateDocument(Leaderboard.RacerResults r, Database db)
         {
             Document document = new();
             DefineStyles(document);
@@ -80,68 +63,46 @@ namespace DerbyApp.RacerDatabase
             Paragraph paragraph = section.Headers.Primary.AddParagraph();
             paragraph.Format.Alignment = ParagraphAlignment.Left;
             paragraph.AddFormattedText("\r\n", "Normal");
-            paragraph.AddFormattedText(eventName, "Heading1");
+            paragraph.AddFormattedText(db.EventName, "Heading1");
 
             paragraph = section.AddParagraph();
             paragraph.Format.SpaceAfter = 30;
 
             Table table = section.AddTable();
-            Column column = table.AddColumn("8cm");
-            column = table.AddColumn("8cm");
+            table.AddColumn("8cm");
+            table.AddColumn("8cm");
             table.Borders.Width = 0;
 
             Row row = table.AddRow();
             paragraph = row.Cells[0].AddParagraph();
             row.Cells[0].Format.Alignment = ParagraphAlignment.Center;
-            image = paragraph.AddImage(ImageHandler.LoadImageFromBytes(ImageHandler.ImageToByteArray(new Bitmap(r.Photo, new Size(224, 168)))));
+            paragraph.AddImage(ImageHandler.LoadImageFromBytes(ImageHandler.ImageToByteArray(new Bitmap(r.Racer.Photo, new Size(224, 168)))));
 
             paragraph = row.Cells[1].AddParagraph();
             row.Cells[1].VerticalAlignment = VerticalAlignment.Top;
             paragraph.Format.Alignment = ParagraphAlignment.Right;
-            paragraph.AddFormattedText("Name: " + r.RacerName + "\r\n", "Heading1");
-            paragraph.AddFormattedText("Troop: " + r.Troop + "\r\n", "Heading2");
-            paragraph.AddFormattedText("Level: " + r.Level + "\r\n", "Heading2");
-            paragraph.AddFormattedText("Car Weight: " + r.Weight.ToString() + "\r\n", "Heading3");
+            paragraph.AddFormattedText("Name: " + r.Racer.RacerName + "\r\n", "Heading1");
+            paragraph.AddFormattedText("Troop: " + r.Racer.Troop + "\r\n", "Heading2");
+            paragraph.AddFormattedText("Level: " + r.Racer.Level + "\r\n", "Heading2");
+            paragraph.AddFormattedText("Car Weight: " + r.Racer.Weight.ToString() + "\r\n", "Heading3");
             table.SetEdge(0, 0, 1, 1, Edge.Box, BorderStyle.Single, 2);
             table.SetEdge(0, 0, 2, 1, Edge.Box, BorderStyle.Single, 2);
-#warning Y-REPORT: Fix report
-            /*foreach (RaceResults result in races)
+
+            foreach (Leaderboard.RaceResults result in r.Results)
             {
-                Leaderboard ldr = new(result.Racers, result.RaceFormat.HeatCount, result.RaceFormat.LaneCount, timeBasedScoring);
-                ldr.CalculateResults(result.ResultsTable);
-                List<Racer> raceResults;
-                if (timeBasedScoring) raceResults = [.. ldr.Board.OrderBy(x => x.Score)];
-                else raceResults = [.. ldr.Board.OrderByDescending(x => x.Score)];
-                int racerPosition = raceResults.FindIndex(x => x.Number == r.Number);
+                int racerPosition = result.OverallPosition;
                 if (racerPosition > -1)
                 {
-                    racerPosition = raceResults.FindIndex(x => x.Score == raceResults[racerPosition].Score);
-
                     row = table.AddRow();
                     table.SetEdge(0, 0, table.Columns.Count, table.Rows.Count, Edge.Box, BorderStyle.Single, 2);
                     paragraph = row.Cells[0].AddParagraph();
                     row.Cells[0].VerticalAlignment = VerticalAlignment.Top;
                     paragraph.AddFormattedText("Race Name: " + result.RaceName + "\r\n", "Heading3");
-                    try
+                    paragraph.AddFormattedText("Overall Race Finish: " + (1 + racerPosition) + (result.Tie ? " (Tie)" : "") + "\r\n", "Normal");
+                    for (int i = 0; i < result.HeatResults.Count; i++)
                     {
-                        bool tie = false;
-                        if (raceResults.Where(x => x.Score == raceResults[racerPosition].Score).Count() > 1)
-                        {
-                            tie = true;
-                        }
-                        paragraph.AddFormattedText("Overall Race Finish: " + (1 + racerPosition) + (tie ? " (Tie)" : "") + "\r\n", "Normal");
-
-                        DataRow resultRow = result.ResultsTable.Select("Number = " + r.Number)[0];
-                        DataRow scoreRow = ldr.RaceScoreTable.Select("Number = " + r.Number)[0];
-                        for (int i = 0; i < result.RaceFormat.HeatCount; i++)
-                        {
-                            if (resultRow[i + 2] != DBNull.Value)
-                            {
-                                paragraph.AddFormattedText("Heat " + (i + 1) + " Time: " + ((double)resultRow[i + 2]).ToString("0.000") + " seconds (" + (1 + result.RaceFormat.LaneCount - (int)scoreRow[i + 2]) + ")\r\n", "Normal");
-                            }
-                        }
+                        paragraph.AddFormattedText("Heat " + result.HeatResults[i].HeatNumber + " Time: " + result.HeatResults[i].Time.ToString("0.000") + " seconds (" + result.HeatResults[i].Position + ")\r\n", "Normal");
                     }
-                    catch { }
 
                     switch (racerPosition)
                     {
@@ -170,14 +131,14 @@ namespace DerbyApp.RacerDatabase
                             break;
                     }
                 }
-            }*/
+            }
 
             return document;
         }
 
-        static private void GetResultsForRacer(Racer r, Database db)
+        static private RacerResults GetResultsForRacer(Racer r, Database db)
         {
-            RacerResults racerResults = new()
+            Leaderboard.RacerResults racerResults = new()
             {
                 Racer = r,
                 Results = []
@@ -187,75 +148,23 @@ namespace DerbyApp.RacerDatabase
             {
                 db.CurrentRaceName = raceName;
                 db.LdrBoard.CalculateResults(db.ResultsTable);
-
-                int overallPosition = db.LdrBoard.Board.IndexOf(db.LdrBoard.Board.Where(x => x.Number == r.Number).FirstOrDefault());
-                if (overallPosition > -1)
-                {
-                    RaceResults results = new()
-                    {
-                        OverallPosition = overallPosition,
-                        Tie = false,
-                        Times = [],
-                        Heats = []
-                    };
-                    if (db.LdrBoard.Board.Where(x => x.Score == db.LdrBoard.Board[results.OverallPosition].Score).Count() > 1)
-                    {
-                        results.Tie = true;
-                    }
-
-                    DataRow[] rows = db.ResultsTable.Select($"Number = {r.Number}");
-                    if (rows.Length > 0)
-                    {
-                        for (int i = 0; i < db.RaceFormat.HeatCount; i++)
-                        {
-                            if (rows[0][i + 2] != DBNull.Value)
-                            {
-                                results.Times.Add((float)rows[0][i + 2]);
-                                results.Heats.Add(i + 1);
-                            }
-                        }
-                    }
-                    racerResults.Results.Add(results);
-
-                    /*switch (racerPosition)
-                    {
-                        case 0:
-                            paragraph = row.Cells[1].AddParagraph();
-                            row.Cells[1].Format.Alignment = ParagraphAlignment.Center;
-                            image = paragraph.AddImage(ImageHandler.LoadImageFromBytes(ImageHandler.ImageToByteArray(new Bitmap(Properties.Resources.first))));
-                            image.Height = "2.5cm";
-                            image.LockAspectRatio = true;
-                            break;
-                        case 1:
-                            paragraph = row.Cells[1].AddParagraph();
-                            row.Cells[1].Format.Alignment = ParagraphAlignment.Center;
-                            image = paragraph.AddImage(ImageHandler.LoadImageFromBytes(ImageHandler.ImageToByteArray(new Bitmap(Properties.Resources.second))));
-                            image.Height = "2.5cm";
-                            image.LockAspectRatio = true;
-                            break;
-                        case 2:
-                            paragraph = row.Cells[1].AddParagraph();
-                            row.Cells[1].Format.Alignment = ParagraphAlignment.Center;
-                            image = paragraph.AddImage(ImageHandler.LoadImageFromBytes(ImageHandler.ImageToByteArray(new Bitmap(Properties.Resources.third))));
-                            image.Height = "2.5cm";
-                            image.LockAspectRatio = true;
-                            break;
-                        default:
-                            break;
-                    }*/
-                }
+                RaceResults results = db.LdrBoard.GetRacerResults(r, db.ResultsTable);
+                results.RaceName = raceName;
+                racerResults.Results.Add(results);
             }
+
+            return racerResults;
         }
 
         static public void Generate(Database db)
         {
-#warning Y-REPORT: Fix report
-            string reportFolder = Path.Combine(db.OutputFolderName, "reports");
+#warning Y-REPORT: Report is terribly slow ... probably due to database switching
+            string reportFolder = Path.Combine(db.EventFolderName, "reports");
             Directory.CreateDirectory(reportFolder);
             foreach (Racer r in db.Racers)
             {
-                GetResultsForRacer(r, db);
-                /*Document document = CreateDocument(r, db);
+                var racerResults = GetResultsForRacer(r, db);
+                Document document = CreateDocument(racerResults, db);
                 PdfDocumentRenderer pdfRenderer = new()
                 {
                     Document = document
@@ -263,7 +172,7 @@ namespace DerbyApp.RacerDatabase
                 Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
                 pdfRenderer.RenderDocument();
 
-                pdfRenderer.PdfDocument.Save(Path.Combine(reportFolder, r.RacerName + ".pdf"));*/
+                pdfRenderer.PdfDocument.Save(Path.Combine(reportFolder, r.RacerName + ".pdf"));
             }
         }
     }

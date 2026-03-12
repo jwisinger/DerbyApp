@@ -5,9 +5,6 @@
 #warning TEST(2 PC): Test running race on one computer while someone is adding racers from another PC
 #warning TEST(2 PC): Check vercel usage when running full race with two computers
 #warning TEST(FULL): Test complete run of race with Sqlite
-#warning Y-REPORT: Can I make reports go to Google Drive?
-#warning Y-REPORT: Look into Racer/Database/GenerateReport.cs
-#warning Y-REPORT: Look into Pages/Reports
 #warning Z-FUTURE: Update software licenses
 #warning Z-FUTURE: Move videos from retool to Gdrive?
 #warning Z-FUTURE: Add ability to copy local database to remote, mainly need a way to get a name for the remote database and then create it
@@ -15,7 +12,6 @@
 #warning W-FUTURE: Option to load results table from XML ... will this automatically update to external database when connection re-establishes?
 #warning W-FUTURE: Ensure track network command documented
 #warning W-FUTURE: Ensure various logins documented 
-#warning W-FUTURE: Fix database name in app
 #warning W-FUTURE Add ability to delete remote event?
 
 using ClippySharp;
@@ -62,7 +58,7 @@ namespace DerbyApp
         private NewRacer _newRacer;
         private RaceTracker _raceTracker;
         private RacerTableView _racerTableView;
-        private readonly Reports _reports;
+        private Reports _reports;
         #endregion
 
         #region Child Classes
@@ -248,10 +244,8 @@ namespace DerbyApp
 
         private void ButtonReport_Click(object sender, RoutedEventArgs e)
         {
-#warning Y-REPORT: Fix this
-            //_reports = new Reports(_db);
-            //mainFrame.Navigate(_reports);
-            GenerateReport.Generate(_db);
+            _reports = new Reports(_db);
+            mainFrame.Navigate(_reports);
             _agentInterface.ReportAction();
         }
 
