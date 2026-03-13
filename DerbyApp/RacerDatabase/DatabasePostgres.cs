@@ -75,6 +75,22 @@ namespace DerbyApp.RacerDatabase
             return true;
         }
 
+        public bool DeleteDatabase(string databaseName)
+        {
+            try
+            {
+                string sql = "DROP DATABASE " + databaseName.Replace("\"", null);
+                ExecuteNonQuery(sql);
+            }
+            catch (Exception ex)
+            {
+                ErrorLogger.LogError("DatabasePostgres.DeleteDatabase", ex);
+                return false;
+            }
+
+            return true;
+        }
+
         private bool ConnectToDatabase()
         {
             if ((PostgresConn == null) || PostgresConn.State == ConnectionState.Closed)

@@ -12,7 +12,6 @@
 #warning 2: Option to load results table from XML ... will this automatically update to external database when connection re-establishes?
 #warning DOCUMENT: Ensure track network command documented
 #warning DOCUMENT: Ensure various logins documented 
-#warning 0: Add ability to delete remote event?
 
 using System;
 using System.ComponentModel;

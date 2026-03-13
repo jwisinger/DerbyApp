@@ -89,5 +89,21 @@ namespace DerbyApp.Windows
                 Close();
             }
         }
+
+        private void MenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            string selectedEvent = (string)eventListbox.SelectedItem;
+
+            if (selectedEvent != null)
+            {
+                if (MessageBoxResult.OK ==
+                    MessageBox.Show("Are you sure you want to delete [" + selectedEvent + "]", "Are you sure?", MessageBoxButton.OKCancel, MessageBoxImage.Warning))
+                {
+                    _dbConnect.DeleteDatabase(selectedEvent);
+                    EventList.Clear();
+                    foreach (string s in _dbConnect.GetEventList()) EventList.Add(s);
+                }
+            }
+        }
     }
 }

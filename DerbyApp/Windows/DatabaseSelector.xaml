@@ -68,7 +68,13 @@
                         <Grid Grid.Row="2">
                             <Button Grid.Column="1" Content="Add New Event..." HorizontalAlignment="Center" Width="200" Margin="0,0,0,10" FontSize="16" Click="ButtonAddRemote_Click"/>
                         </Grid>
-                        <ListBox Grid.Row="1" Name="eventListbox" ItemsSource="{Binding Path=., Mode=TwoWay}" MouseDoubleClick="EventListbox_MouseDoubleClick"/>
+                        <ListBox Grid.Row="1" Name="eventListbox" ItemsSource="{Binding Path=., Mode=TwoWay}" MouseDoubleClick="EventListbox_MouseDoubleClick">
+                            <ListBox.ContextMenu>
+                                <ContextMenu>
+                                    <MenuItem Header="Delete Event" Click="MenuItem_Click"/>
+                                </ContextMenu>
+                            </ListBox.ContextMenu>
+                        </ListBox>
                     </Grid>
                 </TabItem>
             </TabControl>
