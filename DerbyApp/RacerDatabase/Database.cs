@@ -1,6 +1,7 @@
 ﻿#warning W-FUTURE: Try writing to SQLite instead of XML
-#warning 1 - RUNOFF: If database connection is lost when addrunoff, the column lets you fill it out on the screen, but it never gets added to the database
-#warning 1 - RUNOFF: I'm not sure the addrunoffheat and heatcount stuff is done correctly
+#warning RUNOFF: If database connection is lost when addrunoff, the column lets you fill it out on the screen, but it never gets added to the database
+#warning RUNOFF: When a runoff heat is added, entering info into it does not affect score or get stored in the databse. Closing and re-opening fixes this
+
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -508,9 +509,9 @@ namespace DerbyApp.RacerDatabase
         #region Results Table Management
         public void AddRunOffHeat()
         {
-#warning 1 - RUNOFF: This could work through sqldataadapter
-            _databaseGeneric.ExecuteNonQuery(DatabaseQueries.AddRunOffHeat(CurrentRaceName, RaceFormat.HeatCount++));
             RaceFormat.AddRunOffHeat([.. CurrentRaceRacers]);
+            _databaseGeneric.ExecuteNonQuery(DatabaseQueries.AddRunOffHeat(CurrentRaceName, RaceFormat.HeatCount));
+#warning RUNOFF: Adding a 2nd runoff heat causes a crash, because RaceFormat doesn't know about the already added heat
             ResultsTable.Columns.Add("Heat " + RaceFormat.HeatCount, Type.GetType("System.Double"));
             ColumnAdded?.Invoke(this, new PropertyChangedEventArgs("Heat " + RaceFormat.HeatCount));
         }
