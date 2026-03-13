@@ -1,5 +1,4 @@
-﻿#warning Z-FUTURE: Could I somehow generate winners certificates along with "appearance" winners?
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 using DerbyApp.RacerDatabase;
 
@@ -89,7 +88,6 @@ namespace DerbyApp.Pages
 
         private void SlideShow_Click(object sender, RoutedEventArgs e)
         {
-#warning Z-FUTURE: Add a slideshow
         }
     }
 }

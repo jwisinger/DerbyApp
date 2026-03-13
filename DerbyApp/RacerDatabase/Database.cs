@@ -1,4 +1,4 @@
-﻿#warning W-FUTURE: Try writing to SQLite instead of XML
+﻿#warning FAILSAFE: Try writing to SQLite instead of XML
 #warning RUNOFF: If database connection is lost when addrunoff, the column lets you fill it out on the screen, but it never gets added to the database
 #warning RUNOFF: When a runoff heat is added, entering info into it does not affect score or get stored in the databse. Closing and re-opening fixes this
 

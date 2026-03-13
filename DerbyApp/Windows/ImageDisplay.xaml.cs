@@ -28,7 +28,6 @@ namespace DerbyApp.Windows
         {
             if (_isCapturing)
             {
-#warning Z-FUTURE: Allow changing picture (build this into the ImageDisplay?
                 _needSnapshot = true;
                 CloseCancelButton.Content = "Close";
                 ChangePhotoButton.Content = "Change Photo";
