@@ -1,6 +1,6 @@
 ﻿#warning FAILSAFE: Try writing to SQLite instead of XML
 #warning RUNOFF: If database connection is lost when addrunoff, the column lets you fill it out on the screen, but it never gets added to the database
-#warning RUNOFF: When a runoff heat is added, entering info into it does not affect score or get stored in the databse. Closing and re-opening fixes this
+#warning RUNOFF: When a runoff heat is added, entering info into it does not get stored in the databse. Closing and re-opening fixes this ... the issue is likely related to the data adapter adding columns
 
 using System;
 using System.Collections.Generic;
@@ -511,7 +511,6 @@ namespace DerbyApp.RacerDatabase
         {
             RaceFormat.AddRunOffHeat([.. CurrentRaceRacers]);
             _databaseGeneric.ExecuteNonQuery(DatabaseQueries.AddRunOffHeat(CurrentRaceName, RaceFormat.HeatCount));
-#warning RUNOFF: Adding a 2nd runoff heat causes a crash, because RaceFormat doesn't know about the already added heat
             ResultsTable.Columns.Add("Heat " + RaceFormat.HeatCount, Type.GetType("System.Double"));
             ColumnAdded?.Invoke(this, new PropertyChangedEventArgs("Heat " + RaceFormat.HeatCount));
         }
@@ -523,7 +522,9 @@ namespace DerbyApp.RacerDatabase
             ResultsTable.Columns.Cast<DataColumn>().Select(x => x.ColumnName).ToList().ForEach(x => ColumnRemoved?.Invoke(this, new PropertyChangedEventArgs(x)));
             _databaseGeneric.InitResultsTable(CurrentRaceName, ResultsTable);
             if (columnsExist) ResultsTable.Columns.Cast<DataColumn>().Select(x => x.ColumnName).ToList().ForEach(x => ColumnAdded?.Invoke(this, new PropertyChangedEventArgs(x)));
+            int heats = ResultsTable.Columns.Cast<DataColumn>().Select(x => x.ColumnName.Contains("Heat")).Count(x => x);
             foreach (Racer racer in CurrentRaceRacers) racer.RaceOrder = order++;
+            while (RaceFormat.HeatCount < heats) RaceFormat.AddRunOffHeat(null);
             foreach (DataRow r in ResultsTable.Rows)
             {
                 long number = Convert.ToInt64(r["Number"]);

@@ -134,13 +134,14 @@ namespace DerbyApp.RaceStats
 
             foreach (DataRow dataRow in raceScoreTable.Rows)
             {
-                Racer r = Board.Where(x => x.Number == (int)dataRow["Number"]).FirstOrDefault();
+                long number = Convert.ToInt64(dataRow["Number"]);
+                Racer r = Board.Where(x => x.Number == number).FirstOrDefault();
                 if (r != null)
                 {
-                    float total = 0;
+                    double total = 0;
                     for (int i = 2; i < dataRow.ItemArray.Length; i++)
                     {
-                        if (dataRow.ItemArray[i] != DBNull.Value) total += (float)dataRow.ItemArray[i];
+                        if (dataRow.ItemArray[i] != DBNull.Value) total += Convert.ToDouble(dataRow.ItemArray[i]);
                     }
                     r.Score = (int)total;
                 }
@@ -154,7 +155,7 @@ namespace DerbyApp.RaceStats
                 double total = 0;
                 foreach (object obj in dataRow.ItemArray)
                 {
-                    if (obj.GetType() == typeof(float)) total += (float)obj;
+                    if ((obj.GetType() == typeof(float)) || obj.GetType() == typeof(double)) total += Convert.ToDouble(obj);
                 }
 
                 object o = dataRow["Number"];

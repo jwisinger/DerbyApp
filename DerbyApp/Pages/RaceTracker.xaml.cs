@@ -308,6 +308,14 @@ namespace DerbyApp
             _db.AddVideoToTable(e);
         }
 
+        private void Datagrid_AutoGeneratingColumn(object sender, DataGridAutoGeneratingColumnEventArgs e)
+        {
+            if (e.Column is DataGridTextColumn col && e.PropertyType == typeof(double))
+            {
+                col.Binding = new Binding(e.PropertyName) { StringFormat = "N3" };
+            }
+        }
+
         private void GridRaceResults_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
         {
             _db.UpdateResultsTable((e.EditingElement as TextBox).Text, e.Column.DisplayIndex, e.Row.GetIndex());
