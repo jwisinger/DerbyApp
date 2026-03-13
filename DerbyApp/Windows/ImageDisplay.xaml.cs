@@ -1,9 +1,8 @@
-﻿using DerbyApp.Helpers;
-using DerbyApp.RaceStats;
-using System;
-using System.DirectoryServices.ActiveDirectory;
+﻿using System;
 using System.Windows;
 using System.Windows.Media;
+using DerbyApp.Helpers;
+using DerbyApp.RaceStats;
 
 namespace DerbyApp.Windows
 {

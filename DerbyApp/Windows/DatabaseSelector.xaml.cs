@@ -1,8 +1,8 @@
-﻿using DerbyApp.Helpers;
-using DerbyApp.RacerDatabase;
-using System;
+﻿using System;
 using System.Collections.ObjectModel;
 using System.Windows;
+using DerbyApp.Helpers;
+using DerbyApp.RacerDatabase;
 
 namespace DerbyApp.Windows
 {

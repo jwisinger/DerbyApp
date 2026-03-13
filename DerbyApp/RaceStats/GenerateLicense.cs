@@ -1,4 +1,7 @@
-﻿using DerbyApp.Helpers;
+﻿using System.Drawing;
+using System.IO;
+using System.Text;
+using DerbyApp.Helpers;
 using DerbyApp.RacerDatabase;
 using GemBox.Pdf;
 using MigraDoc.DocumentObjectModel;
@@ -6,9 +9,6 @@ using MigraDoc.DocumentObjectModel.Shapes;
 using MigraDoc.DocumentObjectModel.Tables;
 using MigraDoc.Rendering;
 using QRCoder;
-using System.Drawing;
-using System.IO;
-using System.Text;
 using Image = MigraDoc.DocumentObjectModel.Shapes.Image;
 
 namespace DerbyApp.RaceStats

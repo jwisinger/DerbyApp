@@ -1,7 +1,7 @@
 ﻿//Original code source: http://stackoverflow.com/questions/11961412/read-weight-from-a-fairbanks-scb-9000-usb-scale
-using HidLibrary;
 using System;
 using System.Threading;
+using HidLibrary;
 
 namespace DerbyApp.Helpers
 {

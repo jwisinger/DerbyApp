@@ -1,6 +1,6 @@
-﻿using DirectShowLib;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.Windows;
+using DirectShowLib;
 
 namespace DerbyApp.Windows
 {

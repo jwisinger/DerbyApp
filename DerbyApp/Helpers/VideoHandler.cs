@@ -1,5 +1,4 @@
-﻿using Emgu.CV;
-using System;
+﻿using System;
 using System.Drawing;
 using System.IO;
 using System.Net.Http;
@@ -8,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
+using Emgu.CV;
 
 namespace DerbyApp.Helpers
 {

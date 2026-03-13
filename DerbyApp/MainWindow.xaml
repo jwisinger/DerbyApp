@@ -60,7 +60,7 @@
                             <Image Width="20" Height="20" Source="/Images/Settings.png" />
                         </StackPanel>
                     </MenuItem.Header>
-                    <MenuItem Click="SetRaceName_Click" Header="Race Name...">
+                    <MenuItem Click="SetRaceName_Click" Header="Event Name...">
                         <MenuItem.Icon>
                             <Image Source="/Images/UIEditor.png"/>
                         </MenuItem.Icon>

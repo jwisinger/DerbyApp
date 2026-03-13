@@ -1,7 +1,4 @@
-﻿using PiperSharp.Models;
-using SharpCompress.Common;
-using SharpCompress.Readers;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
@@ -9,6 +6,9 @@ using System.Net.Http;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using PiperSharp.Models;
+using SharpCompress.Common;
+using SharpCompress.Readers;
 
 namespace PiperSharp
 {

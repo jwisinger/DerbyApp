@@ -1,13 +1,13 @@
-﻿using DerbyApp.Helpers;
-using DerbyApp.RacerDatabase;
-using DerbyApp.RaceStats;
-using DerbyApp.Windows;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
+using DerbyApp.Helpers;
+using DerbyApp.RacerDatabase;
+using DerbyApp.RaceStats;
+using DerbyApp.Windows;
 
 namespace DerbyApp.Pages
 {

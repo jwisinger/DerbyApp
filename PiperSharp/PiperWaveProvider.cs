@@ -1,10 +1,10 @@
-using NAudio.Wave;
-using PiperSharp.Models;
 using System;
 using System.Diagnostics;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using NAudio.Wave;
+using PiperSharp.Models;
 
 namespace PiperSharp
 {

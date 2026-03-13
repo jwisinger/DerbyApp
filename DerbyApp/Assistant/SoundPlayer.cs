@@ -1,5 +1,5 @@
-﻿using ClippySharp;
-using System.Threading;
+﻿using System.Threading;
+using ClippySharp;
 
 namespace DerbyApp.Assistant
 {

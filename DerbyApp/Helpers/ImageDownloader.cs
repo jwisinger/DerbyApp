@@ -1,11 +1,11 @@
-﻿using DerbyApp.RaceStats;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
+using DerbyApp.RaceStats;
 
 namespace DerbyApp.Helpers
 {

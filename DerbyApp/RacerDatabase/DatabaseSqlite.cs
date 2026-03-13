@@ -1,10 +1,9 @@
-﻿using DerbyApp.Helpers;
-using Microsoft.Data.Sqlite;
-using MigraDoc.DocumentObjectModel.Tables;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Windows;
+using DerbyApp.Helpers;
+using Microsoft.Data.Sqlite;
 
 namespace DerbyApp.RacerDatabase
 {
@@ -178,7 +177,7 @@ namespace DerbyApp.RacerDatabase
                     sql += ") VALUES (@Number, @Name";
                     for (int i = 1; i <= heatCount; i++) sql += ", @Heat" + i;
                     sql += ")";
-                    SqliteCommand command = new (sql, SqliteConn, transaction);
+                    SqliteCommand command = new(sql, SqliteConn, transaction);
 
                     command.Parameters.Add("@Number", SqliteType.Integer);
                     command.Parameters.Add("@Name", SqliteType.Text);

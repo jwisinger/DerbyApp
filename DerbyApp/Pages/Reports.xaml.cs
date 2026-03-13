@@ -1,8 +1,7 @@
 ﻿#warning Z-FUTURE: Could I somehow generate winners certificates along with "appearance" winners?
-using DerbyApp.RacerDatabase;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using DerbyApp.RacerDatabase;
 
 namespace DerbyApp.Pages
 {

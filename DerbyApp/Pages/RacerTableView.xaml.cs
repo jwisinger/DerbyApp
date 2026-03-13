@@ -1,11 +1,10 @@
-﻿#warning 0 - Changes on this page don't propogate to other tabs or the database
+﻿using System.ComponentModel;
+using System.Windows;
+using System.Windows.Controls;
 using DerbyApp.Helpers;
 using DerbyApp.RacerDatabase;
 using DerbyApp.RaceStats;
 using DerbyApp.Windows;
-using System.ComponentModel;
-using System.Windows;
-using System.Windows.Controls;
 
 namespace DerbyApp
 {

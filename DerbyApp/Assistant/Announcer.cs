@@ -1,7 +1,7 @@
-﻿using DerbyApp.Helpers;
-using DerbyApp.RaceStats;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using DerbyApp.Helpers;
+using DerbyApp.RaceStats;
 
 namespace DerbyApp.Assistant
 {

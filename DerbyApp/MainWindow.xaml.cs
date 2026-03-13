@@ -8,12 +8,19 @@
 #warning Z-FUTURE: Update software licenses
 #warning Z-FUTURE: Move videos from retool to Gdrive?
 #warning Z-FUTURE: Add ability to copy local database to remote, mainly need a way to get a name for the remote database and then create it
-#warning W-FUTURE: Can I show a racers position in the app?
-#warning W-FUTURE: Option to load results table from XML ... will this automatically update to external database when connection re-establishes?
-#warning W-FUTURE: Ensure track network command documented
-#warning W-FUTURE: Ensure various logins documented 
-#warning W-FUTURE Add ability to delete remote event?
+#warning Z-FUTURE: Can I show a racers position in the app?
+#warning 2: Option to load results table from XML ... will this automatically update to external database when connection re-establishes?
+#warning DOCUMENT: Ensure track network command documented
+#warning DOCUMENT: Ensure various logins documented 
+#warning 0: Add ability to delete remote event?
 
+using System;
+using System.ComponentModel;
+using System.IO;
+using System.Linq;
+using System.Windows;
+using System.Windows.Input;
+using System.Windows.Threading;
 using ClippySharp;
 using DerbyApp.Assistant;
 using DerbyApp.Helpers;
@@ -22,13 +29,6 @@ using DerbyApp.RacerDatabase;
 using DerbyApp.RaceStats;
 using DerbyApp.Windows;
 using Microsoft.Win32;
-using System;
-using System.ComponentModel;
-using System.IO;
-using System.Linq;
-using System.Windows;
-using System.Windows.Input;
-using System.Windows.Threading;
 
 namespace DerbyApp
 {

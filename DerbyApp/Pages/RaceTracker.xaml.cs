@@ -1,9 +1,4 @@
 ﻿#warning BUG: announcer is hit or miss in manual mode
-using DerbyApp.Assistant;
-using DerbyApp.Helpers;
-using DerbyApp.RacerDatabase;
-using DerbyApp.RaceStats;
-using DerbyApp.Windows;
 using System;
 using System.ComponentModel;
 using System.Data;
@@ -14,6 +9,11 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Media;
+using DerbyApp.Assistant;
+using DerbyApp.Helpers;
+using DerbyApp.RacerDatabase;
+using DerbyApp.RaceStats;
+using DerbyApp.Windows;
 
 namespace DerbyApp
 {
@@ -310,7 +310,7 @@ namespace DerbyApp
 
         private void Datagrid_AutoGeneratingColumn(object sender, DataGridAutoGeneratingColumnEventArgs e)
         {
-#warning X-RUNOFF: Do I need this?
+#warning 1 - RUNOFF: Do I need this?
             if (e.Column is DataGridTextColumn col && e.PropertyType == typeof(double))
             {
                 col.Binding = new Binding(e.PropertyName) { StringFormat = "N3" };

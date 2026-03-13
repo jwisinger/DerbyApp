@@ -1,8 +1,8 @@
-using Microsoft.Data.Sqlite;
-using Npgsql;
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
+using Microsoft.Data.Sqlite;
+using Npgsql;
 
 namespace DerbyApp.Helpers
 {

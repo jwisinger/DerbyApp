@@ -1,5 +1,5 @@
-﻿using DerbyApp.RaceStats;
-using System.Windows;
+﻿using System.Windows;
+using DerbyApp.RaceStats;
 
 namespace DerbyApp.Windows
 {

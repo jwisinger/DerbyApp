@@ -1,12 +1,12 @@
-﻿using DerbyApp.Helpers;
-using Npgsql;
-using NpgsqlTypes;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Data;
 using System.Linq;
 using System.Windows;
+using DerbyApp.Helpers;
+using Npgsql;
+using NpgsqlTypes;
 
 namespace DerbyApp.RacerDatabase
 {

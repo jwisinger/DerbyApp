@@ -1,8 +1,8 @@
-﻿using DerbyApp.Helpers;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using DerbyApp.Helpers;
 
 namespace DerbyApp.RaceStats
 {

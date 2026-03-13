@@ -1,7 +1,7 @@
-﻿using ClippySharp.Models;
-using Newtonsoft.Json;
-using System.Windows.Media;
+﻿using System.Windows.Media;
 using System.Windows.Threading;
+using ClippySharp.Models;
+using Newtonsoft.Json;
 
 namespace ClippySharp
 {

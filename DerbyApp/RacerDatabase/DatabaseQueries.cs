@@ -1,7 +1,7 @@
-﻿using DerbyApp.Helpers;
-using DerbyApp.RaceStats;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
+using DerbyApp.Helpers;
+using DerbyApp.RaceStats;
 
 namespace DerbyApp.RacerDatabase
 {
@@ -10,8 +10,15 @@ namespace DerbyApp.RacerDatabase
         public const string RacerTableName = "racerTable";
         public const string RaceTableName = "raceTable";
         public const string VideoTableName = "videoTable";
+        public const string EventNameTableName = "eventNameTable";
 
         #region Support Table Queries
+        public static string CreateEventNameTable(bool isSqlite)
+        {
+            string primaryKeyString = isSqlite ? "PRIMARY KEY AUTOINCREMENT" : "GENERATED ALWAYS AS IDENTITY PRIMARY KEY";
+            return "CREATE TABLE IF NOT EXISTS [" + EventNameTableName + "] ([Number] INTEGER " + primaryKeyString + ", [EventName] VARCHAR(100))";
+        }
+
         public static string CreateVideoTable(bool isSqlite)
         {
             string primaryKeyString = isSqlite ? "PRIMARY KEY AUTOINCREMENT" : "GENERATED ALWAYS AS IDENTITY PRIMARY KEY";
@@ -43,6 +50,20 @@ namespace DerbyApp.RacerDatabase
             }
         }
 
+        public static string UpdateEventName(string eventName, out List<DatabaseGeneric.SqlParameter> parameters)
+        {
+            parameters =
+            [
+                new DatabaseGeneric.SqlParameter { name = "@EventName", type = DatabaseGeneric.DataType.Text, value = eventName },
+            ];
+            return "INSERT INTO [" + EventNameTableName + "] ([EventName]) VALUES (@EventName)";
+        }
+
+        public static string GetEventName()
+        {
+            return "SELECT * FROM [" + EventNameTableName + "] ORDER BY [Number] DESC LIMIT 1";
+        }
+
         public static string AddOrUpdateRace(string raceName, RaceFormat format, out List<DatabaseGeneric.SqlParameter> parameters)
         {
             parameters =
@@ -51,7 +72,7 @@ namespace DerbyApp.RacerDatabase
                 new DatabaseGeneric.SqlParameter { name = "@Format", type = DatabaseGeneric.DataType.Text, value = format.Name },
             ];
             return "INSERT INTO [" + RaceTableName + "] ([Name], [Format]) VALUES (@Name, @Format)";
-       }
+        }
 
         public static string DeleteRace(string raceName, out List<DatabaseGeneric.SqlParameter> parameters)
         {
@@ -100,7 +121,7 @@ namespace DerbyApp.RacerDatabase
         #endregion
 
         #region Results Table Queries
-#warning X-RUNOFF: Can this move to dataadapter?
+#warning 1 - RUNOFF: Can this move to dataadapter?
         public static string AddRunOffHeat(string raceName, int heatCount)
         {
             return "ALTER TABLE [" + raceName + "] ADD [Heat " + heatCount + "] REAL";

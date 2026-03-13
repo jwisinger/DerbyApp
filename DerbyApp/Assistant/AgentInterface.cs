@@ -1,8 +1,8 @@
-﻿using ClippySharp;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
+using ClippySharp;
 
 namespace DerbyApp.Assistant
 {

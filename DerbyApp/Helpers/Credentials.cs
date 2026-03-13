@@ -1,8 +1,8 @@
-﻿using DerbyApp.Windows;
+﻿using System.Linq;
+using DerbyApp.Windows;
 using KeePassLib;
 using KeePassLib.Keys;
 using KeePassLib.Serialization;
-using System.Linq;
 
 namespace DerbyApp.Helpers
 {
