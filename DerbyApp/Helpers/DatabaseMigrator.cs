@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Threading.Tasks;
-using System.Windows;
+using DerbyApp.Windows;
 using Microsoft.Data.Sqlite;
 using Npgsql;
 
@@ -29,14 +29,14 @@ namespace DerbyApp.Helpers
 
             var tables = GetTableNames(source, isToPg);
 
-#warning TODO: Change this to a status bar
-            MessageBox.Show("Copying database to local has begun.");
+            var pw = new ProgressWindow();
+            pw.Show();
             foreach (var table in tables)
             {
                 SyncSchema(source, target, table, isToPg);
-                await CopyData(source, target, table, isToPg);
+                await CopyData(source, target, table, isToPg, pw);
             }
-            MessageBox.Show("Copying database to local has completed.");
+            pw.Close();
             sqliteConn.Close();
             pgConn.Close();
         }
@@ -116,9 +116,12 @@ namespace DerbyApp.Helpers
             createCmd.ExecuteNonQuery();
         }
 
-        private static async Task CopyData(DbConnection source, DbConnection target, string tableName, bool toPg)
+        private static async Task CopyData(DbConnection source, DbConnection target, string tableName, bool toPg, ProgressWindow pw)
         {
             using var selectCmd = source.CreateCommand();
+            selectCmd.CommandText = $"SELECT COUNT(*) FROM \"{tableName}\"";
+            int totalCount = Convert.ToInt32(selectCmd.ExecuteScalar());
+            int count = 0;
             selectCmd.CommandText = $"SELECT * FROM \"{tableName}\"";
             using var reader = selectCmd.ExecuteReader();
 
@@ -127,6 +130,7 @@ namespace DerbyApp.Helpers
 
             while (reader.Read())
             {
+                pw.ProgressValue = 100.0 * (count++ / (double)totalCount);
                 using var insertCmd = target.CreateCommand();
                 insertCmd.Transaction = transaction;
 

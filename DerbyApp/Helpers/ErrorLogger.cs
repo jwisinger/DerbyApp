@@ -90,7 +90,7 @@ namespace DerbyApp.Helpers
         private static string FormatLogEntry(string message, Exception exception, bool error)
         {
             string timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
-            string formattedEntry = error?$"[{timestamp}] ERROR: {message}": $"[{timestamp}] EVENT: {message}";
+            string formattedEntry = error ? $"[{timestamp}] ERROR: {message}" : $"[{timestamp}] EVENT: {message}";
 
             if (exception != null)
             {

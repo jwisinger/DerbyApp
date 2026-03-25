@@ -90,6 +90,11 @@
                             <Image Source="/Images/DatabaseRun.png"/>
                         </MenuItem.Icon>
                     </MenuItem>
+                    <MenuItem Click="ImportTableFromXml_Click"  Header="Import Data from Xml...">
+                        <MenuItem.Icon>
+                            <Image Source="/Images/DatabaseRun.png"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
                 </MenuItem>
                 <MenuItem ItemsSource="{Binding CharacterMenuItems}" ToolTip="Assistant">
                     <MenuItem.Header>

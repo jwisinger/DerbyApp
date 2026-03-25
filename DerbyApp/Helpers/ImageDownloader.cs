@@ -6,7 +6,6 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using DerbyApp.RaceStats;
-using Emgu.CV;
 
 namespace DerbyApp.Helpers
 {

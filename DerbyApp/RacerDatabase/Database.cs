@@ -220,6 +220,15 @@ namespace DerbyApp.RacerDatabase
             }
         }
 
+        public void ImportXml(string fileName)
+        {
+            for (int i = 0; i < ResultsTable.Rows.Count; i++)
+            {
+                ResultsTable.Rows[i].Delete();
+            }
+            ResultsTable.ReadXml(fileName);
+        }
+
         public void CheckSyncStatus()
         {
             if (ResultsTable != null)
@@ -227,11 +236,11 @@ namespace DerbyApp.RacerDatabase
                 if (_databaseGeneric.UpdateResultsTable(ResultsTable, CurrentRaceName, RaceFormat.HeatCount) >= 0) _isSynced = true;
                 else _isSynced = false;
                 SyncStatusChanged?.Invoke(this, null);
-                ResultsTable.TableName = _databaseName;
+                ResultsTable.TableName = CurrentRaceName;
                 if (!IsSynced)
                 {
                     if (!Directory.Exists(EventFolderName)) Directory.CreateDirectory(EventFolderName);
-                    ResultsTable.WriteXml(Path.Combine(EventFolderName, "unsynced_results_" + DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss") + ".xml"));
+                    ResultsTable.WriteXml(Path.Combine(EventFolderName, $"unsynced_results_{CurrentRaceName}_" + DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss") + ".xml"));
                 }
             }
         }

@@ -7,9 +7,9 @@
 #warning TEST(FULL): Test complete run of race with Sqlite
 #warning FUTURE: Update software licenses
 #warning FUTURE: Move videos from retool to Gdrive?
+#warning FUTURE: Can I improve network loss failsafe to require less user intervention?
 #warning 2-FAILSAFE: Add ability to copy local database to remote, mainly need a way to get a name for the remote database and then create it
 #warning APP: Can I show a racers position in the app?
-#warning 2-FAILSAFE: Option to load results table from XML ... will this automatically update to external database when connection re-establishes?
 #warning 1-DOCUMENT: Ensure various logins documented 
 
 using System;
@@ -387,6 +387,31 @@ namespace DerbyApp
         private void CopyDatabaseToLocal_Click(object sender, RoutedEventArgs e)
         {
             _ = _db.CopyDatabaseToLocal();
+        }
+
+        private void ImportTableFromXml_Click(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog dlg = new()
+            {
+                DefaultExt = ".xml",
+                Filter = "XML files | *.xml",
+                AddExtension = true,
+                CheckPathExists = true,
+                ValidateNames = true,
+                CheckFileExists = false
+            };
+
+            Nullable<bool> result = dlg.ShowDialog();
+            if (result == true)
+            {
+                if (!dlg.FileName.Contains(_db.CurrentRaceName))
+                {
+                    if (MessageBoxResult.Yes != MessageBox.Show("The race stored in this file does not seem to match the active race. Are you sure you want" +
+                        " to read in this file and overwrite the active race? Data from the active race could be lost.", "Race Name Mismatch",
+                        MessageBoxButton.YesNo, MessageBoxImage.Warning)) return;
+                }
+                _db.ImportXml(dlg.FileName);
+            }
         }
 
         private void ButtonChangeDatabase_Click(object sender, RoutedEventArgs e)
