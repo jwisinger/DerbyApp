@@ -163,7 +163,7 @@ namespace DerbyApp.Pages
 
         private void ZoomPicture(object sender, RoutedEventArgs e)
         {
-            new ImageDisplay((sender as Image).Source, (sender as Image).DataContext as Racer, _videoHandler).ShowDialog();
+            new ImageDisplay((sender as Image).Source, (sender as Image).DataContext as Racer, _videoHandler, _db).ShowDialog();
         }
         #endregion
 

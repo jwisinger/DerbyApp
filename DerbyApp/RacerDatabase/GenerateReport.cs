@@ -1,4 +1,4 @@
-﻿#warning REPORT: Can I make reports go to Google Drive?
+﻿#warning 3-REPORT: Can I make reports go to Google Drive?
 using System.Drawing;
 using System.IO;
 using System.Text;
@@ -155,7 +155,7 @@ namespace DerbyApp.RacerDatabase
 
         static public void Generate(Database db)
         {
-#warning REPORT: Report is terribly slow ... probably due to database switching
+#warning 3-REPORT: Report is terribly slow ... probably due to database switching
             string reportFolder = Path.Combine(db.EventFolderName, "reports");
             Directory.CreateDirectory(reportFolder);
             foreach (Racer r in db.Racers)

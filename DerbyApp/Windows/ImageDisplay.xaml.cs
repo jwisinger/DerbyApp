@@ -2,6 +2,7 @@
 using System.Windows;
 using System.Windows.Media;
 using DerbyApp.Helpers;
+using DerbyApp.RacerDatabase;
 using DerbyApp.RaceStats;
 
 namespace DerbyApp.Windows
@@ -15,12 +16,14 @@ namespace DerbyApp.Windows
         private bool _needSnapshot = false;
         private readonly VideoHandler _videoHandler;
         private readonly Racer _racer;
+        private readonly Database _db;
 
-        public ImageDisplay(ImageSource imageSource, Racer racer, VideoHandler videoHandler)
+        public ImageDisplay(ImageSource imageSource, Racer racer, VideoHandler videoHandler, Database db)
         {
             InitializeComponent();
             _videoHandler = videoHandler;
             _racer = racer;
+            _db = db;
             Picture.Source = imageSource;
         }
 
@@ -59,6 +62,7 @@ namespace DerbyApp.Windows
                 _needSnapshot = false;
                 Dispatcher.Invoke(new Action(() => { Picture.Source = _videoHandler.CurrentImageSource; }));
                 _racer.Photo = (System.Drawing.Image)_videoHandler.CurrentImageBitmap.Clone();
+                _db.AddRacer(_racer);
             }
             if (_isCapturing) Application.Current.Dispatcher.Invoke(new Action(() => { Picture.Source = _videoHandler.CurrentImageSource; }));
         }

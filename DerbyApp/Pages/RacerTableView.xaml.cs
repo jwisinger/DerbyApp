@@ -71,7 +71,7 @@ namespace DerbyApp
 
         private void ZoomPicture(object sender, RoutedEventArgs e)
         {
-            new ImageDisplay((sender as Image).Source, (sender as Image).DataContext as Racer, _videoHandler).ShowDialog();
+            new ImageDisplay((sender as Image).Source, (sender as Image).DataContext as Racer, _videoHandler, _db).ShowDialog();
         }
 
         private void RefreshDatabase(object sender, System.Windows.Input.MouseButtonEventArgs e)

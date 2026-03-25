@@ -1,5 +1,4 @@
-﻿#warning BUG: After changing picture, you must also change another thing to make it store in the database
-#warning TEST(NETWORK): What happens if I lose database connection when adding a racer
+﻿#warning TEST(NETWORK): What happens if I lose database connection when adding a racer
 #warning TEST(NETWORK): Test network loss with auto-write from track
 #warning TEST(2 PC): Test adding racers with 2 computers (make sure refresh works)
 #warning TEST(2 PC): Test creating races with 2 computers (make sure refresh works)
@@ -8,10 +7,10 @@
 #warning TEST(FULL): Test complete run of race with Sqlite
 #warning FUTURE: Update software licenses
 #warning FUTURE: Move videos from retool to Gdrive?
-#warning FAILSAFE: Add ability to copy local database to remote, mainly need a way to get a name for the remote database and then create it
+#warning 2-FAILSAFE: Add ability to copy local database to remote, mainly need a way to get a name for the remote database and then create it
 #warning APP: Can I show a racers position in the app?
-#warning FAILSAFE: Option to load results table from XML ... will this automatically update to external database when connection re-establishes?
-#warning DOCUMENT: Ensure various logins documented 
+#warning 2-FAILSAFE: Option to load results table from XML ... will this automatically update to external database when connection re-establishes?
+#warning 1-DOCUMENT: Ensure various logins documented 
 
 using System;
 using System.ComponentModel;
