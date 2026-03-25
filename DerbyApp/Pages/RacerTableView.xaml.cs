@@ -47,6 +47,7 @@ namespace DerbyApp
                     _db.AddRacer(_db.Racers[index]);
                     _editHandle = true;
                 }
+                ErrorLogger.LogEvent($"Cell Edited: [RacerTableView] {_db.Racers[e.Row.GetIndex()].RacerName}");
             }
         }
 
@@ -55,6 +56,7 @@ namespace DerbyApp
             if (dataGridRacerTable.SelectedIndex < _db.Racers.Count)
             {
                 _db.RemoveRacer(_db.Racers[dataGridRacerTable.SelectedIndex]);
+                ErrorLogger.LogEvent($"Row Deleted: [RacerTableView] {_db.Racers[dataGridRacerTable.SelectedIndex].RacerName}");
             }
         }
 

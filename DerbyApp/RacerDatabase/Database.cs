@@ -11,6 +11,7 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using DerbyApp.Helpers;
 using DerbyApp.RaceStats;
 
@@ -122,6 +123,7 @@ namespace DerbyApp.RacerDatabase
             {
                 _outputFolderName = value;
                 ErrorLogger.LogFilePath = Path.Combine(EventFolderName, "errorlog.log");
+                ErrorLogger.EventFilePath = Path.Combine(EventFolderName, "eventlog.log");
                 DatabaseRegistry.StoreDatabaseRegistry(null, null, value, null, null, null, null, null, null);
             }
         }
@@ -213,7 +215,7 @@ namespace DerbyApp.RacerDatabase
                         else _isSynced = false;
                         SyncStatusChanged?.Invoke(this, null);
                     }
-                }, null, TimeSpan.Zero, TimeSpan.FromSeconds(5));
+                }, null, TimeSpan.FromSeconds(5), TimeSpan.FromSeconds(5));
                 InitGood = true;
             }
         }
@@ -249,7 +251,7 @@ namespace DerbyApp.RacerDatabase
             GetListOfRaces();
         }
 
-        public void CopyDatabaseToLocal()
+        public async Task CopyDatabaseToLocal()
         {
             if (!IsSqlite)
             {
@@ -257,7 +259,7 @@ namespace DerbyApp.RacerDatabase
 
                 if (postGresConnStr != "")
                 {
-                    DatabaseMigrator.Migrate(MigrationDirection.PostgresToSqlite, Path.Combine(EventFolderName, _databaseName + "_" + DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss") + ".sqlite"), postGresConnStr);
+                    await DatabaseMigrator.Migrate(MigrationDirection.PostgresToSqlite, Path.Combine(EventFolderName, _databaseName + "_" + DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss") + ".sqlite"), postGresConnStr);
                 }
             }
         }
@@ -416,7 +418,7 @@ namespace DerbyApp.RacerDatabase
                                         null);
                         Racers.Add(racer);
                         try { ImageDownloader.SetPhoto(racer, Path.Combine(RacerImageFolderName, guid + ".png")); }
-                        catch { _ = ImageDownloader.DownloadImageAsync((string)_databaseGeneric.GetReadValue("image"), RacerImageFolderName, guid + ".png", racer); }
+                        catch { _ = ImageDownloader.DownloadAndSetImageAsync((string)_databaseGeneric.GetReadValue("image"), RacerImageFolderName, guid + ".png", racer); }
                     }
                     catch (Exception ex)
                     {

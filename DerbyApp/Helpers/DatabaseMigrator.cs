@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
+using System.Threading.Tasks;
+using System.Windows;
 using Microsoft.Data.Sqlite;
 using Npgsql;
 
@@ -11,7 +13,7 @@ namespace DerbyApp.Helpers
 
     public class DatabaseMigrator()
     {
-        public static void Migrate(MigrationDirection direction, string sqlitePath, string pgConnStr)
+        public static async Task Migrate(MigrationDirection direction, string sqlitePath, string pgConnStr)
         {
             string _sqliteConnStr = sqlitePath.StartsWith("Data Source") ? sqlitePath : $"Data Source={sqlitePath}";
             string _pgConnStr = pgConnStr;
@@ -27,11 +29,14 @@ namespace DerbyApp.Helpers
 
             var tables = GetTableNames(source, isToPg);
 
+#warning TODO: Change this to a status bar
+            MessageBox.Show("Copying database to local has begun.");
             foreach (var table in tables)
             {
                 SyncSchema(source, target, table, isToPg);
-                CopyData(source, target, table, isToPg);
+                await CopyData(source, target, table, isToPg);
             }
+            MessageBox.Show("Copying database to local has completed.");
             sqliteConn.Close();
             pgConn.Close();
         }
@@ -95,7 +100,14 @@ namespace DerbyApp.Helpers
                         "boolean" => "INTEGER",
                         _ => "TEXT"
                     };
-                    columns.Add($"\"{name}\" {liteType}");
+                    if (name == "Image")
+                    {
+                        columns.Add($"\"{name}\" MEDIUMBLOB");
+                    }
+                    else
+                    {
+                        columns.Add($"\"{name}\" {liteType}");
+                    }
                 }
             }
 
@@ -104,7 +116,7 @@ namespace DerbyApp.Helpers
             createCmd.ExecuteNonQuery();
         }
 
-        private static void CopyData(DbConnection source, DbConnection target, string tableName, bool toPg)
+        private static async Task CopyData(DbConnection source, DbConnection target, string tableName, bool toPg)
         {
             using var selectCmd = source.CreateCommand();
             selectCmd.CommandText = $"SELECT * FROM \"{tableName}\"";
@@ -136,12 +148,29 @@ namespace DerbyApp.Helpers
                     if (!toPg && val is bool b) val = b ? 1 : 0; // Pg Bool to SQLite Int
                     if (!toPg && val is Guid g) val = g.ToString(); // Pg UUID to SQLite Text
 
-                    p.Value = val ?? DBNull.Value;
+                    if (name == "Image")
+                    {
+                        if (val is string s)
+                        {
+                            p.Value = await ImageDownloader.DownloadImageAsync(s);
+                        }
+                    }
+                    else
+                    {
+                        p.Value = val ?? DBNull.Value;
+                    }
                     insertCmd.Parameters.Add(p);
                 }
 
                 insertCmd.CommandText = $"INSERT INTO \"{tableName}\" ({string.Join(",", cols)}) VALUES ({string.Join(",", pars)})";
-                insertCmd.ExecuteNonQuery();
+                try
+                {
+                    insertCmd.ExecuteNonQuery();
+                }
+                catch (Exception ex)
+                {
+                    ErrorLogger.LogError("DatabaseMigrator.CopyData", ex);
+                }
             }
             transaction.Commit();
         }

@@ -11,7 +11,6 @@
 #warning FAILSAFE: Add ability to copy local database to remote, mainly need a way to get a name for the remote database and then create it
 #warning APP: Can I show a racers position in the app?
 #warning FAILSAFE: Option to load results table from XML ... will this automatically update to external database when connection re-establishes?
-#warning DOCUMENT: Ensure track network command documented
 #warning DOCUMENT: Ensure various logins documented 
 
 using System;
@@ -388,7 +387,7 @@ namespace DerbyApp
 
         private void CopyDatabaseToLocal_Click(object sender, RoutedEventArgs e)
         {
-            _db.CopyDatabaseToLocal();
+            _ = _db.CopyDatabaseToLocal();
         }
 
         private void ButtonChangeDatabase_Click(object sender, RoutedEventArgs e)

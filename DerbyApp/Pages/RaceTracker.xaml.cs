@@ -319,6 +319,7 @@ namespace DerbyApp
         private void GridRaceResults_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
         {
             _db.UpdateResultsTable((e.EditingElement as TextBox).Text, e.Column.DisplayIndex, e.Row.GetIndex());
+            ErrorLogger.LogEvent($"Cell Edited: [RaceTracker] Text:{(e.EditingElement as TextBox).Text}, Column:{e.Column.DisplayIndex}, Row:{e.Row.GetIndex()}");
         }
 
         private void ResultsColumnAdded(object sender, PropertyChangedEventArgs e)

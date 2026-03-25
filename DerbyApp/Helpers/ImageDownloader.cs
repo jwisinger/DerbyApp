@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using DerbyApp.RaceStats;
+using Emgu.CV;
 
 namespace DerbyApp.Helpers
 {
@@ -50,7 +51,25 @@ namespace DerbyApp.Helpers
             }
         }
 
-        public static async Task DownloadImageAsync(string imageUrl, string destinationPath, string fileName, Racer racer)
+        public static async Task<byte[]> DownloadImageAsync(string imageUrl)
+        {
+            try
+            {
+                using var httpResponse = await _httpClient.GetAsync(imageUrl, HttpCompletionOption.ResponseHeadersRead);
+                httpResponse.EnsureSuccessStatusCode();
+                using var mediaStream = await httpResponse.Content.ReadAsStreamAsync();
+                var memoryStream = new MemoryStream();
+                await mediaStream.CopyToAsync(memoryStream);
+                return memoryStream.ToArray();
+            }
+            catch (Exception ex)
+            {
+                ErrorLogger.LogError("ImageDownload.DownloadImageAsync", ex);
+                return null;
+            }
+        }
+
+        public static async Task DownloadAndSetImageAsync(string imageUrl, string destinationPath, string fileName, Racer racer)
         {
             fileName = Path.Combine(destinationPath, fileName);
             IEnumerable<RacersToUpdate> matchingRacers = _racersInProgress.Where(x => x.PhotoFileName == fileName);
@@ -77,7 +96,7 @@ namespace DerbyApp.Helpers
                 }
                 catch (Exception ex)
                 {
-                    ErrorLogger.LogError("ImageDownload.DownloadImageAsync", ex);
+                    ErrorLogger.LogError("ImageDownload.DownloadAndSetImageAsync", ex);
                 }
 
                 foreach (Racer r in toUpdate.RacerToUpdate)

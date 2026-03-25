@@ -7,6 +7,7 @@ namespace DerbyApp.Helpers
     public class ErrorLogger
     {
         private static string _logFilePath;
+        private static string _eventFilePath;
 
         public static string LogFilePath
         {
@@ -23,12 +24,43 @@ namespace DerbyApp.Helpers
             }
         }
 
+        public static string EventFilePath
+        {
+            get => _eventFilePath;
+            set
+            {
+                _eventFilePath = value;
+                // Ensure the directory exists
+                string directory = Path.GetDirectoryName(_eventFilePath);
+                if (!Directory.Exists(directory))
+                {
+                    Directory.CreateDirectory(directory);
+                }
+            }
+        }
+
         // Static constructor to set the default log file path
         static ErrorLogger()
         {
             // Set log file name to be the name of the executing assembly with a .log extension
             string assemblyName = Assembly.GetExecutingAssembly().GetName().Name;
             LogFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"{assemblyName}.log");
+        }
+
+        public static void LogEvent(string message, Exception exception = null)
+        {
+            string logEntry = FormatLogEntry(message, exception, false);
+
+            try
+            {
+                // Append the log entry to the file. Create the file if it does not exist.
+                File.AppendAllText(EventFilePath, logEntry + Environment.NewLine);
+            }
+            catch (Exception ex)
+            {
+                // Handle potential errors during file writing (e.g., file lock, permissions)
+                Console.WriteLine($"Failed to write to log file: {ex.Message}");
+            }
         }
 
         /// <summary>
@@ -38,7 +70,7 @@ namespace DerbyApp.Helpers
         /// <param name="exception">The exception object (optional).</param>
         public static void LogError(string message, Exception exception = null)
         {
-            string logEntry = FormatLogEntry(message, exception);
+            string logEntry = FormatLogEntry(message, exception, true);
 
             try
             {
@@ -55,10 +87,10 @@ namespace DerbyApp.Helpers
         /// <summary>
         /// Formats the log entry with a timestamp and exception details.
         /// </summary>
-        private static string FormatLogEntry(string message, Exception exception)
+        private static string FormatLogEntry(string message, Exception exception, bool error)
         {
             string timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
-            string formattedEntry = $"[{timestamp}] ERROR: {message}";
+            string formattedEntry = error?$"[{timestamp}] ERROR: {message}": $"[{timestamp}] EVENT: {message}";
 
             if (exception != null)
             {
