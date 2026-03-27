@@ -535,6 +535,7 @@ namespace DerbyApp
             }
             if (dbs.Sqlite) CopyDatabaseText = "Upload Database to Remote";
             else CopyDatabaseText = "Copy Database to Local";
+            Mouse.OverrideCursor = null;
         }
 
         private bool ChangeDatabase()

@@ -20,12 +20,14 @@ namespace DerbyApp.Windows
 
         public DatabaseSelector(Credentials credentials)
         {
+            System.Windows.Input.Mouse.OverrideCursor = System.Windows.Input.Cursors.Wait;
             _dbConnect = new DatabasePostgres("", credentials);
             InitializeComponent();
             eventListbox.DataContext = EventList;
             serverTextBox.DataContext = _dbConnect;
             usernameTextBox.DataContext = _dbConnect;
             if (_dbConnect.InitGood) ButtonConnect_Click(null, null);
+            System.Windows.Input.Mouse.OverrideCursor = null;
         }
 
         private void ButtonBrowse_Click(object sender, RoutedEventArgs e)
@@ -68,8 +70,10 @@ namespace DerbyApp.Windows
 
         private void ButtonConnect_Click(object sender, RoutedEventArgs e)
         {
+            System.Windows.Input.Mouse.OverrideCursor = System.Windows.Input.Cursors.Wait;
             EventList.Clear();
             foreach (string s in _dbConnect.GetEventList()) EventList.Add(s);
+            System.Windows.Input.Mouse.OverrideCursor = null;
         }
 
         private void PasswordBox_PasswordChanged(object sender, RoutedEventArgs e)
@@ -79,6 +83,7 @@ namespace DerbyApp.Windows
 
         private void EventListbox_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
+            System.Windows.Input.Mouse.OverrideCursor = System.Windows.Input.Cursors.Wait;
             string selectedEvent = (string)eventListbox.SelectedItem;
 
             if (selectedEvent != null)
