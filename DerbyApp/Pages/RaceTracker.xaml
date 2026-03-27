@@ -60,7 +60,7 @@
                 </Button.Effect>
             </Button>
             <Button Grid.Column="0" Grid.Row="0" Content="Add Runoff" Visibility="{Binding ElementName=raceTrackerWindow, Path=ButtonVisibility, Mode=TwoWay}" HorizontalAlignment="Right" Margin="0,0,10,0" VerticalAlignment="Center" Height="35" Width="120" FontSize="18" Click="ButtonAddRunoff_Click"/>
-            <DataGrid FontSize="20" RowHeight="{Binding Path=Value, ElementName=_zoom}" BorderThickness="5,5,0,5" Name="gridRaceResults" SelectionMode="Single" SelectionUnit="Cell" ItemsSource="{Binding Path=., Mode=TwoWay, NotifyOnSourceUpdated=True, UpdateSourceTrigger=PropertyChanged}" Grid.Column="0" Grid.Row="1" Margin="0,0,0,0" CellEditEnding="GridRaceResults_CellEditEnding" CanUserAddRows="False" IsReadOnly="False" Background="Transparent" RowBackground="Transparent" AutoGeneratingColumn="Datagrid_AutoGeneratingColumn">
+            <DataGrid FontSize="20" RowHeight="{Binding Path=Value, ElementName=_zoom}" BorderThickness="5,5,0,5" Name="gridRaceResults" SelectionMode="Single" SelectionUnit="Cell" ItemsSource="{Binding Path=., Mode=TwoWay, NotifyOnSourceUpdated=True, UpdateSourceTrigger=PropertyChanged}" Grid.Column="0" Grid.Row="1" Margin="0,0,0,0" CellEditEnding="GridRaceResults_CellEditEnding" CanUserAddRows="False" IsReadOnly="False" Background="Transparent" RowBackground="Transparent" AutoGenerateColumns="True" AutoGeneratingColumn="Datagrid_AutoGeneratingColumn">
                 <DataGrid.ColumnHeaderStyle>
                     <Style TargetType="{x:Type DataGridColumnHeader}">
                         <Setter Property="FontWeight" Value="Bold"/>

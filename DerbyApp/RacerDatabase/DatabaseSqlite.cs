@@ -153,6 +153,7 @@ namespace DerbyApp.RacerDatabase
             ExecuteReader("SELECT * FROM [" + raceName + "]");
             try
             {
+                table.Clear();
                 table.Load(_reader);
             }
             catch (Exception ex)

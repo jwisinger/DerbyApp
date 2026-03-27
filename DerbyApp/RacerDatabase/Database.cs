@@ -1,5 +1,4 @@
 ﻿#warning RUNOFF: If database connection is lost when addrunoff, the column lets you fill it out on the screen, but it never gets added to the database
-#warning 0-When a runoff heat is added, entering info into it does not get stored in the database. Closing and re-opening fixes this ... the issue is likely related to the data adapter adding columns
 
 using System;
 using System.Collections.Generic;
@@ -572,6 +571,7 @@ namespace DerbyApp.RacerDatabase
             RaceFormat.AddRunOffHeat([.. CurrentRaceRacers]);
             _databaseGeneric.ExecuteNonQuery(DatabaseQueries.AddRunOffHeat(CurrentRaceName, RaceFormat.HeatCount));
             ResultsTable.Columns.Add("Heat " + RaceFormat.HeatCount, Type.GetType("System.Double"));
+            _databaseGeneric.InitResultsTable(CurrentRaceName, ResultsTable);
             ResultsTableChanged?.Invoke(this, new PropertyChangedEventArgs("Heat " + RaceFormat.HeatCount));
         }
 

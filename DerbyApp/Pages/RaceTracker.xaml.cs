@@ -323,6 +323,7 @@ namespace DerbyApp
 
         private void ResultsTableChanged(object sender, PropertyChangedEventArgs e)
         {
+            gridRaceResults.DataContext = null;
             gridRaceResults.DataContext = _db.ResultsTable.DefaultView;
         }
         #endregion
