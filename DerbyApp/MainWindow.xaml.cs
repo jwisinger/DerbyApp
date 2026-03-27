@@ -7,10 +7,8 @@
 #warning TEST(FULL): Test complete run of race with Sqlite
 #warning FUTURE: Update software licenses
 #warning FUTURE: Move videos from retool to Gdrive?
-#warning FUTURE: Can I improve network loss failsafe to require less user intervention?
-#warning 1-FAILSAFE: Add ability to copy local database to remote, mainly need a way to get a name for the remote database and then create it
+#warning 3-Can I improve network loss failsafe to require less user intervention?
 #warning APP: Can I show a racers position in the app?
-#warning 2-DOCUMENT: Ensure various logins documented 
 
 using System;
 using System.ComponentModel;

@@ -77,7 +77,6 @@ namespace DerbyApp.RacerDatabase
 
         public bool DeleteDatabase(string databaseName)
         {
-#warning 1: Delete database doesn't work for some reason
             try
             {
                 string sql = "DROP DATABASE " + databaseName.Replace("\"", null);

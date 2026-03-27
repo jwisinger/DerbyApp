@@ -163,7 +163,6 @@ namespace DerbyApp.RacerDatabase
 
         public override int UpdateResultsTable(DataTable table, string raceName, int heatCount)
         {
-#warning 1: This throws an exception when sqlite is busy doing something else (like migrating to remote)
             int retVal = 0;
             try
             {
