@@ -8,7 +8,7 @@ using Microsoft.Data.Sqlite;
 
 namespace DerbyApp.RacerDatabase
 {
-    internal class DatabaseSqlite : DatabaseGeneric
+    internal partial class DatabaseSqlite : DatabaseGeneric
     {
         public readonly SqliteConnection SqliteConn;
         public readonly string EventFile = "";
@@ -150,10 +150,6 @@ namespace DerbyApp.RacerDatabase
 
         public override void InitResultsTable(string raceName, DataTable table)
         {
-            table.Clear();
-            List<DataColumn> columnsToRemove = [];
-            foreach (DataColumn column in table.Columns) if (column.ColumnName.Contains("Heat")) columnsToRemove.Add(column);
-            foreach (DataColumn column in columnsToRemove) table.Columns.Remove(column);
             ExecuteReader("SELECT * FROM [" + raceName + "]");
             try
             {
@@ -175,7 +171,7 @@ namespace DerbyApp.RacerDatabase
                     string sql = "REPLACE INTO [" + raceName + "] (";
                     for (int i = 0; i < table.Columns.Count; i++) sql += "[" + table.Columns[i].ColumnName + "], ";
                     sql = sql[..^2] + ") VALUES (";
-                    for (int i = 0; i < table.Columns.Count; i++) sql += "@" + Regex.Replace(table.Columns[i].ColumnName, @"\s+", "") + ", ";
+                    for (int i = 0; i < table.Columns.Count; i++) sql += "@" + WhitespaceRegex().Replace(table.Columns[i].ColumnName, "") + ", ";
                     sql = sql[..^2] + ")";
                     SqliteCommand command = new(sql, SqliteConn, transaction);
 
@@ -188,7 +184,7 @@ namespace DerbyApp.RacerDatabase
                             "System.Double" => SqliteType.Real,
                             _ => SqliteType.Text,
                         };
-                        command.Parameters.Add("@" + Regex.Replace(table.Columns[i].ColumnName, @"\s+", ""), type);
+                        command.Parameters.Add("@" + WhitespaceRegex().Replace(table.Columns[i].ColumnName, ""), type);
                     }
 
                     foreach (DataRow row in table.Rows)
@@ -206,5 +202,8 @@ namespace DerbyApp.RacerDatabase
                 return -1;
             }
         }
+
+        [GeneratedRegex(@"\s+")]
+        private static partial Regex WhitespaceRegex();
     }
 }

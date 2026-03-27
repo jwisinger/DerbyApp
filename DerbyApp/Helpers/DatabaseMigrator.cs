@@ -63,11 +63,12 @@ namespace DerbyApp.Helpers
             {
                 using var cmd = source.CreateCommand();
                 cmd.CommandText = $"PRAGMA table_info(\"{tableName}\");";
+
                 using var reader = cmd.ExecuteReader();
                 while (reader.Read())
                 {
                     string name = reader.GetString(1);
-                    string type = reader.GetString(2).ToUpper();
+                    string type = reader.GetString(2).ToUpperInvariant();
                     bool isPk = reader.GetInt32(5) == 1;
 
                     string pgType = type switch
@@ -78,20 +79,47 @@ namespace DerbyApp.Helpers
                         "BLOB" => "BYTEA",
                         _ => "TEXT"
                     };
+
                     columns.Add($"\"{name}\" {pgType}");
                 }
             }
             else // Postgres -> SQLite
             {
                 using var cmd = source.CreateCommand();
-                cmd.CommandText = "SELECT column_name, data_type FROM information_schema.columns WHERE table_name = @t AND table_schema = 'public';";
-                var p = cmd.CreateParameter(); p.ParameterName = "@t"; p.Value = tableName; cmd.Parameters.Add(p);
+                cmd.CommandText = @"
+            SELECT
+                c.column_name,
+                c.data_type,
+                CASE WHEN kcu.column_name IS NOT NULL THEN 1 ELSE 0 END AS is_primary_key
+            FROM information_schema.columns c
+            LEFT JOIN (
+                SELECT kcu.table_schema, kcu.table_name, kcu.column_name
+                FROM information_schema.table_constraints tc
+                INNER JOIN information_schema.key_column_usage kcu
+                    ON tc.constraint_name = kcu.constraint_name
+                   AND tc.table_schema = kcu.table_schema
+                   AND tc.table_name = kcu.table_name
+                WHERE tc.constraint_type = 'PRIMARY KEY'
+            ) kcu
+                ON c.table_schema = kcu.table_schema
+               AND c.table_name = kcu.table_name
+               AND c.column_name = kcu.column_name
+            WHERE c.table_name = @t
+              AND c.table_schema = 'public'
+            ORDER BY c.ordinal_position;";
+
+                var p = cmd.CreateParameter();
+                p.ParameterName = "@t";
+                p.Value = tableName;
+                cmd.Parameters.Add(p);
 
                 using var reader = cmd.ExecuteReader();
                 while (reader.Read())
                 {
                     string name = reader.GetString(0);
-                    string pgType = reader.GetString(1).ToLower();
+                    string pgType = reader.GetString(1).ToLowerInvariant();
+                    bool isPk = reader.GetInt32(2) == 1;
+
                     string liteType = pgType switch
                     {
                         "integer" or "bigint" or "smallint" => "INTEGER",
@@ -100,7 +128,12 @@ namespace DerbyApp.Helpers
                         "boolean" => "INTEGER",
                         _ => "TEXT"
                     };
-                    if (name == "Image")
+
+                    if (isPk)
+                    {
+                        columns.Add($"\"{name}\" INTEGER PRIMARY KEY");
+                    }
+                    else if (name == "Image")
                     {
                         columns.Add($"\"{name}\" MEDIUMBLOB");
                     }

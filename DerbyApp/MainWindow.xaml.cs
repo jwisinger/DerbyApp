@@ -8,9 +8,9 @@
 #warning FUTURE: Update software licenses
 #warning FUTURE: Move videos from retool to Gdrive?
 #warning FUTURE: Can I improve network loss failsafe to require less user intervention?
-#warning 2-FAILSAFE: Add ability to copy local database to remote, mainly need a way to get a name for the remote database and then create it
+#warning 1-FAILSAFE: Add ability to copy local database to remote, mainly need a way to get a name for the remote database and then create it
 #warning APP: Can I show a racers position in the app?
-#warning 1-DOCUMENT: Ensure various logins documented 
+#warning 2-DOCUMENT: Ensure various logins documented 
 
 using System;
 using System.ComponentModel;
@@ -386,7 +386,12 @@ namespace DerbyApp
 
         private void CopyDatabaseToLocal_Click(object sender, RoutedEventArgs e)
         {
-            _ = _db.CopyDatabaseToLocal();
+            if (_db.IsSqlite)
+            {
+                var ib = new InputBox("Enter a name for the remote database.", "Database Name");
+                if ((bool)ib.ShowDialog()) _ = _db.CopyDatabaseToRemote(ib.Input, _credentials);
+            }
+            else _ = _db.CopyDatabaseToLocal();
         }
 
         private void ImportTableFromXml_Click(object sender, RoutedEventArgs e)
@@ -517,9 +522,8 @@ namespace DerbyApp
         #endregion
 
         #region General Methods
-        private bool SelectDatabase()
+        private void SelectDatabase()
         {
-            bool retVal = false;
             DatabaseSelector dbs = new(_credentials);
             while ((bool)dbs.ShowDialog())
             {
@@ -529,10 +533,8 @@ namespace DerbyApp
                 DatabaseRegistry.StoreDatabaseRegistry(databaseName, null, null, null, null, null, null, null, null);
                 if (ChangeDatabase()) break;
             }
-            if (retVal) CopyDatabaseText = "Upload Database to Remote";
+            if (dbs.Sqlite) CopyDatabaseText = "Upload Database to Remote";
             else CopyDatabaseText = "Copy Database to Local";
-
-            return retVal;
         }
 
         private bool ChangeDatabase()

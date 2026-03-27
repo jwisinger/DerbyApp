@@ -246,10 +246,6 @@ namespace DerbyApp.RacerDatabase
                 MissingSchemaAction = MissingSchemaAction.AddWithKey
             };
             _builder = new(_dataAdapter);
-            table.Clear();
-            List<DataColumn> columnsToRemove = [];
-            foreach (DataColumn column in table.Columns) if (column.ColumnName.Contains("Heat")) columnsToRemove.Add(column);
-            foreach (DataColumn column in columnsToRemove) table.Columns.Remove(column);
             try { _dataAdapter.Fill(table); }
             catch (Exception ex)
             {

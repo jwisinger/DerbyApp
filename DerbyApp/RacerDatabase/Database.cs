@@ -1,5 +1,4 @@
-﻿#warning 2-FAILSAFE: Try writing to SQLite instead of XML
-#warning RUNOFF: If database connection is lost when addrunoff, the column lets you fill it out on the screen, but it never gets added to the database
+﻿#warning RUNOFF: If database connection is lost when addrunoff, the column lets you fill it out on the screen, but it never gets added to the database
 #warning RUNOFF: When a runoff heat is added, entering info into it does not get stored in the databse. Closing and re-opening fixes this ... the issue is likely related to the data adapter adding columns
 
 using System;
@@ -12,6 +11,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
 using DerbyApp.Helpers;
 using DerbyApp.RaceStats;
 
@@ -43,8 +43,7 @@ namespace DerbyApp.RacerDatabase
 
         #region Events
         public event PropertyChangedEventHandler PropertyChanged;
-        public event PropertyChangedEventHandler ColumnAdded;
-        public event PropertyChangedEventHandler ColumnRemoved;
+        public event PropertyChangedEventHandler ResultsTableChanged;
         public event EventHandler SyncStatusChanged;
         #endregion
 
@@ -269,6 +268,27 @@ namespace DerbyApp.RacerDatabase
                 if (postGresConnStr != "")
                 {
                     await DatabaseMigrator.Migrate(MigrationDirection.PostgresToSqlite, Path.Combine(EventFolderName, _databaseName + "_" + DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss") + ".sqlite"), postGresConnStr);
+                }
+            }
+        }
+
+        public async Task CopyDatabaseToRemote(string databaseName, Credentials credentials)
+        {
+            if (IsSqlite)
+            {
+                var dbConnect = new DatabasePostgres("", credentials);
+                if (dbConnect.InitGood)
+                {
+                    string postGresConnStr = dbConnect.GetConnectionString(false);
+                    if (postGresConnStr != "")
+                    {
+                        await DatabaseMigrator.Migrate(MigrationDirection.SqliteToPostgres, _databaseGeneric.GetDataBaseName(), postGresConnStr);
+                    }
+                }
+                else
+                {
+                    MessageBox.Show("Failed to connect to the database server. This could be incorrect credentials, or a network problem.",
+                                    "Connection Failed", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
         }
@@ -523,16 +543,15 @@ namespace DerbyApp.RacerDatabase
             RaceFormat.AddRunOffHeat([.. CurrentRaceRacers]);
             _databaseGeneric.ExecuteNonQuery(DatabaseQueries.AddRunOffHeat(CurrentRaceName, RaceFormat.HeatCount));
             ResultsTable.Columns.Add("Heat " + RaceFormat.HeatCount, Type.GetType("System.Double"));
-            ColumnAdded?.Invoke(this, new PropertyChangedEventArgs("Heat " + RaceFormat.HeatCount));
+            ResultsTableChanged?.Invoke(this, new PropertyChangedEventArgs("Heat " + RaceFormat.HeatCount));
         }
 
         private void CreateResultsTable()
         {
             int order = 0;
-            bool columnsExist = ResultsTable.Columns.Count > 0;
-            ResultsTable.Columns.Cast<DataColumn>().Select(x => x.ColumnName).ToList().ForEach(x => ColumnRemoved?.Invoke(this, new PropertyChangedEventArgs(x)));
+            ResultsTable = new();
             _databaseGeneric.InitResultsTable(CurrentRaceName, ResultsTable);
-            if (columnsExist) ResultsTable.Columns.Cast<DataColumn>().Select(x => x.ColumnName).ToList().ForEach(x => ColumnAdded?.Invoke(this, new PropertyChangedEventArgs(x)));
+            ResultsTableChanged?.Invoke(this, null);
             int heats = ResultsTable.Columns.Cast<DataColumn>().Select(x => x.ColumnName.Contains("Heat")).Count(x => x);
             foreach (Racer racer in CurrentRaceRacers) racer.RaceOrder = order++;
             while (RaceFormat.HeatCount < heats) RaceFormat.AddRunOffHeat(null);

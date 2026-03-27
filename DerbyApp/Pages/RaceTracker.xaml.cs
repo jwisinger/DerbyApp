@@ -2,7 +2,6 @@
 using System;
 using System.ComponentModel;
 using System.Data;
-using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
@@ -322,14 +321,9 @@ namespace DerbyApp
             ErrorLogger.LogEvent($"Cell Edited: [RaceTracker] Text:{(e.EditingElement as TextBox).Text}, Column:{e.Column.DisplayIndex}, Row:{e.Row.GetIndex()}");
         }
 
-        private void ResultsColumnAdded(object sender, PropertyChangedEventArgs e)
+        private void ResultsTableChanged(object sender, PropertyChangedEventArgs e)
         {
-            gridRaceResults.Columns.Add(new DataGridTextColumn() { Header = e.PropertyName, Binding = new Binding(e.PropertyName) { StringFormat = "N3" } });
-        }
-
-        private void ResultsColumnRemoved(object sender, PropertyChangedEventArgs e)
-        {
-            gridRaceResults.Columns.Where(c => c.Header.ToString() == e.PropertyName).ToList().ForEach(c => gridRaceResults.Columns.Remove(c));
+            gridRaceResults.DataContext = _db.ResultsTable.DefaultView;
         }
         #endregion
 
@@ -512,8 +506,7 @@ namespace DerbyApp
 
             _db.RaceFormat.UpdateDisplayedHeat(_db.CurrentHeatNumber, db.CurrentRaceRacers);
             _db.RaceFormat.CurrentRacers.CollectionChanged += CurrentRacers_CollectionChanged;
-            _db.ColumnAdded += ResultsColumnAdded;
-            _db.ColumnRemoved += ResultsColumnRemoved;
+            _db.ResultsTableChanged += ResultsTableChanged;
 
             _videoHandler = videoHandler;
             _videoHandler.ReplayEnded += ReplayEnded;
