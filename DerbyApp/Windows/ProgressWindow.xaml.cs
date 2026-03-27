@@ -9,6 +9,11 @@ namespace DerbyApp.Windows
             InitializeComponent();
         }
 
+        public double TableProgressValue
+        {
+            set => TableProgressBarControl.Value = value;
+        }
+
         public double ProgressValue
         {
             set => ProgressBarControl.Value = value;

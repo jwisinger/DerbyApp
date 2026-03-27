@@ -12,15 +12,16 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Input;
 using DerbyApp.Helpers;
 using DerbyApp.RaceStats;
+using DerbyApp.Windows;
 
 namespace DerbyApp.RacerDatabase
 {
     public class Database : INotifyPropertyChanged
     {
         private readonly DatabaseGeneric _databaseGeneric;
-        private readonly GoogleDriveAccess _googleDriveAccess;
         private readonly Timer _updateTimer;
         private RaceFormat _raceFormat;
         private readonly string _databaseName = "";
@@ -36,6 +37,7 @@ namespace DerbyApp.RacerDatabase
         public ObservableCollection<GirlScoutLevel> GirlScoutLevels = new GirlScoutLevels().ScoutLevels;
         public TrulyObservableCollection<Racer> Racers = [];
         public TrulyObservableCollection<Racer> CurrentRaceRacers = [];
+        public readonly GoogleDriveAccess GoogleDriveAccess;
         public DataTable ResultsTable = new();
         public readonly bool IsSqlite;
         public bool InitGood = false;
@@ -184,13 +186,13 @@ namespace DerbyApp.RacerDatabase
         {
             OutputFolderName = outputFolderName;
             _databaseName = databaseFile;
+            GoogleDriveAccess = gda;
             if (databaseFile.Contains(':')) IsSqlite = true;
             else IsSqlite = false;
 
             if (IsSqlite) _databaseGeneric = new DatabaseSqlite(databaseFile);
             else
             {
-                _googleDriveAccess = gda;
                 _databaseGeneric = new DatabasePostgres(databaseFile, credentials);
             }
 
@@ -267,7 +269,15 @@ namespace DerbyApp.RacerDatabase
 
                 if (postGresConnStr != "")
                 {
-                    await DatabaseMigrator.Migrate(MigrationDirection.PostgresToSqlite, Path.Combine(EventFolderName, _databaseName + "_" + DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss") + ".sqlite"), postGresConnStr);
+                    var pw = new ProgressWindow();
+                    var progress = new Progress<Tuple<double, double>>(percents =>
+                    {
+                        pw.TableProgressValue = percents.Item2;
+                        pw.ProgressValue = percents.Item1;
+                    });
+                    pw.Show();
+                    await Task.Run(() => DatabaseMigrator.Migrate(MigrationDirection.PostgresToSqlite, Path.Combine(EventFolderName, _databaseName + "_" + DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss") + ".sqlite"), postGresConnStr, this, progress));
+                    pw.Close();
                 }
             }
         }
@@ -276,13 +286,34 @@ namespace DerbyApp.RacerDatabase
         {
             if (IsSqlite)
             {
-                var dbConnect = new DatabasePostgres("", credentials);
+                Mouse.OverrideCursor = Cursors.Wait;
+                var dbConnect = new DatabasePostgres(databaseName, credentials);
+                if (dbConnect.InitGood)
+                {
+                    if (MessageBoxResult.Yes == MessageBox.Show("An event with that name already exists. Do you wish to overwrite it?",
+                                    "Event exists", MessageBoxButton.YesNo, MessageBoxImage.Warning))
+                    {
+                        dbConnect.DeleteDatabase(databaseName);
+                    }
+                }
+                dbConnect.ConnectToRootDatabase(true);
+                dbConnect.AddNewDatabase(databaseName);
+                dbConnect = new DatabasePostgres(databaseName, credentials);
+                Mouse.OverrideCursor = null;
                 if (dbConnect.InitGood)
                 {
                     string postGresConnStr = dbConnect.GetConnectionString(false);
                     if (postGresConnStr != "")
                     {
-                        await DatabaseMigrator.Migrate(MigrationDirection.SqliteToPostgres, _databaseGeneric.GetDataBaseName(), postGresConnStr);
+                        var pw = new ProgressWindow();
+                        var progress = new Progress<Tuple<double, double>>(percents =>
+                        {
+                            pw.TableProgressValue = percents.Item2;
+                            pw.ProgressValue = percents.Item1;
+                        });
+                        pw.Show();
+                        await Task.Run(() => DatabaseMigrator.Migrate(MigrationDirection.SqliteToPostgres, _databaseGeneric.GetDataBaseName(), postGresConnStr, this, progress));
+                        pw.Close();
                     }
                 }
                 else
@@ -511,9 +542,7 @@ namespace DerbyApp.RacerDatabase
             if (!IsSqlite)
             {
                 guid = ShortGuid.GenerateShortGuid();
-                imageUrl = _googleDriveAccess.UploadFile(guid + ".png", ms);
-                imageUrl = imageUrl.Replace("file/d/", "uc?export=download&id=");
-                imageUrl = imageUrl.Replace("/view?usp=drivesdk", "");
+                imageUrl = GoogleDriveAccess.UploadFile(guid + ".png", ms);
                 if (!Directory.Exists(RacerImageFolderName)) Directory.CreateDirectory(RacerImageFolderName);
                 racer.Photo.Save(Path.Combine(RacerImageFolderName, guid + ".png"), ImageFormat.Png);
             }

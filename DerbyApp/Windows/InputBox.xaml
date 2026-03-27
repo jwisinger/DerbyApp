@@ -13,7 +13,7 @@
             <RowDefinition Height="20"/>
         </Grid.RowDefinitions>
         <TextBlock Grid.Row="0" Name="promptBlock" Text="{Binding Prompt}" Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" />
-        <TextBox Grid.Row="1" Name="inputBox"  Text="{Binding Input, Mode=TwoWay}" AcceptsReturn="True" />
+        <TextBox Grid.Row="1" Name="inputBox"  Text="{Binding Input, Mode=TwoWay}" AcceptsReturn="True" PreviewTextInput="InputBox_PreviewTextInput" CommandManager.PreviewExecuted="InputBox_PreviewExecuted" PreviewKeyDown="InputBox_PreviewKeyDown" />
         <Button Grid.Row="2" Width="75" Content="OK" Click="OKButton_Click" HorizontalAlignment="Left" Margin="50,0,0,0" />
         <Button Grid.Row="2" Width="75" Content="Cancel" Click="CancelButton_Click" HorizontalAlignment="Right" Margin="0,0,50,0" Height="20" Grid.RowSpan="2" VerticalAlignment="Top" />
     </Grid>

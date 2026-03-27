@@ -1,8 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.IO;
 using System.Threading.Tasks;
-using DerbyApp.Windows;
+using DerbyApp.RacerDatabase;
 using Microsoft.Data.Sqlite;
 using Npgsql;
 
@@ -13,7 +16,7 @@ namespace DerbyApp.Helpers
 
     public class DatabaseMigrator()
     {
-        public static async Task Migrate(MigrationDirection direction, string sqlitePath, string pgConnStr)
+        public static async Task Migrate(MigrationDirection direction, string sqlitePath, string pgConnStr, Database db, IProgress<Tuple<double, double>> progress)
         {
             string _sqliteConnStr = sqlitePath.StartsWith("Data Source") ? sqlitePath : $"Data Source={sqlitePath}";
             string _pgConnStr = pgConnStr;
@@ -29,14 +32,12 @@ namespace DerbyApp.Helpers
 
             var tables = GetTableNames(source, isToPg);
 
-            var pw = new ProgressWindow();
-            pw.Show();
+            int i = 0;
             foreach (var table in tables)
             {
                 SyncSchema(source, target, table, isToPg);
-                await CopyData(source, target, table, isToPg, pw);
+                await CopyData(source, target, table, isToPg, db.GoogleDriveAccess, db.RacerImageFolderName, progress, (100.0 * i++) / tables.Count);
             }
-            pw.Close();
             sqliteConn.Close();
             pgConn.Close();
         }
@@ -149,7 +150,7 @@ namespace DerbyApp.Helpers
             createCmd.ExecuteNonQuery();
         }
 
-        private static async Task CopyData(DbConnection source, DbConnection target, string tableName, bool toPg, ProgressWindow pw)
+        private static async Task CopyData(DbConnection source, DbConnection target, string tableName, bool toPg, GoogleDriveAccess gda, string racerImageFolderName, IProgress<Tuple<double, double>> progress, double tablePercent)
         {
             using var selectCmd = source.CreateCommand();
             selectCmd.CommandText = $"SELECT COUNT(*) FROM \"{tableName}\"";
@@ -163,7 +164,8 @@ namespace DerbyApp.Helpers
 
             while (reader.Read())
             {
-                pw.ProgressValue = 100.0 * (count++ / (double)totalCount);
+                string guid = "";
+                progress?.Report(new Tuple<double, double>(100.0 * (count++ / (double)totalCount), tablePercent));
                 using var insertCmd = target.CreateCommand();
                 insertCmd.Transaction = transaction;
 
@@ -185,11 +187,32 @@ namespace DerbyApp.Helpers
                     if (!toPg && val is bool b) val = b ? 1 : 0; // Pg Bool to SQLite Int
                     if (!toPg && val is Guid g) val = g.ToString(); // Pg UUID to SQLite Text
 
-                    if (name == "Image")
+                    if (name == "ImageKey")
                     {
-                        if (val is string s)
+                        if (toPg)
                         {
-                            p.Value = await ImageDownloader.DownloadImageAsync(s);
+                            p.Value = guid;
+                        }
+                    }
+                    else if (name == "Image")
+                    {
+                        if (toPg && (val != null))
+                        {
+                            MemoryStream ms = new(val as byte[])
+                            {
+                                Position = 0
+                            };
+                            guid = ShortGuid.GenerateShortGuid();
+                            if (!Directory.Exists(racerImageFolderName)) Directory.CreateDirectory(racerImageFolderName);
+                            Image.FromStream(ms).Save(Path.Combine(racerImageFolderName, guid + ".png"), ImageFormat.Png);
+                            p.Value = gda.UploadFile(guid + ".png", ms);
+                        }
+                        else
+                        {
+                            if (val is string s)
+                            {
+                                p.Value = await ImageDownloader.DownloadImageAsync(s);
+                            }
                         }
                     }
                     else

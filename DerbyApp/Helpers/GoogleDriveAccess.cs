@@ -86,6 +86,8 @@ namespace DerbyApp.Helpers
 
         public string UploadFile(string fileName, Stream stream, string mimeType = "image/png")
         {
+            string retVal = "https://drive.google.com/uc?export=download&id=1DHtfRFSuN279DoAP-bOmAKmuApYrFFyu";
+
             var fileMetadata = new Google.Apis.Drive.v3.Data.File()
             {
                 Name = fileName,
@@ -109,8 +111,13 @@ namespace DerbyApp.Helpers
                 };
                 request.Upload();
             }
-            if (request != null) return request.ResponseBody.WebViewLink;
-            else return "https://drive.google.com/file/d/1DHtfRFSuN279DoAP-bOmAKmuApYrFFyu/view?usp=drive_link";
+            if (request != null)
+            {
+                retVal = request.ResponseBody.WebViewLink;
+                retVal = retVal.Replace("file/d/", "uc?export=download&id=");
+                retVal = retVal.Replace("/view?usp=drivesdk", "");
+            }
+            return retVal;
         }
     }
 }

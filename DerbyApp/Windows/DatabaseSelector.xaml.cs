@@ -59,7 +59,7 @@ namespace DerbyApp.Windows
 
         private void ButtonAddRemote_Click(object sender, RoutedEventArgs e)
         {
-            InputBox ib = new("Please enter a name for the event:", "myEvent");
+            InputBox ib = new("Please enter a name for the event:", "myEvent", false, false);
 
             if ((bool)ib.ShowDialog())
             {

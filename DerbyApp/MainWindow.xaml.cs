@@ -379,7 +379,7 @@ namespace DerbyApp
 
         private void SetRaceName_Click(object sender, RoutedEventArgs e)
         {
-            InputBox ib = new("Please enter a name for this event:", _db.EventName);
+            InputBox ib = new("Please enter a name for this event:", _db.EventName, true, false);
 
             if ((bool)ib.ShowDialog()) _db.EventName = ib.Input;
         }
@@ -388,7 +388,7 @@ namespace DerbyApp
         {
             if (_db.IsSqlite)
             {
-                var ib = new InputBox("Enter a name for the remote database.", "Database Name");
+                var ib = new InputBox("Enter a name for the remote database.", "DatabaseName", false, false);
                 if ((bool)ib.ShowDialog()) _ = _db.CopyDatabaseToRemote(ib.Input, _credentials);
             }
             else _ = _db.CopyDatabaseToLocal();
@@ -428,7 +428,7 @@ namespace DerbyApp
         {
             string announcement = "";
 
-            InputBox ib = new("Please enter an annoucement:", announcement);
+            InputBox ib = new("Please enter an annoucement:", announcement, true, true);
 
             if ((bool)ib.ShowDialog()) announcement = ib.Input;
             _announcer.Speak(announcement);
@@ -497,7 +497,7 @@ namespace DerbyApp
 
         private void QRCodeClicked(object sender, RoutedEventArgs e)
         {
-            InputBox ib = new("Please enter the link for the QR Code:", _db.QrCodeLink);
+            InputBox ib = new("Please enter the link for the QR Code:", _db.QrCodeLink, true, false);
             if ((bool)ib.ShowDialog()) _db.QrCodeLink = ib.Input;
         }
         #endregion
@@ -532,6 +532,7 @@ namespace DerbyApp
                 else databaseName = dbs.DatabaseName;
                 DatabaseRegistry.StoreDatabaseRegistry(databaseName, null, null, null, null, null, null, null, null);
                 if (ChangeDatabase()) break;
+                dbs = new(_credentials);
             }
             if (dbs.Sqlite) CopyDatabaseText = "Upload Database to Remote";
             else CopyDatabaseText = "Copy Database to Local";

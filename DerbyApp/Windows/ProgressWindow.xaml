@@ -9,10 +9,18 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="1*"/>
-            <RowDefinition Height="2*"/>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="1*"/>
         </Grid.RowDefinitions>
         <Label>Copying Database...</Label>
-        <ProgressBar Grid.Row="1" x:Name="ProgressBarControl"
+        <ProgressBar Grid.Row="1" x:Name="TableProgressBarControl"
+                     Minimum="0"
+                     Maximum="100"
+                     Height="25"
+                     Width="250"
+                     VerticalAlignment="Center"
+                     HorizontalAlignment="Center"/>
+        <ProgressBar Grid.Row="2" x:Name="ProgressBarControl"
                      Minimum="0"
                      Maximum="100"
                      Height="25"
