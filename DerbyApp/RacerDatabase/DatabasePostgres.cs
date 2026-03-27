@@ -37,7 +37,7 @@ namespace DerbyApp.RacerDatabase
             try
             {
                 PostgresConn?.Close();
-                PostgresConn = new("Host=" + Host + "; Username=" + _credentials.DatabaseUsername + ";Password=" + _credentials.DatabasePassword.ToString() + ";Database=postgres");
+                PostgresConn = new("Host=" + Host + "; Username=" + _credentials.DatabaseUsername + ";Password=" + _credentials.DatabasePassword.ToString() + ";Database=postgres;sslmode=require");
                 PostgresConn.Open();
             }
             catch (Exception ex)
@@ -97,7 +97,7 @@ namespace DerbyApp.RacerDatabase
             {
                 try
                 {
-                    PostgresConn = new("Host=" + Host + "; Username=" + _credentials.DatabaseUsername + ";Password=" + _credentials.DatabasePassword + ";Database=" + DatabaseName.ToLower());
+                    PostgresConn = new("Host=" + Host + ";Username=" + _credentials.DatabaseUsername + ";Password=" + _credentials.DatabasePassword + ";Database=" + DatabaseName.ToLower() + ";sslmode=require");
                     PostgresConn.Open();
                 }
                 catch (Exception ex)
@@ -113,16 +113,19 @@ namespace DerbyApp.RacerDatabase
         {
             DatabaseName = databaseName;
             _credentials = credentials;
-            if (ConnectToDatabase())
+            if (databaseName != "")
             {
-                InitGood = true;
+                if (ConnectToDatabase())
+                {
+                    InitGood = true;
+                }
             }
         }
 
         public override string GetConnectionString(bool microsoftFormat)
         {
             if (microsoftFormat) return "Server=" + Host + "; User Id=" + _credentials.DatabaseUsername + ";Password=" + _credentials.DatabasePassword.ToString() + ";Database=" + DatabaseName.ToLower();
-            else return "Host=" + Host + "; Username=" + _credentials.DatabaseUsername + ";Password=" + _credentials.DatabasePassword.ToString() + ";Database=" + DatabaseName.ToLower();
+            else return "Host=" + Host + "; Username=" + _credentials.DatabaseUsername + ";Password=" + _credentials.DatabasePassword.ToString() + ";Database=" + DatabaseName.ToLower() + ";SSL Mode=Require;Trust Server Certificate=true";
         }
 
         public override int ExecuteNonQuery(string sql)
@@ -249,7 +252,8 @@ namespace DerbyApp.RacerDatabase
             try { _dataAdapter.Fill(table); }
             catch (Exception ex)
             {
-                ErrorLogger.LogError("DatabasePostgres.InitResultsTable", ex);
+                if (ex.Message.Contains("42P01")) ErrorLogger.LogEvent("DatabasePostgres.InitResultsTable: Tried to init from non-existent table " + raceName + ".");
+                else ErrorLogger.LogError("DatabasePostgres.InitResultsTable", ex);
             }
         }
 
