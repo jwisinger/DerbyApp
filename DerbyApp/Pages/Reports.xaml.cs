@@ -1,5 +1,6 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using DerbyApp.RacerDatabase;
 
 namespace DerbyApp.Pages
@@ -26,7 +27,9 @@ namespace DerbyApp.Pages
 
         private void ButtonReport_Click(object sender, RoutedEventArgs e)
         {
+            Mouse.OverrideCursor = Cursors.Wait;
             GenerateReport.Generate(_db);
+            Mouse.OverrideCursor = Cursors.Wait;
         }
 
         private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)

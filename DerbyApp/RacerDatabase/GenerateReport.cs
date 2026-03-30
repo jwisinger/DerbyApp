@@ -1,4 +1,5 @@
-﻿#warning 2-REPORT: Can I make reports go to Google Drive?
+﻿#warning 1-REPORT: Can I make reports go to Google Drive?
+using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Text;
@@ -133,35 +134,48 @@ namespace DerbyApp.RacerDatabase
             return document;
         }
 
-        static private RacerResults GetResultsForRacer(Racer r, Database db)
+        static private List<RacerResults> GetResultsForRaces(Database db)
         {
-            Leaderboard.RacerResults racerResults = new()
-            {
-                Racer = r,
-                Results = []
-            };
-
+            List<RacerResults> racerResults = [];
             foreach (string raceName in db.Races)
             {
+                db.UiUpdateOnRaceChange = false;
+
                 db.CurrentRaceName = raceName;
                 db.LdrBoard.CalculateResults(db.ResultsTable);
-                RaceResults results = db.LdrBoard.GetRacerResults(r, db.ResultsTable);
-                results.RaceName = raceName;
-                racerResults.Results.Add(results);
-            }
+                foreach (Racer r in db.Racers)
+                {
+                    RacerResults rr;
+                    int i = racerResults.FindIndex(racerResults => racerResults.Racer == r);
+                    if (i >= 0)
+                    {
+                        rr = racerResults[i];
+                    }
+                    else
+                    {
+                        rr = new() { Racer = r, Results = [] };
+                        racerResults.Add(rr);
+                    }
 
+                    RaceResults results = db.LdrBoard.GetRacerResults(r, db.ResultsTable);
+                    results.RaceName = raceName;
+                    rr.Results.Add(results);
+                }
+
+                db.UiUpdateOnRaceChange = true;
+            }
             return racerResults;
         }
 
         static public void Generate(Database db)
         {
-#warning 1-REPORT: Report is terribly slow ... probably due to database switching
             string reportFolder = Path.Combine(db.EventFolderName, "reports");
             Directory.CreateDirectory(reportFolder);
+            List<RacerResults> racerResults = GetResultsForRaces(db);
+
             foreach (Racer r in db.Racers)
             {
-                var racerResults = GetResultsForRacer(r, db);
-                Document document = CreateDocument(racerResults, db);
+                Document document = CreateDocument(racerResults.Find(racerResults => racerResults.Racer == r), db);
                 PdfDocumentRenderer pdfRenderer = new()
                 {
                     Document = document

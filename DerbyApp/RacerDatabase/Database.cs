@@ -1,4 +1,4 @@
-﻿#warning RUNOFF: If database connection is lost when addrunoff, the column lets you fill it out on the screen, but it never gets added to the database
+﻿#warning 3-If database connection is lost when addrunoff, the column lets you fill it out on the screen, but it never gets added to the database
 
 using System;
 using System.Collections.Generic;
@@ -41,6 +41,7 @@ namespace DerbyApp.RacerDatabase
         public readonly bool IsSqlite;
         public bool InitGood = false;
         public bool RaceInProgress = false;
+        public bool UiUpdateOnRaceChange = true;
 
         #region Events
         public event PropertyChangedEventHandler PropertyChanged;
@@ -81,7 +82,7 @@ namespace DerbyApp.RacerDatabase
                     ResultsTable.Clear();
                     RaceInProgress = false;
                 }
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CurrentRaceName)));
+                if (UiUpdateOnRaceChange) PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CurrentRaceName)));
             }
         }
 
