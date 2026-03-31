@@ -1,6 +1,4 @@
-﻿#warning 3-If database connection is lost when addrunoff, the column lets you fill it out on the screen, but it never gets added to the database
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -31,6 +29,7 @@ namespace DerbyApp.RacerDatabase
         private string _qrCodeLink = "";
         private string _outputFolderName;
         private bool _isSynced = false;
+        private bool _columnsNotSynced = false;
         private int _currentHeatNumber = 1;
 
         public ObservableCollection<GirlScoutLevel> GirlScoutLevels = new GirlScoutLevels().ScoutLevels;
@@ -212,7 +211,11 @@ namespace DerbyApp.RacerDatabase
                 {
                     if (ResultsTable != null)
                     {
-                        if (_databaseGeneric.UpdateResultsTable(ResultsTable, CurrentRaceName, RaceFormat.HeatCount) >= 0) _isSynced = true;
+                        if (_databaseGeneric.UpdateResultsTable(ResultsTable, CurrentRaceName, RaceFormat.HeatCount, _columnsNotSynced) >= 0)
+                        {
+                            _isSynced = true;
+                            _columnsNotSynced = false;
+                        }
                         else _isSynced = false;
                         SyncStatusChanged?.Invoke(this, null);
                     }
@@ -234,7 +237,11 @@ namespace DerbyApp.RacerDatabase
         {
             if (ResultsTable != null)
             {
-                if (_databaseGeneric.UpdateResultsTable(ResultsTable, CurrentRaceName, RaceFormat.HeatCount) >= 0) _isSynced = true;
+                if (_databaseGeneric.UpdateResultsTable(ResultsTable, CurrentRaceName, RaceFormat.HeatCount, _columnsNotSynced) >= 0)
+                {
+                    _isSynced = true;
+                    _columnsNotSynced = false;
+                }
                 else _isSynced = false;
                 SyncStatusChanged?.Invoke(this, null);
                 ResultsTable.TableName = CurrentRaceName;
@@ -570,7 +577,17 @@ namespace DerbyApp.RacerDatabase
         public void AddRunOffHeat()
         {
             RaceFormat.AddRunOffHeat([.. CurrentRaceRacers]);
-            _databaseGeneric.ExecuteNonQuery(DatabaseQueries.AddRunOffHeat(CurrentRaceName, RaceFormat.HeatCount));
+            if (IsSynced)
+            {
+                if (_databaseGeneric.ExecuteNonQuery(DatabaseQueries.AddRunOffHeat(CurrentRaceName, RaceFormat.HeatCount)) < 0)
+                {
+                    _columnsNotSynced = true;
+                }
+            }
+            else
+            {
+                _columnsNotSynced = true;
+            }
             ResultsTable.Columns.Add("Heat " + RaceFormat.HeatCount, Type.GetType("System.Double"));
             _databaseGeneric.InitResultsTable(CurrentRaceName, ResultsTable);
             ResultsTableChanged?.Invoke(this, new PropertyChangedEventArgs("Heat " + RaceFormat.HeatCount));

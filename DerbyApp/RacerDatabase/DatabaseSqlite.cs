@@ -162,7 +162,7 @@ namespace DerbyApp.RacerDatabase
             }
         }
 
-        public override int UpdateResultsTable(DataTable table, string raceName, int heatCount)
+        public override int UpdateResultsTable(DataTable table, string raceName, int heatCount, bool columnsNotSynced)
         {
             int retVal = 0;
             try

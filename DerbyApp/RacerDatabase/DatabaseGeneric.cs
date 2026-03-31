@@ -42,6 +42,11 @@ namespace DerbyApp.RacerDatabase
             return -1;
         }
 
+        public virtual long ExecuteScalar(string sql)
+        {
+            return -1;
+        }
+
         public virtual int ExecuteNonQueryWithParams(string sql, List<SqlParameter> parameters)
         {
             return -1;
@@ -88,7 +93,7 @@ namespace DerbyApp.RacerDatabase
             return;
         }
 
-        public virtual int UpdateResultsTable(DataTable table, string raceName, int heatCount)
+        public virtual int UpdateResultsTable(DataTable table, string raceName, int heatCount, bool columnsNotSynced)
         {
             return -1;
         }

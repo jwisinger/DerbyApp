@@ -83,6 +83,11 @@ namespace DerbyApp.RacerDatabase
             return "DELETE FROM [" + RaceTableName + "] WHERE [Name]=@Name";
         }
 
+        public static string GetRaceColumnCount(string raceName)
+        {
+            return "SELECT COUNT(*) AS column_count FROM information_schema.columns WHERE [table_name]='" + raceName + "'";
+        }
+
         public static string LoadRaceInfo(string raceName, out List<DatabaseGeneric.SqlParameter> parameters)
         {
             parameters =

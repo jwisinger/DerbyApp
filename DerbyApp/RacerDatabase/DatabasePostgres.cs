@@ -128,6 +128,25 @@ namespace DerbyApp.RacerDatabase
             else return "Host=" + Host + "; Username=" + _credentials.DatabaseUsername + ";Password=" + _credentials.DatabasePassword.ToString() + ";Database=" + DatabaseName.ToLower() + ";SSL Mode=Require;Trust Server Certificate=true";
         }
 
+        public override long ExecuteScalar(string sql)
+        {
+            if (!ConnectToDatabase()) return -1;
+            try
+            {
+                NpgsqlCommand command = new(sql.Replace('[', '"').Replace(']', '"'), PostgresConn)
+                {
+                    CommandTimeout = 3
+                };
+                _reader?.Close();
+                return (long)command.ExecuteScalar();
+            }
+            catch (Exception ex)
+            {
+                ErrorLogger.LogError("DatabasePostgres.ExecuteNonQuery", ex);
+                return -1;
+            }
+        }
+
         public override int ExecuteNonQuery(string sql)
         {
             if (!ConnectToDatabase()) return -1;
@@ -249,7 +268,10 @@ namespace DerbyApp.RacerDatabase
                 MissingSchemaAction = MissingSchemaAction.AddWithKey
             };
             _builder = new(_dataAdapter);
-            try { _dataAdapter.Fill(table); }
+            try
+            {
+                _dataAdapter.Fill(table);
+            }
             catch (Exception ex)
             {
                 if (ex.Message.Contains("42P01")) ErrorLogger.LogEvent("DatabasePostgres.InitResultsTable: Tried to init from non-existent table " + raceName + ".");
@@ -257,11 +279,29 @@ namespace DerbyApp.RacerDatabase
             }
         }
 
-        public override int UpdateResultsTable(DataTable table, string raceName, int heatCount)
+        public override int UpdateResultsTable(DataTable table, string raceName, int heatCount, bool columnsNotSynced)
         {
             try
             {
                 if (_dataAdapter == null) return -1;
+                if (columnsNotSynced)
+                {
+                    int columnCount = (int)ExecuteScalar(DatabaseQueries.GetRaceColumnCount(raceName));
+                    if (columnCount < 0)
+                    {
+                        return -1;
+                    }
+                    else
+                    {
+                        for (int i = columnCount - 1; i <= heatCount; i++)
+                        {
+                            if (ExecuteNonQuery(DatabaseQueries.AddRunOffHeat(raceName, i)) < 0)
+                            {
+                                return -1;
+                            }
+                        }
+                    }
+                }
                 return _dataAdapter.Update(table);
             }
             catch (Exception ex)
