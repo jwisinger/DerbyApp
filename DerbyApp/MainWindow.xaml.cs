@@ -6,7 +6,7 @@
 #warning TEST(2 PC): Check vercel usage when running full race with two computers
 #warning TEST(FULL): Test complete run of race with Sqlite
 #warning FUTURE: Move videos from retool to Gdrive?
-#warning 2-Can I improve network loss failsafe to require less user intervention?
+#warning FUTURE: Can I improve network loss failsafe to require less user intervention?
 #warning APP: Can I show a racers position in the app?
 
 using System;
