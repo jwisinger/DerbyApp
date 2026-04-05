@@ -538,7 +538,7 @@ namespace DerbyApp.RacerDatabase
             foreach (Racer r in CurrentRaceRacers) r.RaceOrder = order++;
         }
 
-        public void AddRacer(Racer racer)
+        public Racer AddRacer(Racer racer)
         {
             string imageUrl = "";
             string guid = "";
@@ -563,6 +563,7 @@ namespace DerbyApp.RacerDatabase
                 while (_databaseGeneric.Read()) ;
             }
             if (!Racers.Contains(racer)) Racers.Add(racer);
+            return racer;
         }
 
         public void RemoveRacer(Racer racer)

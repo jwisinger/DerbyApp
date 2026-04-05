@@ -56,6 +56,7 @@ namespace DerbyApp
             Racer.Weight = 0;
             Racer.Email = "";
             Racer.Number = 0;
+            Dispatcher.Invoke(new Action(() => { frameCapture.Source = null; }));
         }
 
         private void ButtonCamera_Click(object sender, RoutedEventArgs e)

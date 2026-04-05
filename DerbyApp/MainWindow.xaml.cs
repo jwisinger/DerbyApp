@@ -502,7 +502,13 @@ namespace DerbyApp
         #region Child Event Handlers
         private void Racer_RacerAdded(object sender, EventArgs e)
         {
-            _db.AddRacer(new Racer(_newRacer.Racer));
+            Racer r = _db.AddRacer(new Racer(_newRacer.Racer));
+            MessageBox.Show($"Name: {r.RacerName}\r\n" +
+                            $"Number: {r.Number}\r\n" +
+                            $"Troop: {r.Troop}\r\n" +
+                            $"Level: {r.Level}\r\n" +
+                            $"Weight: {r.Weight}",
+                "Racer Added", MessageBoxButton.OK, MessageBoxImage.Information);
             _newRacer.ClearRacer();
         }
 

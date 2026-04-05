@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using DerbyApp.Helpers;
 using DerbyApp.RacerDatabase;
 using DerbyApp.RaceStats;
@@ -32,11 +33,13 @@ namespace DerbyApp
             _db = db;
             dataGridRacerTable.DataContext = _db.Racers;
             LevelComboBox.ItemsSource = _db.GirlScoutLevels;
+            dataGridRacerTable.Columns[0].IsReadOnly = true;
             _videoHandler = videoHandler;
         }
 
         private void DataGridRacerTable_RowEditEnding(object sender, DataGridRowEditEndingEventArgs e)
         {
+            Mouse.OverrideCursor = Cursors.Wait;
             if ((e.Row.GetIndex() >= 0) && (e.Row.GetIndex() < _db.Racers.Count))
             {
                 if (_editHandle)
@@ -45,10 +48,11 @@ namespace DerbyApp
                     _editHandle = false;
                     dataGridRacerTable.CommitEdit();
                     _db.AddRacer(_db.Racers[index]);
+                    ErrorLogger.LogEvent($"Cell Edited: [RacerTableView] {_db.Racers[index].RacerName}");
                     _editHandle = true;
                 }
-                ErrorLogger.LogEvent($"Cell Edited: [RacerTableView] {_db.Racers[e.Row.GetIndex()].RacerName}");
             }
+            Mouse.OverrideCursor = null;
         }
 
         private void Delete_OnClick(object sender, RoutedEventArgs e)
