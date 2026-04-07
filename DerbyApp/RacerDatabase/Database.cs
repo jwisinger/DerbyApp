@@ -561,9 +561,14 @@ namespace DerbyApp.RacerDatabase
                 if (o is int i) racer.Number = i;
                 else if (o is long l) racer.Number = l;
                 while (_databaseGeneric.Read()) ;
+                if (!Racers.Contains(racer)) Racers.Add(racer);
+                return racer;
             }
-            if (!Racers.Contains(racer)) Racers.Add(racer);
-            return racer;
+            else
+            {
+                MessageBox.Show("Failed to add racer to database.", "Racer Add Failed", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            return null;
         }
 
         public void RemoveRacer(Racer racer)

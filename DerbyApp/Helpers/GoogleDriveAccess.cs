@@ -111,7 +111,7 @@ namespace DerbyApp.Helpers
                 };
                 request.Upload();
             }
-            if (request != null)
+            if ((request != null) && (request.ResponseBody != null))
             {
                 retVal = request.ResponseBody.WebViewLink;
                 retVal = retVal.Replace("file/d/", "uc?export=download&id=");

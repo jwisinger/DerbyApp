@@ -1,9 +1,4 @@
-﻿#warning TEST(NETWORK): What happens if I lose database connection when adding a racer
-#warning TEST(NETWORK): Test network loss with auto-write from track
-#warning TEST(2 PC): Test adding racers with 2 computers (make sure refresh works)
-#warning TEST(2 PC): Test creating races with 2 computers (make sure refresh works)
-#warning TEST(2 PC): Test running race on one computer while someone is adding racers from another PC
-#warning TEST(2 PC): Check vercel usage when running full race with two computers
+﻿#warning TEST(2 PC): Test creating races with 2 computers (make sure refresh works)
 #warning TEST(FULL): Test complete run of race with Sqlite
 #warning FUTURE: Move videos from retool to Gdrive?
 #warning FUTURE: Can I improve network loss failsafe to require less user intervention?
@@ -503,13 +498,16 @@ namespace DerbyApp
         private void Racer_RacerAdded(object sender, EventArgs e)
         {
             Racer r = _db.AddRacer(new Racer(_newRacer.Racer));
-            MessageBox.Show($"Name: {r.RacerName}\r\n" +
-                            $"Number: {r.Number}\r\n" +
-                            $"Troop: {r.Troop}\r\n" +
-                            $"Level: {r.Level}\r\n" +
-                            $"Weight: {r.Weight}",
-                "Racer Added", MessageBoxButton.OK, MessageBoxImage.Information);
-            _newRacer.ClearRacer();
+            if (r != null)
+            {
+                MessageBox.Show($"Name: {r.RacerName}\r\n" +
+                                $"Number: {r.Number}\r\n" +
+                                $"Troop: {r.Troop}\r\n" +
+                                $"Level: {r.Level}\r\n" +
+                                $"Weight: {r.Weight}",
+                                "Racer Added", MessageBoxButton.OK, MessageBoxImage.Information);
+                _newRacer.ClearRacer();
+            }
         }
 
         private void RaceTracker_HeatChanged(object sender, EventArgs e)

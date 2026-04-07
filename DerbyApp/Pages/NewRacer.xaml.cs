@@ -1,5 +1,4 @@
-﻿#warning TEST NEWRACER: Check scale
-#warning TEST NEWRACER: Check license printing
+﻿#warning TEST NEWRACER: Check license printing
 using System;
 using System.Windows;
 using System.Windows.Controls;
