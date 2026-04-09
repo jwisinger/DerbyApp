@@ -424,7 +424,7 @@ namespace DerbyApp.RacerDatabase
         public void AddRacerToCurrentRace(Racer r)
         {
             CurrentRaceRacers.Add(r);
-            int order = 1;
+            int order = 0;
             foreach (Racer racer in CurrentRaceRacers) racer.RaceOrder = order++;
             ResultsTable.Rows.Add([r.Number, r.RacerName]);
         }
@@ -432,7 +432,7 @@ namespace DerbyApp.RacerDatabase
         public void DeleteRacerFromCurrentRace(Racer r)
         {
             CurrentRaceRacers.Remove(r);
-            int order = 1;
+            int order = 0;
             foreach (Racer racer in CurrentRaceRacers) racer.RaceOrder = order++;
             ResultsTable.Select("Number = " + r.Number).First().Delete();
         }
@@ -514,7 +514,7 @@ namespace DerbyApp.RacerDatabase
 
         private void GetCurrentRacers()
         {
-            int order = 1;
+            int order = 0;
             string sql = DatabaseQueries.GetSpecificRacers(CurrentRaceName);
             _databaseGeneric.ExecuteReader(sql);
             CurrentRaceRacers.Clear();
