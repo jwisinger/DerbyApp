@@ -22,5 +22,11 @@ namespace DerbyApp.Windows
             Password = passwordBox.Password;
             Close();
         }
+
+        private void CancelButton_Click(object sender, RoutedEventArgs e)
+        {
+            Password = null;
+            Close();
+        }
     }
 }

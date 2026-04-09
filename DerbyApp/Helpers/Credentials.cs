@@ -42,6 +42,7 @@ namespace DerbyApp.Helpers
                 var pib = new PasswordInputBox();
                 pib.ShowDialog();
                 Password = pib.Password;
+                if (Password == null) return;
             }
 
             var matchingEntries = from entry in db.RootGroup.GetEntries(true)
